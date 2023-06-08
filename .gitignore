@@ -475,6 +475,3 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
-
-# リポジトリ固有
-service/docker/volumes
