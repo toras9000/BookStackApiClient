@@ -12,6 +12,7 @@
     <PackageDescription>A client library for the BookStack API.</PackageDescription>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>bookstack</PackageTags>
+    <PackageReadmeFile>readme.md</PackageReadmeFile>
   </PropertyGroup>
   <PropertyGroup>
     <Authors>toras9000</Authors>
@@ -40,6 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <SourceRoot Include="$(MSBuildThisFileDirectory)" />
+    <None Include="../readme.md" Pack="true" PackagePath="\" Visible="false" />
   </ItemGroup>
 
 </Project>
