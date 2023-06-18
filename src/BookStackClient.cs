@@ -932,12 +932,12 @@ public class BookStackClient : IDisposable
 
         if (search.page.HasValue)
         {
-            builder.Append("page=").Append(search.page.Value);
+            builder.Append("&page=").Append(search.page.Value);
         }
 
         if (search.count.HasValue)
         {
-            builder.Append("count=").Append(search.count.Value);
+            builder.Append("&count=").Append(search.count.Value);
         }
 
         // ベースURIと連結したURIを返却

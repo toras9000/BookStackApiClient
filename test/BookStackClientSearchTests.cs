@@ -115,5 +115,29 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
             }
         }
     }
+
+
+    [TestMethod()]
+    public async Task SearchAsync_paging()
+    {
+        // init
+        using var client = new BookStackClient(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret, () => this.Client);
+
+        await using var container = new TestResourceContainer(client);
+        var guid = Guid.NewGuid().ToString();
+        for (var i = 0; i < 10; i++)
+        {
+            await client.CreateBookAsync(new(testName($"book_{guid}_N{i:D3}"), $"book_{guid}_N{i:D3}_desc", new Tag[] { new($"bt{i}", $"btv{i}") })).WillBeDiscarded(container);
+        }
+
+
+        // test call & validate
+        {
+            var paging1 = await client.SearchAsync(new($"{{in_name:{guid}}}", count: 3, page: 1));
+            var paging2 = await client.SearchAsync(new($"{{in_name:{guid}}}", count: 3, page: 2));
+
+            paging1.data.Select(d => d.id).Should().NotIntersectWith(paging2.data.Select(d => d.id));
+        }
+    }
     #endregion
 }
