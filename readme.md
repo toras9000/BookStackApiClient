@@ -36,7 +36,7 @@ These use C#9 or later syntax.
 var apiEntry = new Uri(@"http://<your-hosting-server>/api/"),
 var apiToken  = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 var apiSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-using var client = new BookStackClient(settings.ApiEntry, info.Key.Token, info.Key.Secret);
+using var client = new BookStackClient(apiEntry, apiToken, apiSecret);
 var book = await client.CreateBookAsync(new("TestBook", tags: new Tag[] { new("test") }));
 var chapter = await client.CreateChapterAsync(new(book.id, "TestChapter"));
 var page1 = await client.CreateMarkdownPageInBookAsync(new(book.id, "TestPage", "# Test page in book"));
