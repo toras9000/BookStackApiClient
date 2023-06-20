@@ -35,6 +35,29 @@ public class UnexpectedResponseException : BookStackClientException
 }
 
 /// <summary>
+/// API要求数の制限に達したことを示す例外クラス
+/// </summary>
+public class ApiLimitResponseException : BookStackClientException
+{
+    // 構築
+    #region コンストラクタ
+    /// <summary>要求識別子と例外メッセージを指定するコンストラクタ</summary>
+    /// <param name="limit">APIリクエスト制限値</param>
+    /// <param name="message">例外メッセージ</param>
+    public ApiLimitResponseException(long limit, string message) : base(message)
+    {
+        this.RequestsPerMin = limit;
+    }
+    #endregion
+
+    // 公開プロパティ
+    #region 情報
+    /// <summary>API要求数制限値 [毎分]</summary>
+    public long RequestsPerMin { get; }
+    #endregion
+}
+
+/// <summary>
 /// 応答内容の解釈エラーを表す例外クラス
 /// </summary>
 public class ResponseInterpretException : BookStackClientException

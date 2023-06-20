@@ -1,4 +1,7 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -765,7 +768,10 @@ public class BookStackClient : IDisposable
             using var response = await this.requester(this).ConfigureAwait(false);
 
             // 要求が成功レスポンスを示すかを確認
-            if (!response.IsSuccessStatusCode) throw new UnexpectedResponseException(response.ReasonPhrase ?? $"HTTP {(int)response.StatusCode}");
+            if (!response.IsSuccessStatusCode)
+            {
+                throwRequestException(response);
+            }
 
             // 応答の解釈
             try
@@ -781,6 +787,45 @@ public class BookStackClient : IDisposable
             {
                 throw new ResponseInterpretException("An error occurred in the interpretation of the response data.", ex);
             }
+        }
+
+        /// <summary>エラーに対するレスポンス内容に応じた例外を送出する</summary>
+        /// <param name="response">HTTP応答</param>
+        [DoesNotReturn]
+        private void throwRequestException(HttpResponseMessage response)
+        {
+            // API要求数の制限によるエラーの場合は専用の型を送出
+            if (response.StatusCode == HttpStatusCode.TooManyRequests)
+            {
+                var limit = tryGetHeaderInt(response, "X-RateLimit-Limit");
+                var remain = tryGetHeaderInt(response, "X-RateLimit-Remaining");
+                if (limit.HasValue && remain == 0)
+                {
+                    throw new ApiLimitResponseException(limit.Value, response.ReasonPhrase ?? $"HTTP {(int)response.StatusCode}");
+                }
+            }
+
+            // 特定のエラー出ない場合は汎用の応答エラー例外
+            throw new UnexpectedResponseException(response.ReasonPhrase ?? $"HTTP {(int)response.StatusCode}");
+        }
+
+        /// <summary>HTTP応答ヘッダの指定されたヘッダの値を整数として取得を試みる</summary>
+        /// <param name="response">HTTP応答</param>
+        /// <param name="name">ヘッダ名</param>
+        /// <returns>取得できた場合はその整数値。取得できなかった場合は null を返却。</returns>
+        private long? tryGetHeaderInt(HttpResponseMessage response, string name)
+        {
+            if (response.Headers.TryGetValues(name, out var limits))
+            {
+                foreach (var field in limits)
+                {
+                    if (long.TryParse(field, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value))
+                    {
+                        return value;
+                    }
+                }
+            }
+            return null;
         }
     }
 
