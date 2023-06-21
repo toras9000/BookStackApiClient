@@ -66,7 +66,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイル情報</returns>
     public Task<AttachmentItem> CreateFileAttachmentAsync(CreateAttachmentArgs args, string path, string? fileName = null, CancellationToken cancelToken = default)
-        => createFileAttachmentAsync(apiEp("attachments"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<AttachmentItem>();
+        => contextCreateAttachmentAsync(apiEp("attachments"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<AttachmentItem>();
 
     /// <summary>ファイル内容を指定してファイルを添付する。</summary>
     /// <param name="args">ファイル添付共通パラメータ</param>
@@ -75,7 +75,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイルの情報</returns>
     public Task<AttachmentItem> CreateFileAttachmentAsync(CreateAttachmentArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
-        => createFileAttachmentAsync(apiEp("attachments"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<AttachmentItem>();
+        => contextCreateAttachmentAsync(apiEp("attachments"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<AttachmentItem>();
 
     /// <summary>外部リンクを添付する。</summary>
     /// <param name="args">外部リンクの添付パラメータ</param>
@@ -99,7 +99,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付ファイル情報</returns>
     public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, string? path = null, string? fileName = null, CancellationToken cancelToken = default)
-        => updateFileAttachmentAsync(apiEp($"attachments/{id}"), args, pathFileContentGenerator(path, fileName), cancelToken).JsonResponseAsync<AttachmentItem>();
+        => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, pathFileContentGenerator(path, fileName), cancelToken).JsonResponseAsync<AttachmentItem>();
 
     /// <summary>ファイル内容を指定して添付ファイルを更新する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
@@ -109,7 +109,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付ファイル情報</returns>
     public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, byte[]? content, string fileName, CancellationToken cancelToken = default)
-        => updateFileAttachmentAsync(apiEp($"attachments/{id}"), args, binaryFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<AttachmentItem>();
+        => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, binaryFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<AttachmentItem>();
 
     /// <summary>添付リンクを更新する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
@@ -447,7 +447,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> CreateImageAsync(CreateImageArgs args, string path, string? fileName = null, CancellationToken cancelToken = default)
-        => createImageAsync(apiEp("image-gallery"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<ImageItem>();
+        => contextCreateImageAsync(apiEp("image-gallery"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<ImageItem>();
 
     /// <summary>ギャラリ画像を作成する。</summary>
     /// <param name="args">ギャラリ画像作成パラメータ</param>
@@ -456,7 +456,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> CreateImageAsync(CreateImageArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
-        => createImageAsync(apiEp("image-gallery"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImageItem>();
+        => contextCreateImageAsync(apiEp("image-gallery"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImageItem>();
 
     /// <summary>ギャラリ画像の詳細と内容を取得する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
@@ -1055,7 +1055,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <param name="fileContentGenerator">ファイル内容コンテンツ生成デリゲート</param>
     /// <returns>要求コンテキスト</returns>
-    private RequestContext createFileAttachmentAsync(ApiEndpoint ep, CreateAttachmentArgs args, FileContentGenerator fileContentGenerator, CancellationToken cancelToken)
+    private RequestContext contextCreateAttachmentAsync(ApiEndpoint ep, CreateAttachmentArgs args, FileContentGenerator fileContentGenerator, CancellationToken cancelToken)
     {
         ArgumentNullException.ThrowIfNull(args);
         ArgumentNullException.ThrowIfNull(fileContentGenerator);
@@ -1077,7 +1077,7 @@ public class BookStackClient : IDisposable
     /// <param name="fileContentGenerator">ファイル内容コンテンツ生成デリゲート</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>要求コンテキスト</returns>
-    private RequestContext updateFileAttachmentAsync(ApiEndpoint ep, UpdateAttachmentArgs args, FileContentGenerator? fileContentGenerator, CancellationToken cancelToken)
+    private RequestContext contextUpdateAttachmentAsync(ApiEndpoint ep, UpdateAttachmentArgs args, FileContentGenerator? fileContentGenerator, CancellationToken cancelToken)
     {
         ArgumentNullException.ThrowIfNull(args);
 
@@ -1175,7 +1175,7 @@ public class BookStackClient : IDisposable
     /// <param name="fileContentGenerator">画像コンテンツ生成デリゲート</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>要求コンテキスト</returns>
-    private RequestContext createImageAsync(ApiEndpoint ep, CreateImageArgs args, FileContentGenerator fileContentGenerator, CancellationToken cancelToken)
+    private RequestContext contextCreateImageAsync(ApiEndpoint ep, CreateImageArgs args, FileContentGenerator fileContentGenerator, CancellationToken cancelToken)
     {
         ArgumentNullException.ThrowIfNull(args);
         ArgumentNullException.ThrowIfNull(fileContentGenerator);
