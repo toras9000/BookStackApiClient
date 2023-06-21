@@ -17,10 +17,6 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
         var user2 = await client.CreateUserAsync(new(testName("user2"), $"user2_{guid}@example.com")).WillBeDiscarded(container);
         var user3 = await client.CreateUserAsync(new(testName("user3"), $"user3_{guid}@example.com")).WillBeDiscarded(container);
 
-        // BookStack v23.05 では `created_at` の取得値が正しくない。
-        // https://github.com/BookStackApp/BookStack/issues/4325
-        Assert.Inconclusive();
-
         var users = await client.ListUsersAsync();
         foreach (var user in container.Users)
         {

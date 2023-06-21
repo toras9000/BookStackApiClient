@@ -219,10 +219,6 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         // init
         using var client = new BookStackClient(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret, () => this.Client);
 
-        // BookStack v23.05 ではこの動作に不具合がある。次のバージョンでは修正される模様。
-        // https://github.com/BookStackApp/BookStack/issues/4272
-        Assert.Inconclusive();
-
         // test call & validate
         await using var container = new TestResourceContainer(client);
         {// move
