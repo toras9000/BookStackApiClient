@@ -430,7 +430,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {// html
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreateHtmlPageInBookAsync(new(book.id, testName("bbb"), "<b>asd</b>"));
+            var page = await client.CreateHtmlPageInBookAsync(new(book.id, testName("bbb"), "<b>asd</b><script>def</script>"));
             var detail = await client.ReadPageAsync(page.id);
             detail.book_id.Should().Be(book.id);
             detail.chapter_id.Should().Be(0);
@@ -440,7 +440,8 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             detail.revision_count.Should().BeGreaterThan(0);
             detail.editor.Should().BeEmpty();    // html
             detail.markdown.Should().BeEmpty();
-            detail.html.Should().Contain("asd</b>");
+            detail.html.Should().Contain("asd").And.NotContain("def");
+            detail.raw_html.Should().Contain("asd").And.Contain("def");
             detail.draft.Should().BeFalse();
             detail.template.Should().BeFalse();
             detail.tags.Should().BeEmpty();
@@ -500,7 +501,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter")));
-            var page = await client.CreateHtmlPageInChapterAsync(new(chapter.id, testName("bbb"), "<b>asd</b>"));
+            var page = await client.CreateHtmlPageInChapterAsync(new(chapter.id, testName("bbb"), "<b>asd</b><script>def</script>"));
             var detail = await client.ReadPageAsync(page.id);
             detail.book_id.Should().Be(book.id);
             detail.chapter_id.Should().Be(chapter.id);
@@ -510,7 +511,8 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             detail.revision_count.Should().BeGreaterThan(0);
             detail.editor.Should().BeEmpty();    // html
             detail.markdown.Should().BeEmpty();
-            detail.html.Should().Contain("asd</b>");
+            detail.html.Should().Contain("asd").And.NotContain("def");
+            detail.raw_html.Should().Contain("asd").And.Contain("def");
             detail.draft.Should().BeFalse();
             detail.template.Should().BeFalse();
             detail.tags.Should().BeEmpty();

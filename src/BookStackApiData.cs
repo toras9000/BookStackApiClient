@@ -510,7 +510,8 @@ public record CreateHtmlPageInChapterArgs(long chapter_id, string name, string h
 /// <param name="slug">ページスラグ</param>
 /// <param name="editor">エディタ種別</param>
 /// <param name="markdown">ページ内容Markdown</param>
-/// <param name="html">ページ内容HTML</param>
+/// <param name="html">レンダリング済みページ内容HTML</param>
+/// <param name="raw_html">ページ内容HTML</param>
 /// <param name="revision_count">リビジョン番号</param>
 /// <param name="draft">ドラフトであるか</param>
 /// <param name="template">テンプレートであるか</param>
@@ -525,7 +526,7 @@ public record CreateHtmlPageInChapterArgs(long chapter_id, string name, string h
 /// <param name="tags">タグ一覧</param>
 public record ReadPageResult(
     long id, string name, string slug,
-    string editor, string markdown, string html,
+    string editor, string markdown, string html, string raw_html,
     long revision_count, bool draft, bool template,
     long book_id, long chapter_id, long priority,
     DateTime created_at, DateTime updated_at,
