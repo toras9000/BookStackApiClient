@@ -468,10 +468,22 @@ public class BookStackClient : IDisposable
     /// <summary>ギャラリ画像を更新する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
     /// <param name="args">ギャラリ画像更新パラメータ</param>
+    /// <param name="path">アップロードするファイルのパス</param>
+    /// <param name="fileName">アップロードするファイル名称。指定されない場合はパスの名称をそのまま利用する。</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
-    public Task<ImageItem> UpdateImageAsync(long id, UpdateImageArgs args, CancellationToken cancelToken = default)
-        => contextPutRequest(apiEp($"image-gallery/{id}"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<ImageItem>();
+    public Task<ImageItem> UpdateImageAsync(long id, UpdateImageArgs args, string? path = null, string? fileName = null, CancellationToken cancelToken = default)
+        => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, pathFileContentGenerator(path, fileName), cancelToken).JsonResponseAsync<ImageItem>();
+
+    /// <summary>ギャラリ画像を更新する。</summary>
+    /// <param name="id">ギャラリ画像ID</param>
+    /// <param name="args">ギャラリ画像更新パラメータ</param>
+    /// <param name="content">アップロードするファイル内容</param>
+    /// <param name="fileName">アップロードするファイル名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>ギャラリ画像情報</returns>
+    public Task<ImageItem> UpdateImageAsync(long id, UpdateImageArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
+        => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, binaryFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<ImageItem>();
 
     /// <summary>ギャラリ画像を削除する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
@@ -1188,6 +1200,30 @@ public class BookStackClient : IDisposable
             context.Add(new StringContent(args.name), nameof(args.name));
             var image = fileContentGenerator();
             context.Add(image.content, "image", image.name);
+            return context;
+        }, cancelToken);
+    }
+
+    /// <summary>ギャラリ画像更新要求共通処理</summary>
+    /// <param name="ep">APIエンドポイント</param>
+    /// <param name="args">ギャラリ画像更新パラメータ</param>
+    /// <param name="fileContentGenerator">画像コンテンツ生成デリゲート</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>要求コンテキスト</returns>
+    private RequestContext contextUpdateImageAsync(ApiEndpoint ep, UpdateImageArgs args, FileContentGenerator? fileContentGenerator, CancellationToken cancelToken)
+    {
+        ArgumentNullException.ThrowIfNull(args);
+
+        return contextPostContentRequest(ep, () =>
+        {
+            var context = new MultipartFormDataContent();
+            context.Add(new StringContent("PUT"), "_method");
+            if (!string.IsNullOrWhiteSpace(args.name)) context.Add(new StringContent(args.name), nameof(args.name));
+            if (fileContentGenerator != null)
+            {
+                var image = fileContentGenerator();
+                context.Add(image.content, "image", image.name);
+            }
             return context;
         }, cancelToken);
     }

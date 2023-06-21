@@ -700,7 +700,7 @@ public record CreateImageArgs(long uploaded_to, string type, string name);
 
 /// <summary>ギャラリ画像の更新要求パラメータ</summary>
 /// <param name="name">画像名</param>
-public record UpdateImageArgs(string name);
+public record UpdateImageArgs(string? name = null);
 #endregion
 
 #region search

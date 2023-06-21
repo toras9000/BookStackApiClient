@@ -245,7 +245,7 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        {
+        {// name
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
             var path = testResPath("images/pd001.png");
@@ -265,6 +265,56 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             detail.updated_at.Should().BeAfter(image.updated_at);
             detail.created_by.Should().Be(image.created_by);
             detail.updated_by.Should().Be(image.updated_by);
+            var dlimage = await this.Client.GetByteArrayAsync(image.url);
+            dlimage.Should().Equal(await File.ReadAllBytesAsync(path));
+        }
+        {// image from path
+            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
+            var path = testResPath("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
+            await Task.Delay(3 * 1000);
+            var newpath = testResPath("images/pd002.png");
+            var detail = await client.UpdateImageAsync(image.id, new(), newpath, "newimg.png");
+            detail.uploaded_to.Should().Be(image.uploaded_to);
+            detail.name.Should().Be(testName("aaa"));
+            detail.type.Should().Be(image.type);
+            detail.path.Should().Be(image.path);
+            detail.url.Should().Be(image.url);
+            detail.thumbs.gallery.Should().Be(image.thumbs.gallery);
+            detail.thumbs.display.Should().Be(image.thumbs.display);
+            detail.content.html.Should().Be(image.content.html);
+            detail.content.markdown.Should().Be(image.content.markdown);
+            detail.created_at.Should().Be(image.created_at);
+            //            detail.updated_at.Should().BeAfter(image.updated_at); // 画像の置き換えのみである場合、現在は更新日時が変化しない。
+            detail.created_by.Should().Be(image.created_by);
+            detail.updated_by.Should().Be(image.updated_by);
+            var dlimage = await this.Client.GetByteArrayAsync(image.url);
+            dlimage.Should().Equal(await File.ReadAllBytesAsync(newpath));
+        }
+        {// image from content
+            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
+            var path = testResPath("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
+            await Task.Delay(3 * 1000);
+            var binary = await testResContentAsync("images/pd003.png");
+            var detail = await client.UpdateImageAsync(image.id, new(), binary, "newimg.png");
+            detail.uploaded_to.Should().Be(image.uploaded_to);
+            detail.name.Should().Be(testName("aaa"));
+            detail.type.Should().Be(image.type);
+            detail.path.Should().Be(image.path);
+            detail.url.Should().Be(image.url);
+            detail.thumbs.gallery.Should().Be(image.thumbs.gallery);
+            detail.thumbs.display.Should().Be(image.thumbs.display);
+            detail.content.html.Should().Be(image.content.html);
+            detail.content.markdown.Should().Be(image.content.markdown);
+            detail.created_at.Should().Be(image.created_at);
+            //            detail.updated_at.Should().BeAfter(image.updated_at); // 画像の置き換えのみである場合、現在は更新日時が変化しない。
+            detail.created_by.Should().Be(image.created_by);
+            detail.updated_by.Should().Be(image.updated_by);
+            var dlimage = await this.Client.GetByteArrayAsync(image.url);
+            dlimage.Should().Equal(binary);
         }
 
     }
