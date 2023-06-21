@@ -116,6 +116,19 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         }
         {
             var now = DateTime.UtcNow;
+            var path = testResPath("images/pd001.png");
+            var attachment = await client.CreateFileAttachmentAsync(new(testName("aaa"), page.id), path, "aaa.test").WillBeDiscarded(container);
+            attachment.name.Should().Be(testName("aaa"));
+            attachment.extension.Should().Be("test");
+            attachment.uploaded_to.Should().Be(page.id);
+            attachment.external.Should().BeFalse();
+            attachment.created_at.Should().BeCloseTo(now, 10.Seconds());
+            attachment.updated_at.Should().BeCloseTo(now, 10.Seconds());
+            attachment.created_by.Should().Be(book.created_by);
+            attachment.updated_by.Should().Be(book.updated_by);
+        }
+        {
+            var now = DateTime.UtcNow;
             var image = await testResContentAsync("images/pd002.png");
             var attachment = await client.CreateFileAttachmentAsync(new(testName("bbb"), page.id), image, "image").WillBeDiscarded(container);
             attachment.name.Should().Be(testName("bbb"));
@@ -244,6 +257,24 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
             updated.id.Should().Be(created.id);
             updated.name.Should().Be(testName("bbb"));
             updated.extension.Should().Be("jpg");
+            updated.uploaded_to.Should().Be(page.id);
+            updated.external.Should().BeFalse();
+            updated.created_at.Should().Be(created.created_at);
+            updated.updated_at.Should().BeAfter(created.updated_at);
+            updated.created_by.Should().Be(created.created_by);
+            updated.updated_by.Should().Be(book.created_by);
+            var detail = await client.ReadAttachmentAsync(updated.id);
+            Convert.FromBase64String(detail.content).Should().Equal(await testResContentAsync(path2));
+        }
+        {// update path to path with name
+            var path1 = testResPath("images/pd001.png");
+            var created = await client.CreateFileAttachmentAsync(new(testName("aaa"), page.id), path1).WillBeDiscarded(container);
+            await Task.Delay(3 * 1000);
+            var path2 = testResPath("images/pd004.jpg");
+            var updated = await client.UpdateFileAttachmentAsync(created.id, new(testName("bbb"), page.id), path2, "bbb.hoge");
+            updated.id.Should().Be(created.id);
+            updated.name.Should().Be(testName("bbb"));
+            updated.extension.Should().Be("hoge");
             updated.uploaded_to.Should().Be(page.id);
             updated.external.Should().BeFalse();
             updated.created_at.Should().Be(created.created_at);

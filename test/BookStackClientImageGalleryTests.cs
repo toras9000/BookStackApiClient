@@ -107,7 +107,27 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             image.uploaded_to.Should().Be(page.id);
             image.name.Should().Be(testName("aaa"));
             image.type.Should().Be("gallery");
-            image.path.Should().NotBeNullOrEmpty();
+            image.path.Should().Contain("pd001.png");
+            image.url.Should().NotBeNullOrEmpty();
+            image.thumbs.gallery.Should().NotBeNullOrEmpty();
+            image.thumbs.display.Should().NotBeNullOrEmpty();
+            image.content.html.Should().NotBeNullOrEmpty();
+            image.content.markdown.Should().NotBeNullOrEmpty();
+            image.created_at.Should().BeCloseTo(now, 10.Seconds());
+            image.updated_at.Should().BeCloseTo(now, 10.Seconds());
+            image.created_by.id.Should().Be(book.created_by);
+            image.updated_by.id.Should().Be(book.updated_by);
+        }
+        {
+            var now = DateTime.UtcNow;
+            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
+            var path = testResPath("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path, "aaa-image.png").WillBeDiscarded(container);
+            image.uploaded_to.Should().Be(page.id);
+            image.name.Should().Be(testName("aaa"));
+            image.type.Should().Be("gallery");
+            image.path.Should().Contain("aaa-image.png");
             image.url.Should().NotBeNullOrEmpty();
             image.thumbs.gallery.Should().NotBeNullOrEmpty();
             image.thumbs.display.Should().NotBeNullOrEmpty();

@@ -145,6 +145,15 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             Assert.IsNotNull(detail.cover);
             detail.cover.name.Should().Be("pd001.png");
         }
+        {// image from path & name
+            var path = testResPath("images/pd001.png");
+            var book = await client.CreateBookAsync(new(testName("aaa")), path, "aaaaaa.jpg").WillBeDiscarded(container);
+            Assert.IsNotNull(book.cover);
+            book.cover.name.Should().Be("aaaaaa.jpg");
+            var detail = await client.ReadBookAsync(book.id);
+            Assert.IsNotNull(detail.cover);
+            detail.cover.name.Should().Be("aaaaaa.jpg");
+        }
         {// image from content
             var image = await testResContentAsync("images/pd001.png");
             var book = await client.CreateBookAsync(new(testName("aaa")), image, "testimage.png").WillBeDiscarded(container);
@@ -236,7 +245,18 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             var detail = await client.ReadBookAsync(updated.id);
             detail.tags.Should().BeEquivalentTo(new Tag[] { new("t1", "v1new"), new("t3", "v3"), });
         }
-        {// update image
+        {// update image from path
+            var image = await testResContentAsync("images/pd001.png");
+            var created = await client.CreateBookAsync(new(testName("ccc"), "ddd", new Tag[] { new("t1", "v1"), new("t2", "v2"), }), image, "test.png").WillBeDiscarded(container);
+            var path = testResPath("images/pd001.png");
+            var updated = await client.UpdateBookAsync(created.id, new(), path, "aaa.jpg");
+            Assert.IsNotNull(updated.cover);
+            updated.cover.name.Should().Be("aaa.jpg");
+            var detail = await client.ReadBookAsync(updated.id);
+            Assert.IsNotNull(detail.cover);
+            detail.cover.name.Should().Be("aaa.jpg");
+        }
+        {// update image from content
             var image = await testResContentAsync("images/pd001.png");
             var created = await client.CreateBookAsync(new(testName("ccc"), "ddd", new Tag[] { new("t1", "v1"), new("t2", "v2"), }), image, "test.png").WillBeDiscarded(container);
             var newimage = await testResContentAsync("images/pd002.png");

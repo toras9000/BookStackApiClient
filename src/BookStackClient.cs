@@ -62,10 +62,11 @@ public class BookStackClient : IDisposable
     /// <summary>ファイルパスを指定してファイルを添付する。</summary>
     /// <param name="args">ファイル添付共通パラメータ</param>
     /// <param name="path">添付するファイルのパス</param>
+    /// <param name="fileName">添付するファイル名称。指定されない場合はパスの名称をそのまま利用する。</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイル情報</returns>
-    public Task<AttachmentItem> CreateFileAttachmentAsync(CreateAttachmentArgs args, string path, CancellationToken cancelToken = default)
-        => createFileAttachmentAsync(apiEp("attachments"), args, pathFileContentGenerator(path) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<AttachmentItem>();
+    public Task<AttachmentItem> CreateFileAttachmentAsync(CreateAttachmentArgs args, string path, string? fileName = null, CancellationToken cancelToken = default)
+        => createFileAttachmentAsync(apiEp("attachments"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<AttachmentItem>();
 
     /// <summary>ファイル内容を指定してファイルを添付する。</summary>
     /// <param name="args">ファイル添付共通パラメータ</param>
@@ -94,10 +95,11 @@ public class BookStackClient : IDisposable
     /// <param name="id">添付ファイル/リンクID</param>
     /// <param name="args">添付ファイル更新パラメータ</param>
     /// <param name="path">添付するファイルのパス</param>
+    /// <param name="fileName">添付するファイル名称。指定されない場合はパスの名称をそのまま利用する。</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付ファイル情報</returns>
-    public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, string? path = null, CancellationToken cancelToken = default)
-        => updateFileAttachmentAsync(apiEp($"attachments/{id}"), args, pathFileContentGenerator(path), cancelToken).JsonResponseAsync<AttachmentItem>();
+    public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, string? path = null, string? fileName = null, CancellationToken cancelToken = default)
+        => updateFileAttachmentAsync(apiEp($"attachments/{id}"), args, pathFileContentGenerator(path, fileName), cancelToken).JsonResponseAsync<AttachmentItem>();
 
     /// <summary>ファイル内容を指定して添付ファイルを更新する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
@@ -135,10 +137,11 @@ public class BookStackClient : IDisposable
     /// <summary>ブックを作成する。</summary>
     /// <param name="args">ブック作成パラメータ</param>
     /// <param name="imgPath">ブックカバーにする画像ファイルパス</param>
+    /// <param name="imgName">ブックカバー画像名称。指定されない場合はパスの名称をそのまま利用する。</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイル情報</returns>
-    public Task<BookItem> CreateBookAsync(CreateBookArgs args, string? imgPath = null, CancellationToken cancelToken = default)
-        => contextCreateBook(apiEp("books"), args, pathFileContentGenerator(imgPath), cancelToken).JsonResponseAsync<BookItem>();
+    public Task<BookItem> CreateBookAsync(CreateBookArgs args, string? imgPath = null, string? imgName = null, CancellationToken cancelToken = default)
+        => contextCreateBook(apiEp("books"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync<BookItem>();
 
     /// <summary>ブックを作成する。</summary>
     /// <param name="args">ブック作成パラメータ</param>
@@ -160,10 +163,11 @@ public class BookStackClient : IDisposable
     /// <param name="id">ブックID</param>
     /// <param name="args">ブック更新パラメータ</param>
     /// <param name="imgPath">ブックカバーにする画像ファイルパス</param>
+    /// <param name="imgName">ブックカバー画像名称。指定されない場合はパスの名称をそのまま利用する。</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ブック情報</returns>
-    public Task<BookItem> UpdateBookAsync(long id, UpdateBookArgs args, string? imgPath = null, CancellationToken cancelToken = default)
-        => contextUpdateBook(apiEp($"books/{id}"), args, pathFileContentGenerator(imgPath), cancelToken).JsonResponseAsync<BookItem>();
+    public Task<BookItem> UpdateBookAsync(long id, UpdateBookArgs args, string? imgPath = null, string? imgName = null, CancellationToken cancelToken = default)
+        => contextUpdateBook(apiEp($"books/{id}"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync<BookItem>();
 
     /// <summary>ブックを更新する。</summary>
     /// <param name="id">ブックID</param>
@@ -379,10 +383,11 @@ public class BookStackClient : IDisposable
     /// <summary>棚を作成する。</summary>
     /// <param name="args">棚作成パラメータ</param>
     /// <param name="imgPath">棚カバーにする画像ファイルパス</param>
+    /// <param name="imgName">棚カバー画像名称。指定されない場合はパスの名称をそのまま利用する。</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイル情報</returns>
-    public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, string? imgPath = null, CancellationToken cancelToken = default)
-        => contextCreateShelve(apiEp("shelves"), args, pathFileContentGenerator(imgPath), cancelToken).JsonResponseAsync<ShelfItem>();
+    public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, string? imgPath = null, string? imgName = null, CancellationToken cancelToken = default)
+        => contextCreateShelve(apiEp("shelves"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync<ShelfItem>();
 
     /// <summary>棚を作成する。</summary>
     /// <param name="args">棚作成パラメータ</param>
@@ -404,10 +409,11 @@ public class BookStackClient : IDisposable
     /// <param name="id">棚ID</param>
     /// <param name="args">棚更新パラメータ</param>
     /// <param name="imgPath">棚カバーにする画像ファイルパス</param>
+    /// <param name="imgName">棚カバー画像名称。指定されない場合はパスの名称をそのまま利用する。</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>棚情報</returns>
-    public Task<ShelfItem> UpdateShelfAsync(long id, UpdateShelfArgs args, string? imgPath = null, CancellationToken cancelToken = default)
-        => contextUpdateShelve(apiEp($"shelves/{id}"), args, pathFileContentGenerator(imgPath), cancelToken).JsonResponseAsync<ShelfItem>();
+    public Task<ShelfItem> UpdateShelfAsync(long id, UpdateShelfArgs args, string? imgPath = null, string? imgName = null, CancellationToken cancelToken = default)
+        => contextUpdateShelve(apiEp($"shelves/{id}"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync<ShelfItem>();
 
     /// <summary>棚を更新する。</summary>
     /// <param name="id">棚ID</param>
@@ -437,10 +443,11 @@ public class BookStackClient : IDisposable
     /// <summary>ギャラリ画像を作成する。</summary>
     /// <param name="args">ギャラリ画像作成パラメータ</param>
     /// <param name="path">アップロードするファイルのパス</param>
+    /// <param name="fileName">アップロードするファイル名称。指定されない場合はパスの名称をそのまま利用する。</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
-    public Task<ImageItem> CreateImageAsync(CreateImageArgs args, string path, CancellationToken cancelToken = default)
-        => createImageAsync(apiEp("image-gallery"), args, pathFileContentGenerator(path) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<ImageItem>();
+    public Task<ImageItem> CreateImageAsync(CreateImageArgs args, string path, string? fileName = null, CancellationToken cancelToken = default)
+        => createImageAsync(apiEp("image-gallery"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<ImageItem>();
 
     /// <summary>ギャラリ画像を作成する。</summary>
     /// <param name="args">ギャラリ画像作成パラメータ</param>
@@ -869,11 +876,12 @@ public class BookStackClient : IDisposable
 
     /// <summary>パスを元にHTTP要求用コンテンツの生成デリゲートを作成する</summary>
     /// <param name="imgPath">ファイルパス</param>
+    /// <param name="imgName">ファイル名。指定されない場合はパスの名称をそのまま利用する</param>
     /// <returns>HTTP要求用コンテンツの生成デリゲートと名称のタプル</returns>
-    private FileContentGenerator? pathFileContentGenerator(string? imgPath)
+    private FileContentGenerator? pathFileContentGenerator(string? imgPath, string? imgName)
     {
         if (imgPath == null) return null;
-        return () => (new StreamContent(new FileStream(imgPath, FileMode.Open, FileAccess.Read, FileShare.Read)), Path.GetFileName(imgPath));
+        return () => (new StreamContent(new FileStream(imgPath, FileMode.Open, FileAccess.Read, FileShare.Read)), imgName ?? Path.GetFileName(imgPath));
     }
 
     /// <summary>ファイル内容バイナリを元にHTTP要求用コンテンツの生成デリゲートを作成する</summary>

@@ -153,6 +153,25 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             detail.cover.created_by.Should().Be(shelf.created_by);
             detail.cover.updated_by.Should().Be(shelf.updated_by);
         }
+        {// cover (path & name)
+            var now = DateTime.UtcNow;
+            var path = testResPath("images/pd001.png");
+            var shelf = await client.CreateShelfAsync(new(testName("eee")), path, "xxx.png").WillBeDiscarded(container);
+            shelf.name.Should().Be(testName("eee"));
+            var detail = await client.ReadShelfAsync(shelf.id);
+            detail.tags.Should().BeNullOrEmpty();
+            detail.books.Should().BeNullOrEmpty();
+            Assert.IsNotNull(detail.cover);
+            detail.cover.name.Should().Be("xxx.png");
+            detail.cover.type.Should().Be("cover_bookshelf");
+            detail.cover.uploaded_to.Should().Be(shelf.id);
+            detail.cover.path.Should().NotBeNullOrEmpty();
+            detail.cover.url.Should().NotBeNullOrEmpty();
+            detail.cover.created_at.Should().BeCloseTo(now, 10.Seconds());
+            detail.cover.updated_at.Should().BeCloseTo(now, 10.Seconds());
+            detail.cover.created_by.Should().Be(shelf.created_by);
+            detail.cover.updated_by.Should().Be(shelf.updated_by);
+        }
         {// cover (binary)
             var now = DateTime.UtcNow;
             var binary = await testResContentAsync("images/pd001.png");
@@ -278,12 +297,12 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             created.name.Should().Be(testName("aaa"));
             await Task.Delay(3 * 1000);
             var path = testResPath("images/pd001.png");
-            var updated = await client.UpdateShelfAsync(created.id, new(), path);
+            var updated = await client.UpdateShelfAsync(created.id, new(), path, "ttt.png");
             var detail = await client.ReadShelfAsync(created.id);
             detail.tags.Should().BeNullOrEmpty();
             detail.books.Should().BeNullOrEmpty();
             Assert.IsNotNull(detail.cover);
-            detail.cover.name.Should().Be("pd001.png");
+            detail.cover.name.Should().Be("ttt.png");
             detail.cover.type.Should().Be("cover_bookshelf");
         }
     }
