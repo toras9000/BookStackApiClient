@@ -55,7 +55,7 @@ while (true)
     var books = await client.ListBooksAsync(new(offset, sorts: new[] { "id", }));
     foreach (var book in books.data)
     {
-        var detail = await client.ReadBookAsync(book.id, signal.Token);
+        var detail = await client.ReadBookAsync(book.id);
         var chapters = detail.contents.OfType<BookContentChapter>().Count();
         var pages = detail.contents.OfType<BookContentPage>().Count();
         Console.WriteLine($"{book.id,4}: {book.name}, chapters={chapters}, pages={pages}");
