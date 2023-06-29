@@ -640,7 +640,7 @@ public record ReadShelfResult(
 /// <param name="name">画像名</param>
 /// <param name="url">画像のURL</param>
 /// <param name="path">画像のパス</param>
-/// <param name="type">画像の種別</param>
+/// <param name="type">ギャラリー画像種別("gallery" or "drawio")</param>
 /// <param name="uploaded_to">アップロード先ページID</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
@@ -669,7 +669,7 @@ public record ImageRef(string html, string markdown);
 /// <param name="name">画像名</param>
 /// <param name="url">画像のURL</param>
 /// <param name="path">画像のパス</param>
-/// <param name="type">画像の種別</param>
+/// <param name="type">ギャラリー画像種別("gallery" or "drawio")</param>
 /// <param name="uploaded_to">アップロード先ページID</param>
 /// <param name="thumbs">サムネイル画像情報</param>
 /// <param name="content">画像参照情報</param>
@@ -693,7 +693,7 @@ public record ListImagesResult(ImageSummary[] data, long total);
 
 /// <summary>ギャラリ画像の作成要求パラメータ</summary>
 /// <param name="uploaded_to">アップロード先ページID</param>
-/// <param name="type">画像の種別</param>
+/// <param name="type">ギャラリー画像種別("gallery" or "drawio")</param>
 /// <param name="name">画像名</param>
 public record CreateImageArgs(long uploaded_to, string type, string name);
 
