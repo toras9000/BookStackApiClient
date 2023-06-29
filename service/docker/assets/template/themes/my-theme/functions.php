@@ -1,8 +1,8 @@
 <?php
 
 use BookStack\Api\ApiToken;
-use BookStack\Auth\UserRepo;
-use BookStack\Auth\User;
+use BookStack\Users\UserRepo;
+use BookStack\Users\Models;
 use BookStack\Facades\Theme;
 use BookStack\Theming\ThemeEvents;
 use Illuminate\Console\Command;
