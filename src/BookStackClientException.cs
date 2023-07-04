@@ -42,11 +42,13 @@ public class ApiLimitResponseException : BookStackClientException
     // 構築
     #region コンストラクタ
     /// <summary>要求識別子と例外メッセージを指定するコンストラクタ</summary>
-    /// <param name="limit">APIリクエスト制限値</param>
+    /// <param name="limit">APIリクエスト制限値 [毎分]</param>
+    /// <param name="retryAfter">リトライまでの必要時間 [秒]</param>
     /// <param name="message">例外メッセージ</param>
-    public ApiLimitResponseException(long limit, string message) : base(message)
+    public ApiLimitResponseException(long limit, long retryAfter, string message) : base(message)
     {
         this.RequestsPerMin = limit;
+        this.RetryAfter = retryAfter;
     }
     #endregion
 
@@ -54,6 +56,9 @@ public class ApiLimitResponseException : BookStackClientException
     #region 情報
     /// <summary>API要求数制限値 [毎分]</summary>
     public long RequestsPerMin { get; }
+
+    /// <summary>リトライまでの必要時間 [秒]</summary>
+    public long RetryAfter { get; }
     #endregion
 }
 

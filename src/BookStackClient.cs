@@ -820,7 +820,8 @@ public class BookStackClient : IDisposable
                 var remain = tryGetHeaderInt(response, "X-RateLimit-Remaining");
                 if (limit.HasValue && remain == 0)
                 {
-                    throw new ApiLimitResponseException(limit.Value, response.ReasonPhrase ?? $"HTTP {(int)response.StatusCode}");
+                    var retryAfter = tryGetHeaderInt(response, "Retry-After") ?? 60;
+                    throw new ApiLimitResponseException(limit.Value, retryAfter, response.ReasonPhrase ?? $"HTTP {(int)response.StatusCode}");
                 }
             }
 
