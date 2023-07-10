@@ -33,7 +33,7 @@ These use C#9 or later syntax.
 ### Create books, chapters, and pages.
 
 ```csharp
-var apiEntry = new Uri(@"http://<your-hosting-server>/api/"),
+var apiEntry = new Uri(@"http://<your-hosting-server>/api/");
 var apiToken  = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 var apiSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 using var client = new BookStackClient(apiEntry, apiToken, apiSecret);
@@ -49,20 +49,27 @@ Note the limit on the number of API requests to issue many requests.
 
 ```csharp
 using var client = new BookStackClient(apiEntry, apiToken, apiSecret);
-var offset = 0;
-while (true)
+try
 {
-    var books = await client.ListBooksAsync(new(offset, sorts: new[] { "id", }));
-    foreach (var book in books.data)
+    var offset = 0;
+    while (true)
     {
-        var detail = await client.ReadBookAsync(book.id);
-        var chapters = detail.contents.OfType<BookContentChapter>().Count();
-        var pages = detail.contents.OfType<BookContentPage>().Count();
-        Console.WriteLine($"{book.id,4}: {book.name}, chapters={chapters}, pages={pages}");
-    }
+        var books = await client.ListBooksAsync(new(offset, sorts: new[] { "id", }));
+        foreach (var book in books.data)
+        {
+            var detail = await client.ReadBookAsync(book.id);
+            var chapters = detail.contents.OfType<BookContentChapter>().Count();
+            var pages = detail.contents.OfType<BookContentPage>().Count();
+            Console.WriteLine($"{book.id,4}: {book.name}, chapters={chapters}, pages={pages}");
+        }
 
-    offset += books.data.Length;
-    if (books.data.Length <= 0 || books.total <= offset) break;
+        offset += books.data.Length;
+        if (books.data.Length <= 0 || books.total <= offset) break;
+    }
+}
+catch (ApiLimitResponseException ex)
+{
+    Console.WriteLine($"Api Limit: Limit={ex.RequestsPerMin}, RetryAfter={ex.RetryAfter}");
 }
 ```
 
