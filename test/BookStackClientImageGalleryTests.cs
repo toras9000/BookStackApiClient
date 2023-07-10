@@ -286,7 +286,7 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             detail.content.html.Should().Be(image.content.html);
             detail.content.markdown.Should().Be(image.content.markdown);
             detail.created_at.Should().Be(image.created_at);
-            //            detail.updated_at.Should().BeAfter(image.updated_at); // 画像の置き換えのみである場合、現在は更新日時が変化しない。
+            detail.updated_at.Should().BeAfter(image.updated_at);
             detail.created_by.Should().Be(image.created_by);
             detail.updated_by.Should().Be(image.updated_by);
             var dlimage = await this.Client.GetByteArrayAsync(image.url);
@@ -310,7 +310,7 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             detail.content.html.Should().Be(image.content.html);
             detail.content.markdown.Should().Be(image.content.markdown);
             detail.created_at.Should().Be(image.created_at);
-            //            detail.updated_at.Should().BeAfter(image.updated_at); // 画像の置き換えのみである場合、現在は更新日時が変化しない。
+            detail.updated_at.Should().BeAfter(image.updated_at);
             detail.created_by.Should().Be(image.created_by);
             detail.updated_by.Should().Be(image.updated_by);
             var dlimage = await this.Client.GetByteArrayAsync(image.url);
