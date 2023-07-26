@@ -5,7 +5,7 @@
 [NugetPackage]: https://www.nuget.org/packages/BookStackApiClient
 [NugetShield]: https://img.shields.io/nuget/v/BookStackApiClient
 
-This is [BookStack](https://www.bookstackapp.com/) API client library for .NET.  
+This is [BookStack](https://www.bookstackapp.com/) API client library for .NET. (unofficial)  
 BookStack is a platform for organizing and storing information.
 
 
