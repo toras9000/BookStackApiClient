@@ -17,13 +17,11 @@ Sorry, IntelliSense messages (documentation comments) for types and members are 
 Although the BookStack API specification may change from version to version, this library targets only a single version.  
 If the version targeted by the library does not match the server version, there is a large possibility that it will not work properly.  
 
-The package version represents the corresponding server version.  
-The first two parts of the version match the first two parts of the target BookStack version.  
-More detailed versions are considered to have no effect on the API specification.  
-
-The third and fourth numbers in the version are specific to this library.  
-The third number will be changed if the library specification has been changed (not binary compatible), even for the same target version.  
-The fourth number is changed for bug fixes and other cases where binary compatibility is maintained.  
+Package versions are in semantic versioning format, but are numbered according to the following arrangement.  
+The core version part represents the version of the target server.  
+The pre-release version part is used to represent the library version, not as a pre-release.  
+The first of the pre-release version numbers is changed when the library specification changes (binary incompatibility).  
+The second pre-release version number is changed for bug fixes and other cases where binary compatibility is maintained.  
 
 ## Examples
 
