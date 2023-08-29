@@ -19,7 +19,7 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
         for (var i = 0; i < 10; i++)
         {
             var book = container.Books[i / 3];
-            await client.CreateChapterAsync(new(book.id, testName($"chapter_{guid}_N{i:D3}"), $"chapter_{guid}_N{i:D3}_desc", new Tag[] { new($"ct{i}", $"ctv{i}") })).AddTo(container);
+            await client.CreateChapterAsync(new(book.id, testName($"chapter_{guid}_N{i:D3}"), $"chapter_{guid}_N{i:D3}_desc", priority: i, new Tag[] { new($"ct{i}", $"ctv{i}") })).AddTo(container);
         }
         for (var i = 0; i < 10; i++)
         {

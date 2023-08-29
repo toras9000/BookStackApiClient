@@ -220,8 +220,11 @@ public record CreateBookArgs(string name, string? description = null, Tag[]? tag
 /// <param name="slug">コンテンツスラグ</param>
 /// <param name="type">コンテンツ種別</param>
 /// <param name="book_id">対象ブックID</param>
+/// <param name="priority">順序</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
 [JsonConverter(typeof(BookContentJsonConverter))]
-public abstract record BookContent(long id, string name, string slug, string type, long book_id);
+public abstract record BookContent(long id, string name, string slug, string type, long book_id, long priority, DateTime created_at, DateTime updated_at);
 
 /// <summary>ブック内ページコンテンツ</summary>
 /// <param name="id">ページID</param>
@@ -233,14 +236,15 @@ public abstract record BookContent(long id, string name, string slug, string typ
 /// <param name="draft">ドラフトであるか</param>
 /// <param name="template">テンプレートであるか</param>
 /// <param name="url">ページURL</param>
+/// <param name="priority">順序</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
 public record BookContentPage(
     long id, string name, string slug,
     string type, long book_id, long chapter_id,
-    bool draft, bool template, string url,
+    bool draft, bool template, string url, long priority,
     DateTime created_at, DateTime updated_at
-) : BookContent(id, name, slug, type, book_id);
+) : BookContent(id, name, slug, type, book_id, priority, created_at, updated_at);
 
 /// <summary>ブック内チャプタコンテンツ</summary>
 /// <param name="id">チャプタID</param>
@@ -250,14 +254,15 @@ public record BookContentPage(
 /// <param name="type">コンテンツ種別</param>
 /// <param name="url">チャプタURL</param>
 /// <param name="pages">チャプタ内ページ</param>
+/// <param name="priority">順序</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
 public record BookContentChapter(
     long id, string name, string slug,
     string type, long book_id,
-    string url, BookContentPage[]? pages,
+    string url, BookContentPage[]? pages, long priority,
     DateTime created_at, DateTime updated_at
-) : BookContent(id, name, slug, type, book_id);
+) : BookContent(id, name, slug, type, book_id, priority, created_at, updated_at);
 
 /// <summary>ブック詳細情報</summary>
 /// <param name="id">ブックID</param>
@@ -351,8 +356,9 @@ public record ListChaptersResult(ChapterSummary[] data, long total);
 /// <param name="book_id">ブックID</param>
 /// <param name="name">チャプタ名</param>
 /// <param name="description">チャプタ概要</param>
+/// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateChapterArgs(long book_id, string name, string? description = null, Tag[]? tags = null);
+public record CreateChapterArgs(long book_id, string name, string? description = null, long? priority = null, Tag[]? tags = null);
 
 /// <summary>チャプタ内ページコンテンツ</summary>
 /// <param name="id">ページID</param>
@@ -402,9 +408,10 @@ public record ReadChapterResult(
 /// <summary>チャプタ更新要求パラメータ</summary>
 /// <param name="name">チャプタ名</param>
 /// <param name="description">チャプタ概要</param>
+/// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
 /// <param name="book_id">ブックID</param>
-public record UpdateChapterArgs(string? name = null, string? description = null, Tag[]? tags = null, long? book_id = null);
+public record UpdateChapterArgs(string? name = null, string? description = null, long? priority = null, Tag[]? tags = null, long? book_id = null);
 #endregion
 
 #region pages
@@ -473,36 +480,41 @@ public record ListPagesResult(PageSummary[] data, long total);
 /// <param name="chapter_id">チャプタID</param>
 /// <param name="html">ページ内容HTML</param>
 /// <param name="markdown">ページ内容Markdown</param>
+/// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreatePageArgs(string name, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, Tag[]? tags = null);
+public record CreatePageArgs(string name, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, Tag[]? tags = null);
 
 /// <summary>ページ作成(Markdown/ブック内)要求パラメータ</summary>
 /// <param name="book_id">作成先ブックID</param>
 /// <param name="name">ページ名</param>
 /// <param name="markdown">ページ内容Markdown</param>
+/// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateMarkdownPageInBookArgs(long book_id, string name, string markdown, Tag[]? tags = null);
+public record CreateMarkdownPageInBookArgs(long book_id, string name, string markdown, long? priority = null, Tag[]? tags = null);
 
 /// <summary>ページ作成(Markdown/チャプタ内)要求パラメータ</summary>
 /// <param name="chapter_id">作成先チャプタID</param>
 /// <param name="name">ページ名</param>
 /// <param name="markdown">ページ内容Markdown</param>
+/// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateMarkdownPageInChapterArgs(long chapter_id, string name, string markdown, Tag[]? tags = null);
+public record CreateMarkdownPageInChapterArgs(long chapter_id, string name, string markdown, long? priority = null, Tag[]? tags = null);
 
 /// <summary>ページ作成(HTML/ブック内)要求パラメータ</summary>
 /// <param name="book_id">作成先ブックID</param>
 /// <param name="name">ページ名</param>
 /// <param name="html">ページ内容HTML</param>
+/// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateHtmlPageInBookArgs(long book_id, string name, string html, Tag[]? tags = null);
+public record CreateHtmlPageInBookArgs(long book_id, string name, string html, long? priority = null, Tag[]? tags = null);
 
 /// <summary>ページ作成(HTML/ブック内)要求パラメータ</summary>
 /// <param name="chapter_id">作成先チャプタID</param>
 /// <param name="name">ページ名</param>
 /// <param name="html">ページ内容HTML</param>
+/// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateHtmlPageInChapterArgs(long chapter_id, string name, string html, Tag[]? tags = null);
+public record CreateHtmlPageInChapterArgs(long chapter_id, string name, string html, long? priority = null, Tag[]? tags = null);
 
 /// <summary>ページ詳細情報</summary>
 /// <param name="id">ページID</param>
@@ -540,8 +552,9 @@ public record ReadPageResult(
 /// <param name="chapter_id">チャプタID</param>
 /// <param name="html">ページ内容HTML</param>
 /// <param name="markdown">ページ内容Markdown</param>
+/// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record UpdatePageArgs(string? name = null, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, Tag[]? tags = null);
+public record UpdatePageArgs(string? name = null, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, Tag[]? tags = null);
 #endregion
 
 #region shelves
@@ -762,11 +775,12 @@ public record SearchContentBook(
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
 /// <param name="book_id">所属ブックID</param>
+/// <param name="priority">順序</param>
 public record SearchContentChapter(
     long id, string name, string slug, string type,
     string url, ContentTag[]? tags, SearchContentPreview? preview_html,
     DateTime created_at, DateTime updated_at,
-    long book_id
+    long book_id, long priority
 ) : SearchContent(id, name, slug, type, url, tags, preview_html, created_at, updated_at);
 
 /// <summary>検索結果ページコンテンツ</summary>
@@ -783,11 +797,12 @@ public record SearchContentChapter(
 /// <param name="chapter_id">チャプタID</param>
 /// <param name="draft">ドラフトであるか</param>
 /// <param name="template">テンプレートであるか</param>
+/// <param name="priority">順序</param>
 public record SearchContentPage(
     long id, string name, string slug, string type,
     string url, ContentTag[]? tags, SearchContentPreview? preview_html,
     DateTime created_at, DateTime updated_at,
-    long book_id, long chapter_id, bool draft, bool template
+    long book_id, long chapter_id, bool draft, bool template, long priority
 ) : SearchContent(id, name, slug, type, url, tags, preview_html, created_at, updated_at);
 
 /// <summary>検索結果棚コンテンツ</summary>

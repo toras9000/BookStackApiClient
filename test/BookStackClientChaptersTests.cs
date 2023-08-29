@@ -129,11 +129,12 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         {// name & description & tags
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var chapter = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", new Tag[] { new("tc1", "tv1"), new("tc2", "tv2"), }));
+            var chapter = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", priority: 5, new Tag[] { new("tc1", "tv1"), new("tc2", "tv2"), }));
             chapter.book_id.Should().Be(book.id);
             chapter.name.Should().Be(testName("aaa"));
             chapter.description.Should().Be(chapter.description);
             chapter.slug.Should().NotBeNullOrEmpty();
+            chapter.priority.Should().Be(5);
             chapter.tags.Should().BeEquivalentTo(new Tag[] { new("tc1", "tv1"), new("tc2", "tv2"), });
             chapter.created_at.Should().BeCloseTo(now, 10.Seconds());
             chapter.updated_at.Should().BeCloseTo(now, 10.Seconds());
@@ -154,24 +155,24 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         {
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var chapter = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", new Tag[] { new("tc1", "tv1"), new("tc2", "tv2"), }));
-            var page1 = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("p1"), "ppp"));
-            var page2 = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("p2"), "ppp"));
+            var chapter = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", priority: 5, new Tag[] { new("tc1", "tcv1"), new("tc2", "tcv2"), }));
+            var page1 = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("p1"), "ppp", priority: 2, new Tag[] { new("tp1", "tpv1"), new("tp2", "tpv2"), }));
+            var page2 = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("p2"), "ppp", priority: 3, new Tag[] { new("tp1", "tpv1"), new("tp3", "tpv3"), }));
             var detail = await client.ReadChapterAsync(chapter.id);
             detail.book_id.Should().Be(book.id);
             detail.name.Should().Be(testName("aaa"));
             detail.description.Should().Be("bbb");
             detail.slug.Should().NotBeNullOrEmpty();
-            detail.tags.Should().BeEquivalentTo(new Tag[] { new("tc1", "tv1"), new("tc2", "tv2"), });
+            detail.tags.Should().BeEquivalentTo(new Tag[] { new("tc1", "tcv1"), new("tc2", "tcv2"), });
             detail.created_at.Should().BeCloseTo(now, 10.Seconds());
             detail.updated_at.Should().BeCloseTo(now, 10.Seconds());
             detail.created_by.name.Should().Be("Admin");
             detail.updated_by.name.Should().Be("Admin");
             detail.owned_by.name.Should().Be("Admin");
-            detail.pages.OfType<ChapterContentPage>().Should().BeEquivalentTo(new[]
+            detail.pages.Should().BeEquivalentTo(new[]
                 {
-                    new { page1.id, page1.name, },
-                    new { page2.id, page2.name, },
+                    new { page1.id, page1.name, page1.priority, },
+                    new { page2.id, page2.name, page2.priority, },
                 });
         }
     }
@@ -187,14 +188,15 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         {// update name & desc
             var image = await testResContentAsync("images/pd001.png");
             var book = await client.CreateBookAsync(new(testName("testbook")), image, "test.png").WillBeDiscarded(container);
-            var created = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), }));
+            var created = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", priority: 3, new Tag[] { new("t1", "v1"), new("t2", "v2"), }));
             await Task.Delay(3 * 1000);
-            var updated = await client.UpdateChapterAsync(created.id, new(name: testName("ccc"), description: "ddd"));
+            var updated = await client.UpdateChapterAsync(created.id, new(name: testName("ccc"), description: "ddd", priority: 7));
             updated.book_id.Should().Be(book.id);
             updated.book_slug.Should().Be(book.slug);
             updated.name.Should().Be(testName("ccc"));
             updated.description.Should().Be("ddd");
             updated.slug.Should().NotBeNullOrEmpty();
+            updated.priority.Should().Be(7);
             updated.tags.Should().BeEquivalentTo(new Tag[] { new("t1", "v1"), new("t2", "v2"), });
             updated.created_at.Should().Be(created.created_at);
             updated.updated_at.Should().BeAfter(created.updated_at);
@@ -205,7 +207,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         {// update tags
             var image = await testResContentAsync("images/pd001.png");
             var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), }), image, "test.png").WillBeDiscarded(container);
-            var created = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), }));
+            var created = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", tags: new Tag[] { new("t1", "v1"), new("t2", "v2"), }));
             var updated = await client.UpdateChapterAsync(created.id, new(tags: new Tag[] { new("t1", "v1new"), new("t3", "v3") }));
             updated.name.Should().Be(testName("aaa"));
             updated.description.Should().Be("bbb");
@@ -259,7 +261,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("tb1", "vb1"), new("tb2", "vb2"), })).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", new Tag[] { new("tc1", "vc1"), new("tc2", "vc2"), }));
+        var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", tags: new Tag[] { new("tc1", "vc1"), new("tc2", "vc2"), }));
         var html = await client.ExportChapterHtmlAsync(chapter.id);
         html.Should().NotBeNullOrEmpty();
 
@@ -274,7 +276,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("tb1", "vb1"), new("tb2", "vb2"), })).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", new Tag[] { new("tc1", "vc1"), new("tc2", "vc2"), }));
+        var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", tags: new Tag[] { new("tc1", "vc1"), new("tc2", "vc2"), }));
         var text = await client.ExportChapterPlainAsync(chapter.id);
         text.Should().NotBeNullOrEmpty();
     }
@@ -288,7 +290,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("tb1", "vb1"), new("tb2", "vb2"), })).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", new Tag[] { new("tc1", "vc1"), new("tc2", "vc2"), }));
+        var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", tags: new Tag[] { new("tc1", "vc1"), new("tc2", "vc2"), }));
         var markdown = await client.ExportChapterMarkdownAsync(chapter.id);
         markdown.Should().NotBeNullOrEmpty();
     }
@@ -302,7 +304,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("tb1", "vb1"), new("tb2", "vb2"), })).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", new Tag[] { new("tc1", "vc1"), new("tc2", "vc2"), }));
+        var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", tags: new Tag[] { new("tc1", "vc1"), new("tc2", "vc2"), }));
         var pdf = await client.ExportChapterPdfAsync(chapter.id);
         pdf.Should().NotBeNullOrEmpty();
     }
