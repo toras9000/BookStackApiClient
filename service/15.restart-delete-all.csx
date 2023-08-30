@@ -1,8 +1,5 @@
-// This script is meant to run with dotnet-script.
-// You can install .NET SDK 6.0 and install dotnet-script with the following command.
-// $ dotnet tool install -g dotnet-script
 
-#r "nuget: Lestaly, 0.40.0"
+#r "nuget: Lestaly, 0.45.0"
 using System.Threading;
 using Lestaly;
 
