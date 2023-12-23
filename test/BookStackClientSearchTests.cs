@@ -14,29 +14,29 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
         var guid = Guid.NewGuid().ToString();
         for (var i = 0; i < 10; i++)
         {
-            await client.CreateBookAsync(new(testName($"book_{guid}_N{i:D3}"), $"book_{guid}_N{i:D3}_desc", new Tag[] { new($"bt{i}", $"btv{i}") })).WillBeDiscarded(container);
+            await client.CreateBookAsync(new(testName($"book_{guid}_N{i:D3}"), $"book_{guid}_N{i:D3}_desc", tags: [new($"bt{i}", $"btv{i}")])).WillBeDiscarded(container);
         }
         for (var i = 0; i < 10; i++)
         {
             var book = container.Books[i / 3];
-            await client.CreateChapterAsync(new(book.id, testName($"chapter_{guid}_N{i:D3}"), $"chapter_{guid}_N{i:D3}_desc", priority: i, new Tag[] { new($"ct{i}", $"ctv{i}") })).AddTo(container);
+            await client.CreateChapterAsync(new(book.id, testName($"chapter_{guid}_N{i:D3}"), $"chapter_{guid}_N{i:D3}_desc", priority: i, tags: [new($"ct{i}", $"ctv{i}")])).AddTo(container);
         }
         for (var i = 0; i < 10; i++)
         {
             if (i < 5)
             {
                 var chapter = container.Chapters[i / 2];
-                await client.CreatePageAsync(new(chapter_id: chapter.id, name: testName($"page_{guid}_N{i:D3}"), markdown: "md", tags: new Tag[] { new($"pt{i}", $"ptv{i}") })).AddTo(container);
+                await client.CreatePageAsync(new(chapter_id: chapter.id, name: testName($"page_{guid}_N{i:D3}"), markdown: "md", tags: [new($"pt{i}", $"ptv{i}")])).AddTo(container);
             }
             else
             {
                 var book = container.Books[i / 2];
-                await client.CreatePageAsync(new(book_id: book.id, name: testName($"page_{guid}_N{i:D3}"), markdown: "md", tags: new Tag[] { new($"pt{i}", $"ptv{i}") })).AddTo(container);
+                await client.CreatePageAsync(new(book_id: book.id, name: testName($"page_{guid}_N{i:D3}"), markdown: "md", tags: [new($"pt{i}", $"ptv{i}")])).AddTo(container);
             }
         }
         for (var i = 0; i < 10; i++)
         {
-            await client.CreateShelfAsync(new(testName($"shelf_{guid}_N{i:D3}"), $"shelf_{guid}_N{i:D3}_desc", tags: new Tag[] { new($"st{i}", $"stv{i}"), })).WillBeDiscarded(container);
+            await client.CreateShelfAsync(new(testName($"shelf_{guid}_N{i:D3}"), $"shelf_{guid}_N{i:D3}_desc", tags: [new($"st{i}", $"stv{i}"),])).WillBeDiscarded(container);
         }
 
 
@@ -64,7 +64,7 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
                 actual.slug.Should().Be(expect.slug);
                 actual.created_at.Should().Be(expect.created_at);
                 actual.updated_at.Should().Be(expect.updated_at);
-                actual.tags.Should().BeEquivalentTo(new Tag[] { new($"bt{i}", $"btv{i}") });
+                actual.tags.Should().BeEquivalentTo((Tag[])[new($"bt{i}", $"btv{i}")]);
             }
         }
         {
@@ -80,7 +80,7 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
                 actual.slug.Should().Be(expect.slug);
                 actual.created_at.Should().Be(expect.created_at);
                 actual.updated_at.Should().Be(expect.updated_at);
-                actual.tags.Should().BeEquivalentTo(new Tag[] { new($"ct{i}", $"ctv{i}") });
+                actual.tags.Should().BeEquivalentTo((Tag[])[new($"ct{i}", $"ctv{i}")]);
             }
         }
         {
@@ -96,7 +96,7 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
                 actual.slug.Should().Be(expect.slug);
                 actual.created_at.Should().Be(expect.created_at);
                 actual.updated_at.Should().Be(expect.updated_at);
-                actual.tags.Should().BeEquivalentTo(new Tag[] { new($"pt{i}", $"ptv{i}") });
+                actual.tags.Should().BeEquivalentTo((Tag[])[new($"pt{i}", $"ptv{i}")]);
             }
         }
         {
@@ -111,7 +111,7 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
                 actual.slug.Should().Be(expect.slug);
                 actual.created_at.Should().Be(expect.created_at);
                 actual.updated_at.Should().Be(expect.updated_at);
-                actual.tags.Should().BeEquivalentTo(new Tag[] { new($"st{i}", $"stv{i}") });
+                actual.tags.Should().BeEquivalentTo((Tag[])[new($"st{i}", $"stv{i}")]);
             }
         }
     }
@@ -127,7 +127,7 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
         var guid = Guid.NewGuid().ToString();
         for (var i = 0; i < 10; i++)
         {
-            await client.CreateBookAsync(new(testName($"book_{guid}_N{i:D3}"), $"book_{guid}_N{i:D3}_desc", new Tag[] { new($"bt{i}", $"btv{i}") })).WillBeDiscarded(container);
+            await client.CreateBookAsync(new(testName($"book_{guid}_N{i:D3}"), $"book_{guid}_N{i:D3}_desc", tags: [new($"bt{i}", $"btv{i}")])).WillBeDiscarded(container);
         }
 
 

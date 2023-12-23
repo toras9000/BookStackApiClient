@@ -16,9 +16,9 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         var book2 = await client.CreateBookAsync(new(testName("book2"))).WillBeDiscarded(container);
         var book3 = await client.CreateBookAsync(new(testName("book3"))).WillBeDiscarded(container);
 
-        await client.CreateShelfAsync(new(testName("testshelve1"), "desc1", books: new[] { book1.id, book3.id, }, new Tag[] { new("ts1", "tv1"), })).WillBeDiscarded(container);
-        await client.CreateShelfAsync(new(testName("testshelve2"), "desc2", books: new[] { book2.id, book3.id, })).WillBeDiscarded(container);
-        await client.CreateShelfAsync(new(testName("testshelve3"), "desc3", tags: new Tag[] { new("ts2", "tv2"), })).WillBeDiscarded(container);
+        await client.CreateShelfAsync(new(testName("testshelve1"), "desc1", books: [book1.id, book3.id,], tags: [new("ts1", "tv1"),])).WillBeDiscarded(container);
+        await client.CreateShelfAsync(new(testName("testshelve2"), "desc2", books: [book2.id, book3.id,])).WillBeDiscarded(container);
+        await client.CreateShelfAsync(new(testName("testshelve3"), "desc3", tags: [new("ts2", "tv2"),])).WillBeDiscarded(container);
         await client.CreateShelfAsync(new(testName("testshelve4"), "desc4")).WillBeDiscarded(container);
 
         var shelves = await client.ListShelvesAsync();
@@ -59,34 +59,34 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             shelves1.data.Select(d => d.id).Should().NotIntersectWith(shelves2.data.Select(d => d.id));
         }
         {// filter
-            var shelves = await client.ListShelvesAsync(new(filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var shelves = await client.ListShelvesAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
             shelves.data.Should().AllSatisfy(d => d.name.StartsWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;
             var count = 4;
-            var shelves = await client.ListShelvesAsync(new(offset, count, sorts: new[] { nameof(ShelfItem.name), }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var shelves = await client.ListShelvesAsync(new(offset, count, sorts: [nameof(ShelfItem.name),], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Shelves.Where(b => b.name.StartsWith(prefix1)).Select(b => b.id).Skip(offset).Take(count);
             shelves.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc)
             var offset = 0;
             var count = 4;
-            var shelves = await client.ListShelvesAsync(new(offset, count, sorts: new[] { $"-{nameof(ShelfItem.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var shelves = await client.ListShelvesAsync(new(offset, count, sorts: [$"-{nameof(ShelfItem.name)}",], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Shelves.Reverse().Where(b => b.name.StartsWith(prefix1)).Select(b => b.id).Skip(offset).Take(count);
             shelves.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (asc) & range
             var offset = 2;
             var count = 5;
-            var shelves = await client.ListShelvesAsync(new(offset, count, sorts: new[] { nameof(ShelfItem.name), }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var shelves = await client.ListShelvesAsync(new(offset, count, sorts: [nameof(ShelfItem.name),], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Shelves.Where(b => b.name.StartsWith(prefix2)).Select(b => b.id).Skip(offset).Take(count);
             shelves.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc) & range
             var offset = 3;
             var count = 4;
-            var shelves = await client.ListShelvesAsync(new(offset, count, sorts: new[] { $"-{nameof(ShelfItem.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var shelves = await client.ListShelvesAsync(new(offset, count, sorts: [$"-{nameof(ShelfItem.name)}",], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Shelves.Reverse().Where(b => b.name.StartsWith(prefix2)).Select(b => b.id).Skip(offset).Take(count);
             shelves.data.Select(d => d.id).Should().Equal(expects);
         }
@@ -125,12 +125,12 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             detail.cover.Should().BeNull();
         }
         {// tags
-            var shelf = await client.CreateShelfAsync(new(testName("ddd"), tags: new Tag[] { new("ts1", "vs1"), new("ts2", "vs2"), })).WillBeDiscarded(container);
+            var shelf = await client.CreateShelfAsync(new(testName("ddd"), tags: [new("ts1", "vs1"), new("ts2", "vs2"),])).WillBeDiscarded(container);
             shelf.name.Should().Be(testName("ddd"));
             shelf.description.Should().BeEmpty();
             shelf.slug.Should().NotBeNullOrEmpty();
             var detail = await client.ReadShelfAsync(shelf.id);
-            detail.tags.Should().BeEquivalentTo(new Tag[] { new("ts1", "vs1"), new("ts2", "vs2"), });
+            detail.tags.Should().BeEquivalentTo((Tag[])[new("ts1", "vs1"), new("ts2", "vs2"),]);
             detail.books.Should().BeNullOrEmpty();
             detail.cover.Should().BeNull();
         }
@@ -202,12 +202,12 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var book1 = await client.CreateBookAsync(new(testName("book1"), "desc1")).WillBeDiscarded(container);
-        var book2 = await client.CreateBookAsync(new(testName("book2"), "desc2", new Tag[] { new("bt1", "bv1"), new("bt2", "bv2"), })).WillBeDiscarded(container);
+        var book2 = await client.CreateBookAsync(new(testName("book2"), "desc2", tags: [new("bt1", "bv1"), new("bt2", "bv2"),])).WillBeDiscarded(container);
         var book3 = await client.CreateBookAsync(new(testName("book3"), "desc3"), testResPath("images/pd001.png")).WillBeDiscarded(container);
 
         {
             var books = new[] { book1.id, book2.id, book3.id };
-            var tags = new Tag[] { new("st1", "sv1"), new("st2", "sv2"), };
+            var tags = (Tag[])[new("st1", "sv1"), new("st2", "sv2"),];
             var path = testResPath("images/pd002.png");
             var now = DateTime.UtcNow;
             var shelf = await client.CreateShelfAsync(new(testName("shelf"), "desc", books, tags), path).WillBeDiscarded(container);
@@ -279,14 +279,14 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             detail.cover.Should().BeNull();
         }
         {// tags
-            var created = await client.CreateShelfAsync(new(testName("aaa"), tags: new Tag[] { new("ts1", "vs1"), new("ts2", "vs2"), })).WillBeDiscarded(container);
+            var created = await client.CreateShelfAsync(new(testName("aaa"), tags: [new("ts1", "vs1"), new("ts2", "vs2"),])).WillBeDiscarded(container);
             created.name.Should().Be(testName("aaa"));
             created.description.Should().BeEmpty();
             created.slug.Should().NotBeNullOrEmpty();
             await Task.Delay(3 * 1000);
-            var updated = await client.UpdateShelfAsync(created.id, new(tags: new Tag[] { new("ts3", "vs3"), new("ts4", "vs4"), }));
+            var updated = await client.UpdateShelfAsync(created.id, new(tags: [new("ts3", "vs3"), new("ts4", "vs4"),]));
             var detail = await client.ReadShelfAsync(created.id);
-            detail.tags.Should().BeEquivalentTo(new Tag[] { new("ts3", "vs3"), new("ts4", "vs4"), });
+            detail.tags.Should().BeEquivalentTo((Tag[])[new("ts3", "vs3"), new("ts4", "vs4"),]);
             detail.books.Should().BeNullOrEmpty();
             detail.cover.Should().BeNull();
         }
@@ -316,9 +316,9 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         // test call & validate
         var name = testName($"shelf_{Guid.NewGuid()}");
         var shelf = await client.CreateShelfAsync(new(name));
-        (await client.ListShelvesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().Contain(d => d.id == shelf.id);
+        (await client.ListShelvesAsync(new(filters: [new("name", name)]))).data.Should().Contain(d => d.id == shelf.id);
         await client.DeleteShelfAsync(shelf.id);
-        (await client.ListShelvesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().NotContain(d => d.id == shelf.id);
+        (await client.ListShelvesAsync(new(filters: [new("name", name)]))).data.Should().NotContain(d => d.id == shelf.id);
 
     }
     #endregion

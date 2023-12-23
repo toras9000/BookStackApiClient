@@ -53,34 +53,34 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             books1.data.Select(d => d.id).Should().NotIntersectWith(books2.data.Select(d => d.id));
         }
         {// filter
-            var books = await client.ListBooksAsync(new(filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var books = await client.ListBooksAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
             books.data.Should().AllSatisfy(d => d.name.StartsWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;
             var count = 4;
-            var books = await client.ListBooksAsync(new(offset, count, sorts: new[] { nameof(BookSummary.name), }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var books = await client.ListBooksAsync(new(offset, count, sorts: [nameof(BookSummary.name),], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Books.Where(b => b.name.StartsWith(prefix1)).Select(b => b.id).Skip(offset).Take(count);
             books.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc)
             var offset = 0;
             var count = 4;
-            var books = await client.ListBooksAsync(new(offset, count, sorts: new[] { $"-{nameof(BookSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var books = await client.ListBooksAsync(new(offset, count, sorts: [$"-{nameof(BookSummary.name)}",], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Books.Reverse().Where(b => b.name.StartsWith(prefix1)).Select(b => b.id).Skip(offset).Take(count);
             books.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (asc) & range
             var offset = 2;
             var count = 5;
-            var books = await client.ListBooksAsync(new(offset, count, sorts: new[] { nameof(BookSummary.name), }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var books = await client.ListBooksAsync(new(offset, count, sorts: [nameof(BookSummary.name),], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Books.Where(b => b.name.StartsWith(prefix2)).Select(b => b.id).Skip(offset).Take(count);
             books.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc) & range
             var offset = 3;
             var count = 4;
-            var books = await client.ListBooksAsync(new(offset, count, sorts: new[] { $"-{nameof(BookSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var books = await client.ListBooksAsync(new(offset, count, sorts: [$"-{nameof(BookSummary.name)}",], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Books.Reverse().Where(b => b.name.StartsWith(prefix2)).Select(b => b.id).Skip(offset).Take(count);
             books.data.Select(d => d.id).Should().Equal(expects);
         }
@@ -127,13 +127,13 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             detail.cover.Should().BeNull();
         }
         {// name & desc & tags
-            var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), })).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),])).WillBeDiscarded(container);
             book.name.Should().Be(testName("aaa"));
             book.description.Should().Be("bbb");
             var detail = await client.ReadBookAsync(book.id);
             detail.name.Should().Be(book.name);
             detail.description.Should().Be("bbb");
-            detail.tags.Should().BeEquivalentTo(new Tag[] { new("t1", "v1"), new("t2", "v2"), });
+            detail.tags.Should().BeEquivalentTo((Tag[])[new("t1", "v1"), new("t2", "v2"),]);
             detail.cover.Should().BeNull();
         }
         {// image from path
@@ -176,7 +176,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         {
             var now = DateTime.UtcNow;
             var path = testResPath("images/pd001.png");
-            var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), }), path).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),]), path).WillBeDiscarded(container);
             var book_id = book.id;
             var chapter1 = await client.CreateChapterAsync(new(book_id, "c1"));
             var chapter2 = await client.CreateChapterAsync(new(book_id, "c2"));
@@ -187,7 +187,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             detail.name.Should().Be(testName("aaa"));
             detail.description.Should().Be("bbb");
             detail.slug.Should().NotBeNullOrEmpty();
-            detail.tags.Should().BeEquivalentTo(new Tag[] { new("t1", "v1"), new("t2", "v2"), });
+            detail.tags.Should().BeEquivalentTo((Tag[])[new("t1", "v1"), new("t2", "v2"),]);
             detail.created_at.Should().BeCloseTo(now, 10.Seconds());
             detail.updated_at.Should().BeCloseTo(now, 10.Seconds());
             detail.created_by.name.Should().Be("Admin");
@@ -224,7 +224,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {// update name & desc
             var image = await testResContentAsync("images/pd001.png");
-            var created = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), }), image, "test.png").WillBeDiscarded(container);
+            var created = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),]), image, "test.png").WillBeDiscarded(container);
             await Task.Delay(3 * 1000);
             var updated = await client.UpdateBookAsync(created.id, new(name: testName("ccc"), description: "ddd"));
             updated.name.Should().Be(testName("ccc"));
@@ -238,16 +238,16 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         }
         {// update tags
             var image = await testResContentAsync("images/pd001.png");
-            var created = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), }), image, "test.png").WillBeDiscarded(container);
-            var updated = await client.UpdateBookAsync(created.id, new(tags: new Tag[] { new("t1", "v1new"), new("t3", "v3") }));
+            var created = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),]), image, "test.png").WillBeDiscarded(container);
+            var updated = await client.UpdateBookAsync(created.id, new(tags: [new("t1", "v1new"), new("t3", "v3")]));
             updated.name.Should().Be(testName("aaa"));
             updated.description.Should().Be("bbb");
             var detail = await client.ReadBookAsync(updated.id);
-            detail.tags.Should().BeEquivalentTo(new Tag[] { new("t1", "v1new"), new("t3", "v3"), });
+            detail.tags.Should().BeEquivalentTo((Tag[])[new("t1", "v1new"), new("t3", "v3"),]);
         }
         {// update image from path
             var image = await testResContentAsync("images/pd001.png");
-            var created = await client.CreateBookAsync(new(testName("ccc"), "ddd", new Tag[] { new("t1", "v1"), new("t2", "v2"), }), image, "test.png").WillBeDiscarded(container);
+            var created = await client.CreateBookAsync(new(testName("ccc"), "ddd", tags: [new("t1", "v1"), new("t2", "v2"),]), image, "test.png").WillBeDiscarded(container);
             var path = testResPath("images/pd001.png");
             var updated = await client.UpdateBookAsync(created.id, new(), path, "aaa.jpg");
             Assert.IsNotNull(updated.cover);
@@ -258,7 +258,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         }
         {// update image from content
             var image = await testResContentAsync("images/pd001.png");
-            var created = await client.CreateBookAsync(new(testName("ccc"), "ddd", new Tag[] { new("t1", "v1"), new("t2", "v2"), }), image, "test.png").WillBeDiscarded(container);
+            var created = await client.CreateBookAsync(new(testName("ccc"), "ddd", tags: [new("t1", "v1"), new("t2", "v2"),]), image, "test.png").WillBeDiscarded(container);
             var newimage = await testResContentAsync("images/pd002.png");
             var updated = await client.UpdateBookAsync(created.id, new(), newimage, "new.png");
             Assert.IsNotNull(updated.cover);
@@ -278,9 +278,9 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         // test call & validate
         var name = testName($"book_{Guid.NewGuid()}");
         var book = await client.CreateBookAsync(new(name));
-        (await client.ListBooksAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().Contain(d => d.id == book.id);
+        (await client.ListBooksAsync(new(filters: [new("name", name)]))).data.Should().Contain(d => d.id == book.id);
         await client.DeleteBookAsync(book.id);
-        (await client.ListBooksAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().NotContain(d => d.id == book.id);
+        (await client.ListBooksAsync(new(filters: [new("name", name)]))).data.Should().NotContain(d => d.id == book.id);
 
     }
 
@@ -292,7 +292,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), })).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),])).WillBeDiscarded(container);
         var html = await client.ExportBookHtmlAsync(book.id);
         html.Should().NotBeNullOrEmpty();
 
@@ -306,7 +306,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), })).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),])).WillBeDiscarded(container);
         var text = await client.ExportBookPlainAsync(book.id);
         text.Should().NotBeNullOrEmpty();
     }
@@ -319,7 +319,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), })).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),])).WillBeDiscarded(container);
         var markdown = await client.ExportBookMarkdownAsync(book.id);
         markdown.Should().NotBeNullOrEmpty();
     }
@@ -332,7 +332,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", new Tag[] { new("t1", "v1"), new("t2", "v2"), })).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),])).WillBeDiscarded(container);
         var pdf = await client.ExportBookPdfAsync(book.id);
         pdf.Should().NotBeNullOrEmpty();
     }

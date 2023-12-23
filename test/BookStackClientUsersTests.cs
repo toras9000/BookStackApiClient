@@ -55,34 +55,34 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
             users1.data.Select(d => d.id).Should().NotIntersectWith(users2.data.Select(d => d.id));
         }
         {// filter
-            var users = await client.ListUsersAsync(new(filters: new Filter[] { new($"{nameof(UserSummary.name)}:like", $"{prefix1}%") }));
+            var users = await client.ListUsersAsync(new(filters: [new($"{nameof(UserSummary.name)}:like", $"{prefix1}%")]));
             users.data.Should().AllSatisfy(d => d.name.StartsWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;
             var count = 4;
-            var users = await client.ListUsersAsync(new(offset, count, sorts: new[] { nameof(UserSummary.name), }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var users = await client.ListUsersAsync(new(offset, count, sorts: [nameof(UserSummary.name),], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Users.Where(c => c.name.StartsWith(prefix1)).Select(c => c.id).Skip(offset).Take(count);
             users.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc)
             var offset = 0;
             var count = 4;
-            var users = await client.ListUsersAsync(new(offset, count, sorts: new[] { $"-{nameof(UserSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var users = await client.ListUsersAsync(new(offset, count, sorts: [$"-{nameof(UserSummary.name)}",], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Users.AsEnumerable().Reverse().Where(c => c.name.StartsWith(prefix1)).Select(c => c.id).Skip(offset).Take(count);
             users.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (asc) & range
             var offset = 2;
             var count = 5;
-            var users = await client.ListUsersAsync(new(offset, count, sorts: new[] { nameof(UserSummary.name), }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var users = await client.ListUsersAsync(new(offset, count, sorts: [nameof(UserSummary.name),], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Users.Where(c => c.name.StartsWith(prefix2)).Select(c => c.id).Skip(offset).Take(count);
             users.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc) & range
             var offset = 3;
             var count = 4;
-            var users = await client.ListUsersAsync(new(offset, count, sorts: new[] { $"-{nameof(UserSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var users = await client.ListUsersAsync(new(offset, count, sorts: [$"-{nameof(UserSummary.name)}",], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Users.AsEnumerable().Reverse().Where(c => c.name.StartsWith(prefix2)).Select(c => c.id).Skip(offset).Take(count);
             users.data.Select(d => d.id).Should().Equal(expects);
         }
@@ -207,9 +207,9 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
             var name = $"xxxx_{guid}_name";
             var mail = $"xxxx_{guid}@example.com";
             var user = await client.CreateUserAsync(new(name, mail, language: "ja", password: "xxxx1234"));
-            (await client.ListUsersAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().Contain(d => d.id == user.id);
+            (await client.ListUsersAsync(new(filters: [new("name", name)]))).data.Should().Contain(d => d.id == user.id);
             await client.DeleteUserAsync(user.id);
-            (await client.ListUsersAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().NotContain(d => d.id == user.id);
+            (await client.ListUsersAsync(new(filters: [new("name", name)]))).data.Should().NotContain(d => d.id == user.id);
         }
     }
     #endregion

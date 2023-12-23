@@ -58,34 +58,34 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
             attachments1.data.Select(d => d.id).Should().NotIntersectWith(attachments2.data.Select(d => d.id));
         }
         {// filter
-            var attachments = await client.ListAttachmentsAsync(new(filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var attachments = await client.ListAttachmentsAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
             attachments.data.Should().AllSatisfy(d => d.name.StartsWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;
             var count = 4;
-            var attachments = await client.ListAttachmentsAsync(new(offset, count, sorts: new[] { nameof(AttachmentItem.name), }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var attachments = await client.ListAttachmentsAsync(new(offset, count, sorts: [nameof(AttachmentItem.name),], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Attachments.Where(a => a.name.StartsWith(prefix1)).Select(a => a.id).Skip(offset).Take(count);
             attachments.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc)
             var offset = 0;
             var count = 4;
-            var attachments = await client.ListAttachmentsAsync(new(offset, count, sorts: new[] { $"-{nameof(BookSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var attachments = await client.ListAttachmentsAsync(new(offset, count, sorts: [$"-{nameof(BookSummary.name)}",], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Attachments.Reverse().Where(a => a.name.StartsWith(prefix1)).Select(a => a.id).Skip(offset).Take(count);
             attachments.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (asc) & range
             var offset = 2;
             var count = 5;
-            var attachments = await client.ListAttachmentsAsync(new(offset, count, sorts: new[] { nameof(AttachmentItem.name), }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var attachments = await client.ListAttachmentsAsync(new(offset, count, sorts: [nameof(AttachmentItem.name),], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Attachments.Where(a => a.name.StartsWith(prefix2)).Select(a => a.id).Skip(offset).Take(count);
             attachments.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc) & range
             var offset = 3;
             var count = 4;
-            var attachments = await client.ListAttachmentsAsync(new(offset, count, sorts: new[] { $"-{nameof(BookSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var attachments = await client.ListAttachmentsAsync(new(offset, count, sorts: [$"-{nameof(BookSummary.name)}",], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Attachments.Reverse().Where(a => a.name.StartsWith(prefix2)).Select(a => a.id).Skip(offset).Take(count);
             attachments.data.Select(d => d.id).Should().Equal(expects);
         }
@@ -420,17 +420,17 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
             var name = testName($"file_{Guid.NewGuid()}");
             var image = await testResContentAsync("images/pd002.png");
             var attachment = await client.CreateFileAttachmentAsync(new(name, page.id), image, "img.png");
-            (await client.ListAttachmentsAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().Contain(d => d.id == attachment.id);
+            (await client.ListAttachmentsAsync(new(filters: [new("name", name)]))).data.Should().Contain(d => d.id == attachment.id);
             await client.DeleteAttachmentAsync(attachment.id);
-            (await client.ListAttachmentsAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().NotContain(d => d.id == attachment.id);
+            (await client.ListAttachmentsAsync(new(filters: [new("name", name)]))).data.Should().NotContain(d => d.id == attachment.id);
         }
         {// link
             var name = testName($"file_{Guid.NewGuid()}");
             var url = "https://server.home";
             var attachment = await client.CreateLinkAttachmentAsync(new(name, page.id, url));
-            (await client.ListAttachmentsAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().Contain(d => d.id == attachment.id);
+            (await client.ListAttachmentsAsync(new(filters: [new("name", name)]))).data.Should().Contain(d => d.id == attachment.id);
             await client.DeleteAttachmentAsync(attachment.id);
-            (await client.ListAttachmentsAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().NotContain(d => d.id == attachment.id);
+            (await client.ListAttachmentsAsync(new(filters: [new("name", name)]))).data.Should().NotContain(d => d.id == attachment.id);
         }
     }
     #endregion

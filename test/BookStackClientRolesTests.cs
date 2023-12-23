@@ -73,34 +73,34 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
             roles1.data.Select(d => d.id).Should().NotIntersectWith(roles2.data.Select(d => d.id));
         }
         {// filter
-            var roles = await client.ListRolesAsync(new(filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var roles = await client.ListRolesAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
             roles.data.Should().AllSatisfy(d => d.display_name.StartsWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;
             var count = 4;
-            var roles = await client.ListRolesAsync(new(offset, count, sorts: new[] { nameof(RoleSummary.display_name), }, filters: new Filter[] { new($"{nameof(RoleSummary.display_name)}:like", $"{prefix1}%") }));
+            var roles = await client.ListRolesAsync(new(offset, count, sorts: [nameof(RoleSummary.display_name),], filters: [new($"{nameof(RoleSummary.display_name)}:like", $"{prefix1}%")]));
             var expects = container.Roles.Where(c => c.display_name.StartsWith(prefix1)).Select(c => c.id).Skip(offset).Take(count);
             roles.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc)
             var offset = 0;
             var count = 4;
-            var roles = await client.ListRolesAsync(new(offset, count, sorts: new[] { $"-{nameof(RoleSummary.display_name)}", }, filters: new Filter[] { new($"{nameof(RoleSummary.display_name)}:like", $"{prefix1}%") }));
+            var roles = await client.ListRolesAsync(new(offset, count, sorts: [$"-{nameof(RoleSummary.display_name)}",], filters: [new($"{nameof(RoleSummary.display_name)}:like", $"{prefix1}%")]));
             var expects = container.Roles.AsEnumerable().Reverse().Where(c => c.display_name.StartsWith(prefix1)).Select(c => c.id).Skip(offset).Take(count);
             roles.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (asc) & range
             var offset = 2;
             var count = 5;
-            var roles = await client.ListRolesAsync(new(offset, count, sorts: new[] { nameof(RoleSummary.display_name), }, filters: new Filter[] { new($"{nameof(RoleSummary.display_name)}:like", $"{prefix2}%") }));
+            var roles = await client.ListRolesAsync(new(offset, count, sorts: [nameof(RoleSummary.display_name),], filters: [new($"{nameof(RoleSummary.display_name)}:like", $"{prefix2}%")]));
             var expects = container.Roles.Where(c => c.display_name.StartsWith(prefix2)).Select(c => c.id).Skip(offset).Take(count);
             roles.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc) & range
             var offset = 3;
             var count = 4;
-            var roles = await client.ListRolesAsync(new(offset, count, sorts: new[] { $"-{nameof(RoleSummary.display_name)}", }, filters: new Filter[] { new($"{nameof(RoleSummary.display_name)}:like", $"{prefix2}%") }));
+            var roles = await client.ListRolesAsync(new(offset, count, sorts: [$"-{nameof(RoleSummary.display_name)}",], filters: [new($"{nameof(RoleSummary.display_name)}:like", $"{prefix2}%")]));
             var expects = container.Roles.AsEnumerable().Reverse().Where(c => c.display_name.StartsWith(prefix2)).Select(c => c.id).Skip(offset).Take(count);
             roles.data.Select(d => d.id).Should().Equal(expects);
         }
@@ -216,9 +216,9 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {
             var role = await client.CreateRoleAsync(new(testName("aaa")));
-            (await client.ListRolesAsync(new(filters: new Filter[] { new(nameof(RoleSummary.id), $"{role.id}") }))).data.Should().Contain(d => d.id == role.id);
+            (await client.ListRolesAsync(new(filters: [new(nameof(RoleSummary.id), $"{role.id}")]))).data.Should().Contain(d => d.id == role.id);
             await client.DeleteRoleAsync(role.id);
-            (await client.ListRolesAsync(new(filters: new Filter[] { new(nameof(RoleSummary.id), $"{role.id}") }))).data.Should().NotContain(d => d.id == role.id);
+            (await client.ListRolesAsync(new(filters: [new(nameof(RoleSummary.id), $"{role.id}")]))).data.Should().NotContain(d => d.id == role.id);
         }
     }
     #endregion

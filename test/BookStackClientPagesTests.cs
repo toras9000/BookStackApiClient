@@ -13,8 +13,8 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        await client.CreateMarkdownPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "- aaa", priority: 4, new Tag[] { new("tp1", "vp1"), new("tp2", "vp2"), }));
-        await client.CreateHtmlPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "<b>aa</b>", priority: 5, new Tag[] { new("tp3", "vp3"), new("tp4", "vp4"), }));
+        await client.CreateMarkdownPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
+        await client.CreateHtmlPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "<b>aa</b>", priority: 5, tags: [new("tp3", "vp3"), new("tp4", "vp4"),]));
 
         var pages = await client.ListPagesAsync();
         foreach (var page in container.Pages)
@@ -55,34 +55,34 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             pages1.data.Select(d => d.id).Should().NotIntersectWith(pages2.data.Select(d => d.id));
         }
         {// filter
-            var pages = await client.ListPagesAsync(new(filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var pages = await client.ListPagesAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
             pages.data.Should().AllSatisfy(d => d.name.StartsWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;
             var count = 4;
-            var pages = await client.ListPagesAsync(new(offset, count, sorts: new[] { nameof(PageSummary.name), }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var pages = await client.ListPagesAsync(new(offset, count, sorts: [nameof(PageSummary.name),], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Pages.Where(c => c.name.StartsWith(prefix1)).Select(c => c.id).Skip(offset).Take(count);
             pages.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc)
             var offset = 0;
             var count = 4;
-            var pages = await client.ListPagesAsync(new(offset, count, sorts: new[] { $"-{nameof(PageSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var pages = await client.ListPagesAsync(new(offset, count, sorts: [$"-{nameof(PageSummary.name)}",], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Pages.AsEnumerable().Reverse().Where(c => c.name.StartsWith(prefix1)).Select(c => c.id).Skip(offset).Take(count);
             pages.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (asc) & range
             var offset = 2;
             var count = 5;
-            var pages = await client.ListPagesAsync(new(offset, count, sorts: new[] { nameof(PageSummary.name), }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var pages = await client.ListPagesAsync(new(offset, count, sorts: [nameof(PageSummary.name),], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Pages.Where(c => c.name.StartsWith(prefix2)).Select(c => c.id).Skip(offset).Take(count);
             pages.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc) & range
             var offset = 3;
             var count = 4;
-            var pages = await client.ListPagesAsync(new(offset, count, sorts: new[] { $"-{nameof(PageSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var pages = await client.ListPagesAsync(new(offset, count, sorts: [$"-{nameof(PageSummary.name)}",], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Pages.AsEnumerable().Reverse().Where(c => c.name.StartsWith(prefix2)).Select(c => c.id).Skip(offset).Take(count);
             pages.data.Select(d => d.id).Should().Equal(expects);
         }
@@ -133,7 +133,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {//  tags
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("aaa"), book_id: book.id, markdown: "aaa", tags: new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), }));
+            var page = await client.CreatePageAsync(new(testName("aaa"), book_id: book.id, markdown: "aaa", tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(0);
             page.name.Should().Be(testName("aaa"));
@@ -145,7 +145,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             page.created_by.id.Should().Be(book.created_by);
             page.updated_by.id.Should().Be(book.updated_by);
             page.owned_by.id.Should().Be(book.owned_by);
-            page.tags.Should().BeEquivalentTo(new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), });
+            page.tags.Should().BeEquivalentTo((Tag[])[new("tpv1", "tpv1"), new("tpv2", "tpv2"),]);
         }
     }
 
@@ -197,7 +197,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter")));
-            var page = await client.CreatePageAsync(new(testName("aaa"), chapter_id: chapter.id, markdown: "aaa", tags: new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), }));
+            var page = await client.CreatePageAsync(new(testName("aaa"), chapter_id: chapter.id, markdown: "aaa", tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(chapter.id);
             page.name.Should().Be(testName("aaa"));
@@ -209,7 +209,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             page.created_by.id.Should().Be(book.created_by);
             page.updated_by.id.Should().Be(book.updated_by);
             page.owned_by.id.Should().Be(book.owned_by);
-            page.tags.Should().BeEquivalentTo(new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), });
+            page.tags.Should().BeEquivalentTo((Tag[])[new("tpv1", "tpv1"), new("tpv2", "tpv2"),]);
         }
     }
 
@@ -241,7 +241,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("bbb"), "mdmd", priority: 13, tags: new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), }));
+            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("bbb"), "mdmd", priority: 13, tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(0);
             page.name.Should().Be(testName("bbb"));
@@ -254,7 +254,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             page.created_by.id.Should().Be(book.created_by);
             page.updated_by.id.Should().Be(book.updated_by);
             page.owned_by.id.Should().Be(book.owned_by);
-            page.tags.Should().BeEquivalentTo(new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), });
+            page.tags.Should().BeEquivalentTo((Tag[])[new("tpv1", "tpv1"), new("tpv2", "tpv2"),]);
         }
     }
 
@@ -288,7 +288,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter")));
-            var page = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("bbb"), "mdmd", priority: 22, new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), }));
+            var page = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("bbb"), "mdmd", priority: 22, tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(chapter.id);
             page.name.Should().Be(testName("bbb"));
@@ -301,7 +301,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             page.created_by.id.Should().Be(book.created_by);
             page.updated_by.id.Should().Be(book.updated_by);
             page.owned_by.id.Should().Be(book.owned_by);
-            page.tags.Should().BeEquivalentTo(new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), });
+            page.tags.Should().BeEquivalentTo((Tag[])[new("tpv1", "tpv1"), new("tpv2", "tpv2"),]);
         }
     }
 
@@ -333,7 +333,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreateHtmlPageInBookAsync(new(book.id, testName("bbb"), "htht", priority: 1, new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), }));
+            var page = await client.CreateHtmlPageInBookAsync(new(book.id, testName("bbb"), "htht", priority: 1, tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(0);
             page.name.Should().Be(testName("bbb"));
@@ -346,7 +346,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             page.created_by.id.Should().Be(book.created_by);
             page.updated_by.id.Should().Be(book.updated_by);
             page.owned_by.id.Should().Be(book.owned_by);
-            page.tags.Should().BeEquivalentTo(new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), });
+            page.tags.Should().BeEquivalentTo((Tag[])[new("tpv1", "tpv1"), new("tpv2", "tpv2"),]);
         }
     }
 
@@ -380,7 +380,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter")));
-            var page = await client.CreateHtmlPageInChapterAsync(new(chapter.id, testName("bbb"), "htht", priority: 2, new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), }));
+            var page = await client.CreateHtmlPageInChapterAsync(new(chapter.id, testName("bbb"), "htht", priority: 2, tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(chapter.id);
             page.name.Should().Be(testName("bbb"));
@@ -393,7 +393,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             page.created_by.id.Should().Be(book.created_by);
             page.updated_by.id.Should().Be(book.updated_by);
             page.owned_by.id.Should().Be(book.owned_by);
-            page.tags.Should().BeEquivalentTo(new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), });
+            page.tags.Should().BeEquivalentTo((Tag[])[new("tpv1", "tpv1"), new("tpv2", "tpv2"),]);
         }
     }
 
@@ -460,10 +460,10 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         }
         {//  tags
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("aaa"), "mdmd", priority: 4, new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), }));
+            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("aaa"), "mdmd", priority: 4, tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             var detail = await client.ReadPageAsync(page.id);
             detail.priority.Should().Be(4);
-            detail.tags.Should().BeEquivalentTo(new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), });
+            detail.tags.Should().BeEquivalentTo((Tag[])[new("tpv1", "tpv1"), new("tpv2", "tpv2"),]);
         }
     }
 
@@ -533,10 +533,10 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {//  tags
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter")));
-            var page = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("aaa"), "mdmd", priority: 5, new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), }));
+            var page = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("aaa"), "mdmd", priority: 5, tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             var detail = await client.ReadPageAsync(page.id);
             detail.priority.Should().Be(5);
-            detail.tags.Should().BeEquivalentTo(new Tag[] { new("tpv1", "tpv1"), new("tpv2", "tpv2"), });
+            detail.tags.Should().BeEquivalentTo((Tag[])[new("tpv1", "tpv1"), new("tpv2", "tpv2"),]);
         }
     }
 
@@ -757,18 +757,18 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var name = testName($"page_{Guid.NewGuid()}");
             var page = await client.CreatePageAsync(new(name, book_id: book.id, markdown: "aaa"));
-            (await client.ListPagesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().Contain(d => d.id == page.id);
+            (await client.ListPagesAsync(new(filters: [new("name", name)]))).data.Should().Contain(d => d.id == page.id);
             await client.DeletePageAsync(page.id);
-            (await client.ListPagesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().NotContain(d => d.id == page.id);
+            (await client.ListPagesAsync(new(filters: [new("name", name)]))).data.Should().NotContain(d => d.id == page.id);
         }
         {
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter")));
             var name = testName($"page_{Guid.NewGuid()}");
             var page = await client.CreatePageAsync(new(name, chapter_id: chapter.id, markdown: "aaa"));
-            (await client.ListPagesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().Contain(d => d.id == page.id);
+            (await client.ListPagesAsync(new(filters: [new("name", name)]))).data.Should().Contain(d => d.id == page.id);
             await client.DeletePageAsync(page.id);
-            (await client.ListPagesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().NotContain(d => d.id == page.id);
+            (await client.ListPagesAsync(new(filters: [new("name", name)]))).data.Should().NotContain(d => d.id == page.id);
         }
     }
 

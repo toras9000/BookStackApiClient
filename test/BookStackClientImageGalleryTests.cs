@@ -57,34 +57,34 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             images1.data.Select(d => d.id).Should().NotIntersectWith(images2.data.Select(d => d.id));
         }
         {// filter
-            var images = await client.ListImagesAsync(new(filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var images = await client.ListImagesAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
             images.data.Should().AllSatisfy(d => d.name.StartsWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;
             var count = 4;
-            var images = await client.ListImagesAsync(new(offset, count, sorts: new[] { nameof(ImageSummary.name), }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var images = await client.ListImagesAsync(new(offset, count, sorts: [nameof(ImageSummary.name),], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Images.Where(c => c.name.StartsWith(prefix1)).Select(c => c.id).Skip(offset).Take(count);
             images.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc)
             var offset = 0;
             var count = 4;
-            var images = await client.ListImagesAsync(new(offset, count, sorts: new[] { $"-{nameof(ImageSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix1}%") }));
+            var images = await client.ListImagesAsync(new(offset, count, sorts: [$"-{nameof(ImageSummary.name)}",], filters: [new($"name:like", $"{prefix1}%")]));
             var expects = container.Images.AsEnumerable().Reverse().Where(c => c.name.StartsWith(prefix1)).Select(c => c.id).Skip(offset).Take(count);
             images.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (asc) & range
             var offset = 2;
             var count = 5;
-            var images = await client.ListImagesAsync(new(offset, count, sorts: new[] { nameof(ImageSummary.name), }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var images = await client.ListImagesAsync(new(offset, count, sorts: [nameof(ImageSummary.name),], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Images.Where(c => c.name.StartsWith(prefix2)).Select(c => c.id).Skip(offset).Take(count);
             images.data.Select(d => d.id).Should().Equal(expects);
         }
         {// filter & sort (desc) & range
             var offset = 3;
             var count = 4;
-            var images = await client.ListImagesAsync(new(offset, count, sorts: new[] { $"-{nameof(ImageSummary.name)}", }, filters: new Filter[] { new($"name:like", $"{prefix2}%") }));
+            var images = await client.ListImagesAsync(new(offset, count, sorts: [$"-{nameof(ImageSummary.name)}",], filters: [new($"name:like", $"{prefix2}%")]));
             var expects = container.Images.AsEnumerable().Reverse().Where(c => c.name.StartsWith(prefix2)).Select(c => c.id).Skip(offset).Take(count);
             images.data.Select(d => d.id).Should().Equal(expects);
         }
@@ -333,9 +333,9 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             var path = testResPath("images/pd001.png");
             var name = testName($"image_{Guid.NewGuid()}");
             var image = await client.CreateImageAsync(new(page.id, "gallery", name), path);
-            (await client.ListImagesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().Contain(i => i.id == image.id);
+            (await client.ListImagesAsync(new(filters: [new("name", name)]))).data.Should().Contain(i => i.id == image.id);
             await client.DeleteImageAsync(image.id);
-            (await client.ListImagesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().NotContain(i => i.id == image.id);
+            (await client.ListImagesAsync(new(filters: [new("name", name)]))).data.Should().NotContain(i => i.id == image.id);
         }
         {
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
@@ -343,9 +343,9 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             var path = testResPath("images/draw001.png");
             var name = testName($"image_{Guid.NewGuid()}");
             var image = await client.CreateImageAsync(new(page.id, "drawio", name), path);
-            (await client.ListImagesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().Contain(i => i.id == image.id);
+            (await client.ListImagesAsync(new(filters: [new("name", name)]))).data.Should().Contain(i => i.id == image.id);
             await client.DeleteImageAsync(image.id);
-            (await client.ListImagesAsync(new(filters: new Filter[] { new("name", name) }))).data.Should().NotContain(i => i.id == image.id);
+            (await client.ListImagesAsync(new(filters: [new("name", name)]))).data.Should().NotContain(i => i.id == image.id);
         }
 
     }

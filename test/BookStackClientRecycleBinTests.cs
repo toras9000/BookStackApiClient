@@ -223,13 +223,13 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var shelf = await client.CreateShelfAsync(new(testName("testshelf"))).WillBeDiscarded(container);
         await client.DeleteShelfAsync(shelf.id);
 
-        var recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "bookshelf"), new("deletable_id", $"{shelf.id}"), }));
+        var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "bookshelf"), new("deletable_id", $"{shelf.id}"),]));
         var item = recycles.data[0];
 
-        (await client.ListShelvesAsync(new(filters: new Filter[] { new("id", $"{shelf.id}") }))).data.Should().BeEmpty();
+        (await client.ListShelvesAsync(new(filters: [new("id", $"{shelf.id}")]))).data.Should().BeEmpty();
         var restored = await client.RestoreRecycleItemAsync(item.id);
         restored.restore_count.Should().NotBe(0);
-        (await client.ListShelvesAsync(new(filters: new Filter[] { new("id", $"{shelf.id}") }))).data.Should().NotBeEmpty();
+        (await client.ListShelvesAsync(new(filters: [new("id", $"{shelf.id}")]))).data.Should().NotBeEmpty();
     }
 
     [TestMethod()]
@@ -243,13 +243,13 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
         await client.DeleteBookAsync(book.id);
 
-        var recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "book"), new("deletable_id", $"{book.id}"), }));
+        var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "book"), new("deletable_id", $"{book.id}"),]));
         var item = recycles.data[0];
 
-        (await client.ListBooksAsync(new(filters: new Filter[] { new("id", $"{book.id}") }))).data.Should().BeEmpty();
+        (await client.ListBooksAsync(new(filters: [new("id", $"{book.id}")]))).data.Should().BeEmpty();
         var restored = await client.RestoreRecycleItemAsync(item.id);
         restored.restore_count.Should().NotBe(0);
-        (await client.ListBooksAsync(new(filters: new Filter[] { new("id", $"{book.id}") }))).data.Should().NotBeEmpty();
+        (await client.ListBooksAsync(new(filters: [new("id", $"{book.id}")]))).data.Should().NotBeEmpty();
     }
 
     [TestMethod()]
@@ -264,13 +264,13 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
         await client.DeleteChapterAsync(chapter.id);
 
-        var recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "chapter"), new("deletable_id", $"{chapter.id}"), }));
+        var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "chapter"), new("deletable_id", $"{chapter.id}"),]));
         var item = recycles.data[0];
 
-        (await client.ListChaptersAsync(new(filters: new Filter[] { new("id", $"{chapter.id}") }))).data.Should().BeEmpty();
+        (await client.ListChaptersAsync(new(filters: [new("id", $"{chapter.id}")]))).data.Should().BeEmpty();
         var restored = await client.RestoreRecycleItemAsync(item.id);
         restored.restore_count.Should().NotBe(0);
-        (await client.ListChaptersAsync(new(filters: new Filter[] { new("id", $"{chapter.id}") }))).data.Should().NotBeEmpty();
+        (await client.ListChaptersAsync(new(filters: [new("id", $"{chapter.id}")]))).data.Should().NotBeEmpty();
     }
 
     [TestMethod()]
@@ -285,13 +285,13 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage"), "in_book")).WillBeDiscarded(container);
         await client.DeletePageAsync(page.id);
 
-        var recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "page"), new("deletable_id", $"{page.id}"), }));
+        var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "page"), new("deletable_id", $"{page.id}"),]));
         var item = recycles.data[0];
 
-        (await client.ListPagesAsync(new(filters: new Filter[] { new("id", $"{page.id}") }))).data.Should().BeEmpty();
+        (await client.ListPagesAsync(new(filters: [new("id", $"{page.id}")]))).data.Should().BeEmpty();
         var restored = await client.RestoreRecycleItemAsync(item.id);
         restored.restore_count.Should().NotBe(0);
-        (await client.ListPagesAsync(new(filters: new Filter[] { new("id", $"{page.id}") }))).data.Should().NotBeEmpty();
+        (await client.ListPagesAsync(new(filters: [new("id", $"{page.id}")]))).data.Should().NotBeEmpty();
     }
 
     [TestMethod()]
@@ -305,12 +305,12 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var shelf = await client.CreateShelfAsync(new(testName("testshelf"))).WillBeDiscarded(container);
         await client.DeleteShelfAsync(shelf.id);
 
-        var recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "bookshelf"), new("deletable_id", $"{shelf.id}"), }));
+        var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "bookshelf"), new("deletable_id", $"{shelf.id}"),]));
         var item = recycles.data[0];
 
         await client.DestroyRecycleItemAsync(item.id);
 
-        recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "bookshelf"), new("deletable_id", $"{shelf.id}"), }));
+        recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "bookshelf"), new("deletable_id", $"{shelf.id}"),]));
         recycles.data.Should().BeEmpty();
     }
 
@@ -325,12 +325,12 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
         await client.DeleteBookAsync(book.id);
 
-        var recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "book"), new("deletable_id", $"{book.id}"), }));
+        var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "book"), new("deletable_id", $"{book.id}"),]));
         var item = recycles.data[0];
 
         await client.DestroyRecycleItemAsync(item.id);
 
-        recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "book"), new("deletable_id", $"{book.id}"), }));
+        recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "book"), new("deletable_id", $"{book.id}"),]));
         recycles.data.Should().BeEmpty();
     }
 
@@ -346,12 +346,12 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
         await client.DeleteChapterAsync(chapter.id);
 
-        var recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "chapter"), new("deletable_id", $"{chapter.id}"), }));
+        var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "chapter"), new("deletable_id", $"{chapter.id}"),]));
         var item = recycles.data[0];
 
         await client.DestroyRecycleItemAsync(item.id);
 
-        recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "chapter"), new("deletable_id", $"{chapter.id}"), }));
+        recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "chapter"), new("deletable_id", $"{chapter.id}"),]));
         recycles.data.Should().BeEmpty();
     }
 
@@ -367,12 +367,12 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage"), "in_book")).WillBeDiscarded(container);
         await client.DeletePageAsync(page.id);
 
-        var recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "page"), new("deletable_id", $"{page.id}"), }));
+        var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "page"), new("deletable_id", $"{page.id}"),]));
         var item = recycles.data[0];
 
         await client.DestroyRecycleItemAsync(item.id);
 
-        recycles = await client.ListRecycleBinAsync(new(filters: new Filter[] { new("deletable_type", "page"), new("deletable_id", $"{page.id}"), }));
+        recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "page"), new("deletable_id", $"{page.id}"),]));
         recycles.data.Should().BeEmpty();
     }
     #endregion
