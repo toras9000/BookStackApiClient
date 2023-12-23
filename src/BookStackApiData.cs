@@ -212,7 +212,7 @@ public record ListBooksResult(BookSummary[] data, long total);
 /// <param name="name">ブック名</param>
 /// <param name="description">ブック概要</param>
 /// <param name="tags">付与するタグ一覧</param>
-public record CreateBookArgs(string name, string? description = null, Tag[]? tags = null);
+public record CreateBookArgs(string name, string? description = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ブック内コンテンツ基本クラス</summary>
 /// <param name="id">コンテンツID</param>
@@ -301,7 +301,7 @@ public record ReadBookResult(
 /// <param name="name">ブック名</param>
 /// <param name="description">ブック概要</param>
 /// <param name="tags">更新するタグ一覧</param>
-public record UpdateBookArgs(string? name = null, string? description = null, Tag[]? tags = null);
+public record UpdateBookArgs(string? name = null, string? description = null, IReadOnlyList<Tag>? tags = null);
 #endregion
 
 #region chapters
@@ -358,7 +358,7 @@ public record ListChaptersResult(ChapterSummary[] data, long total);
 /// <param name="description">チャプタ概要</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateChapterArgs(long book_id, string name, string? description = null, long? priority = null, Tag[]? tags = null);
+public record CreateChapterArgs(long book_id, string name, string? description = null, long? priority = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>チャプタ内ページコンテンツ</summary>
 /// <param name="id">ページID</param>
@@ -411,7 +411,7 @@ public record ReadChapterResult(
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
 /// <param name="book_id">ブックID</param>
-public record UpdateChapterArgs(string? name = null, string? description = null, long? priority = null, Tag[]? tags = null, long? book_id = null);
+public record UpdateChapterArgs(string? name = null, string? description = null, long? priority = null, IReadOnlyList<Tag>? tags = null, long? book_id = null);
 #endregion
 
 #region pages
@@ -482,7 +482,7 @@ public record ListPagesResult(PageSummary[] data, long total);
 /// <param name="markdown">ページ内容Markdown</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreatePageArgs(string name, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, Tag[]? tags = null);
+public record CreatePageArgs(string name, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ作成(Markdown/ブック内)要求パラメータ</summary>
 /// <param name="book_id">作成先ブックID</param>
@@ -490,7 +490,7 @@ public record CreatePageArgs(string name, long? book_id = null, long? chapter_id
 /// <param name="markdown">ページ内容Markdown</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateMarkdownPageInBookArgs(long book_id, string name, string markdown, long? priority = null, Tag[]? tags = null);
+public record CreateMarkdownPageInBookArgs(long book_id, string name, string markdown, long? priority = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ作成(Markdown/チャプタ内)要求パラメータ</summary>
 /// <param name="chapter_id">作成先チャプタID</param>
@@ -498,7 +498,7 @@ public record CreateMarkdownPageInBookArgs(long book_id, string name, string mar
 /// <param name="markdown">ページ内容Markdown</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateMarkdownPageInChapterArgs(long chapter_id, string name, string markdown, long? priority = null, Tag[]? tags = null);
+public record CreateMarkdownPageInChapterArgs(long chapter_id, string name, string markdown, long? priority = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ作成(HTML/ブック内)要求パラメータ</summary>
 /// <param name="book_id">作成先ブックID</param>
@@ -506,7 +506,7 @@ public record CreateMarkdownPageInChapterArgs(long chapter_id, string name, stri
 /// <param name="html">ページ内容HTML</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateHtmlPageInBookArgs(long book_id, string name, string html, long? priority = null, Tag[]? tags = null);
+public record CreateHtmlPageInBookArgs(long book_id, string name, string html, long? priority = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ作成(HTML/ブック内)要求パラメータ</summary>
 /// <param name="chapter_id">作成先チャプタID</param>
@@ -514,7 +514,7 @@ public record CreateHtmlPageInBookArgs(long book_id, string name, string html, l
 /// <param name="html">ページ内容HTML</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateHtmlPageInChapterArgs(long chapter_id, string name, string html, long? priority = null, Tag[]? tags = null);
+public record CreateHtmlPageInChapterArgs(long chapter_id, string name, string html, long? priority = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ詳細情報</summary>
 /// <param name="id">ページID</param>
@@ -554,7 +554,7 @@ public record ReadPageResult(
 /// <param name="markdown">ページ内容Markdown</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record UpdatePageArgs(string? name = null, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, Tag[]? tags = null);
+public record UpdatePageArgs(string? name = null, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, IReadOnlyList<Tag>? tags = null);
 #endregion
 
 #region shelves
@@ -584,14 +584,14 @@ public record ListShelvesResult(ShelfItem[] data, long total);
 /// <param name="description">棚概要</param>
 /// <param name="books">棚に含むブックIDの配列</param>
 /// <param name="tags">付与するタグ一覧</param>
-public record CreateShelfArgs(string name, string? description = null, long[]? books = null, Tag[]? tags = null);
+public record CreateShelfArgs(string name, string? description = null, IReadOnlyList<long>? books = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>棚更新要求パラメータ</summary>
 /// <param name="name">棚名</param>
 /// <param name="description">棚概要</param>
 /// <param name="books">棚に含むブックIDの配列</param>
 /// <param name="tags">付与するタグ一覧</param>
-public record UpdateShelfArgs(string? name = null, string? description = null, long[]? books = null, Tag[]? tags = null);
+public record UpdateShelfArgs(string? name = null, string? description = null, IReadOnlyList<long>? books = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>棚カバー画像情報</summary>
 /// <param name="id">棚カバー画像ID</param>
@@ -899,7 +899,7 @@ public record ListUsersResult(UserSummary[] data, long total);
 public record CreateUserArgs(
     string name, string email, string? external_auth_id = null,
     string? language = null, string? password = null,
-    long[]? roles = null, bool? send_invite = null
+    IReadOnlyList<long>? roles = null, bool? send_invite = null
 );
 
 /// <summary>ユーザロール</summary>
@@ -918,7 +918,7 @@ public record UserRole(long id, string display_name);
 public record UpdateUserArgs(
     string? name = null, string? email = null, string? external_auth_id = null,
     string? language = null, string? password = null,
-    long[]? roles = null, bool? send_invite = null
+    IReadOnlyList<long>? roles = null, bool? send_invite = null
 );
 #endregion
 
@@ -970,7 +970,7 @@ public record ListRolesResult(RoleSummary[] data, long total);
 public record CreateRoleArgs(
     string display_name, string? description = null,
     bool? mfa_enforced = null, string? external_auth_id = null,
-    string[]? permissions = null
+    IReadOnlyList<string>? permissions = null
 );
 
 /// <summary>ロール更新要求パラメータ</summary>
@@ -982,7 +982,7 @@ public record CreateRoleArgs(
 public record UpdateRoleArgs(
     string? display_name = null, string? description = null,
     bool? mfa_enforced = null, string? external_auth_id = null,
-    string[]? permissions = null
+    IReadOnlyList<string>? permissions = null
 );
 #endregion
 

@@ -1126,7 +1126,7 @@ public class BookStackClient : IDisposable
             if (args.description != null) context.Add(new StringContent(args.description), nameof(args.description));
             if (args.tags != null)
             {
-                for (var i = 0; i < args.tags.Length; i++)
+                for (var i = 0; i < args.tags.Count; i++)
                 {
                     var tag = args.tags[i];
                     context.Add(new StringContent(tag.name), $"{nameof(args.tags)}[{i}][{nameof(tag.name)}]");
@@ -1166,7 +1166,7 @@ public class BookStackClient : IDisposable
             if (args.description != null) context.Add(new StringContent(args.description), nameof(args.description));
             if (args.tags != null)
             {
-                for (var i = 0; i < args.tags.Length; i++)
+                for (var i = 0; i < args.tags.Count; i++)
                 {
                     var tag = args.tags[i];
                     context.Add(new StringContent(tag.name), $"{nameof(args.tags)}[{i}][{nameof(tag.name)}]");
@@ -1246,7 +1246,7 @@ public class BookStackClient : IDisposable
             if (args.description != null) context.Add(new StringContent(args.description), nameof(args.description));
             if (args.tags != null)
             {
-                for (var i = 0; i < args.tags.Length; i++)
+                for (var i = 0; i < args.tags.Count; i++)
                 {
                     var tag = args.tags[i];
                     context.Add(new StringContent(tag.name), $"{nameof(args.tags)}[{i}][{nameof(tag.name)}]");
@@ -1255,7 +1255,7 @@ public class BookStackClient : IDisposable
             }
             if (args.books != null)
             {
-                for (var i = 0; i < args.books.Length; i++)
+                for (var i = 0; i < args.books.Count; i++)
                 {
                     var book_id = args.books[i];
                     context.Add(new StringContent(book_id.ToString()), $"{nameof(args.books)}[{i}]");
@@ -1288,7 +1288,7 @@ public class BookStackClient : IDisposable
             if (args.description != null) context.Add(new StringContent(args.description), nameof(args.description));
             if (args.tags != null)
             {
-                for (var i = 0; i < args.tags.Length; i++)
+                for (var i = 0; i < args.tags.Count; i++)
                 {
                     var tag = args.tags[i];
                     context.Add(new StringContent(tag.name), $"{nameof(args.tags)}[{i}][{nameof(tag.name)}]");
@@ -1297,7 +1297,7 @@ public class BookStackClient : IDisposable
             }
             if (args.books != null)
             {
-                for (var i = 0; i < args.books.Length; i++)
+                for (var i = 0; i < args.books.Count; i++)
                 {
                     var book_id = args.books[i];
                     context.Add(new StringContent(book_id.ToString()), $"{nameof(args.books)}[{i}]");
