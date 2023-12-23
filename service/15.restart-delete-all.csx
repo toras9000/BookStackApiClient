@@ -1,4 +1,4 @@
-#r "nuget: Lestaly, 0.51.0"
+#r "nuget: Lestaly, 0.54.0"
 using System.Net.Http;
 using System.Threading;
 using Lestaly;
@@ -15,15 +15,18 @@ await Paved.RunAsync(async () =>
     await "docker".args("compose", "--file", composeFile.FullName, "down").result().success();
 
     Console.WriteLine("Delete config/repos");
-    var volumeDir = ThisSource.RelativeDirectory("./docker/volumes");
-    if (volumeDir.Exists) { volumeDir.DoFiles(c => c.File?.SetReadOnly(false)); volumeDir.Delete(recursive: true); }
+    ThisSource.RelativeDirectory("./docker/volumes").DeleteRecurse();
 
     Console.WriteLine("Start service");
     await "docker".args("compose", "--file", composeFile.FullName, "up", "-d").result().success();
 
     Console.WriteLine("Waiting for accessible ...");
+    var serviceUrl = new Uri("http://localhost:9988");
     using var checker = new HttpClient();
-    while (!await checker.IsSuccessStatusAsync(new Uri("http://localhost:9988"))) await Task.Delay(1000);
+    while (!await checker.IsSuccessStatusAsync(serviceUrl)) await Task.Delay(1000);
+
+    Console.WriteLine("Launch site.");
+    await CmdShell.ExecAsync(serviceUrl.AbsoluteUri);
 
     Console.WriteLine("completed.");
 });
