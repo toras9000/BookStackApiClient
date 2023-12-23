@@ -21,6 +21,13 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var page_in_chapter = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("testpage_in_chapter"), "in_chapter")).WillBeDiscarded(container);
         var shelf_has_book = await client.CreateShelfAsync(new(testName("testshelf_has_book"), books: new[] { book.id, })).WillBeDiscarded(container);
         var shelf_no_book = await client.CreateShelfAsync(new(testName("testshelf_no_book"))).WillBeDiscarded(container);
+
+        // デフォルトテンプレートIDを付けておく
+        await using (var adapter = new TestBackendAdapter()) await adapter.SetPagaTemplateFlag(page_in_book.id, true);
+        book = await client.UpdateBookAsync(book.id, new(default_template_id: page_in_book.id));
+        page_in_book = await client.UpdatePageAsync(page_in_book.id, new());    // 以降の検証処理用に情報を取り直す。(変更なしで更新をかける)
+
+        // すべて削除する。
         await container.DisposeAsync();
 
         // すべて取得
@@ -55,6 +62,7 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             deletable.updated_by.Should().Be(expect.updated_by);
             deletable.owned_by.Should().Be(expect.owned_by);
             deletable.description.Should().Be(expect.description);
+            deletable.default_template_id.Should().Be(book.default_template_id);
             deletable.chapters_count.Should().Be(1);
             deletable.pages_count.Should().Be(2);
         }

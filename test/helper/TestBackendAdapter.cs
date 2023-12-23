@@ -27,6 +27,20 @@ public class TestBackendAdapter : IAsyncDisposable
         return id;
     }
 
+    public async ValueTask SetPagaTemplateFlag(long pageId, bool flag)
+    {
+        var db = await ensureConnectionAsync().ConfigureAwait(false);
+
+        var parameters = new { pageId, flag };
+        var query = $"""
+        update pages
+        set template = @{nameof(parameters.flag)}
+        where id = @{nameof(parameters.pageId)}
+        """;
+        var affected = await db.ExecuteAsync(query, parameters).ConfigureAwait(false);
+        if (affected != 1) throw new Exception("failed");
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (this.connection == null) return;

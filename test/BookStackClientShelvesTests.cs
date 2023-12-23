@@ -22,11 +22,11 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         await client.CreateShelfAsync(new(testName("testshelve4"), "desc4")).WillBeDiscarded(container);
 
         var shelves = await client.ListShelvesAsync();
-        foreach (var shelf in container.Shelves)
+        foreach (var created in container.Shelves)
         {
-            var actual = shelves.data.Should().Contain(i => i.id == shelf.id).Subject;
-            var expect = shelf;
-            actual.Should().BeEquivalentTo(shelf, o => o.ExcludingMissingMembers());
+            var actual = shelves.data.Should().Contain(i => i.id == created.id).Subject;
+            var expect = created;
+            actual.Should().BeEquivalentTo(expect, o => o.ExcludingMissingMembers());   // 一覧取得時には取得されないものもあるので、見つからないメンバを期待値から除外する
         }
     }
 
@@ -109,12 +109,18 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             var shelf = await client.CreateShelfAsync(new(testName("aaa"), "bbb")).WillBeDiscarded(container);
             shelf.name.Should().Be(testName("aaa"));
             shelf.description.Should().Be("bbb");
+            shelf.description_html.Should().Contain("bbb");
             shelf.slug.Should().NotBeNullOrEmpty();
             shelf.created_at.Should().BeCloseTo(now, 10.Seconds());
             shelf.updated_at.Should().BeCloseTo(now, 10.Seconds());
             shelf.created_by.Should().Be(shelf.created_by);
             shelf.updated_by.Should().Be(shelf.updated_by);
             shelf.owned_by.Should().Be(shelf.owned_by);
+        }
+        {// description_html
+            var shelf = await client.CreateShelfAsync(new(testName("aaa"), description_html: "bbb")).WillBeDiscarded(container);
+            shelf.description.Should().Contain("bbb");
+            shelf.description_html.Should().Contain("bbb");
         }
         {// books
             var shelf = await client.CreateShelfAsync(new(testName("ccc"), books: new[] { book2.id, book3.id, })).WillBeDiscarded(container);
@@ -129,6 +135,8 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             shelf.name.Should().Be(testName("ddd"));
             shelf.description.Should().BeEmpty();
             shelf.slug.Should().NotBeNullOrEmpty();
+            shelf.tags.Should().BeEquivalentTo((Tag[])[new("ts1", "vs1"), new("ts2", "vs2"),]);
+            shelf.cover.Should().BeNull();
             var detail = await client.ReadShelfAsync(shelf.id);
             detail.tags.Should().BeEquivalentTo((Tag[])[new("ts1", "vs1"), new("ts2", "vs2"),]);
             detail.books.Should().BeNullOrEmpty();
@@ -139,6 +147,17 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             var path = testResPath("images/pd001.png");
             var shelf = await client.CreateShelfAsync(new(testName("eee")), path).WillBeDiscarded(container);
             shelf.name.Should().Be(testName("eee"));
+            shelf.tags.Should().BeNullOrEmpty();
+            Assert.IsNotNull(shelf.cover);
+            shelf.cover.name.Should().Be("pd001.png");
+            shelf.cover.type.Should().Be("cover_bookshelf");
+            shelf.cover.uploaded_to.Should().Be(shelf.id);
+            shelf.cover.path.Should().NotBeNullOrEmpty();
+            shelf.cover.url.Should().NotBeNullOrEmpty();
+            shelf.cover.created_at.Should().BeCloseTo(now, 10.Seconds());
+            shelf.cover.updated_at.Should().BeCloseTo(now, 10.Seconds());
+            shelf.cover.created_by.Should().Be(shelf.created_by);
+            shelf.cover.updated_by.Should().Be(shelf.updated_by);
             var detail = await client.ReadShelfAsync(shelf.id);
             detail.tags.Should().BeNullOrEmpty();
             detail.books.Should().BeNullOrEmpty();
@@ -158,6 +177,17 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             var path = testResPath("images/pd001.png");
             var shelf = await client.CreateShelfAsync(new(testName("eee")), path, "xxx.png").WillBeDiscarded(container);
             shelf.name.Should().Be(testName("eee"));
+            shelf.tags.Should().BeNullOrEmpty();
+            Assert.IsNotNull(shelf.cover);
+            shelf.cover.name.Should().Be("xxx.png");
+            shelf.cover.type.Should().Be("cover_bookshelf");
+            shelf.cover.uploaded_to.Should().Be(shelf.id);
+            shelf.cover.path.Should().NotBeNullOrEmpty();
+            shelf.cover.url.Should().NotBeNullOrEmpty();
+            shelf.cover.created_at.Should().BeCloseTo(now, 10.Seconds());
+            shelf.cover.updated_at.Should().BeCloseTo(now, 10.Seconds());
+            shelf.cover.created_by.Should().Be(shelf.created_by);
+            shelf.cover.updated_by.Should().Be(shelf.updated_by);
             var detail = await client.ReadShelfAsync(shelf.id);
             detail.tags.Should().BeNullOrEmpty();
             detail.books.Should().BeNullOrEmpty();
@@ -177,6 +207,17 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             var binary = await testResContentAsync("images/pd001.png");
             var shelf = await client.CreateShelfAsync(new(testName("eee")), binary, "img.png").WillBeDiscarded(container);
             shelf.name.Should().Be(testName("eee"));
+            shelf.tags.Should().BeNullOrEmpty();
+            Assert.IsNotNull(shelf.cover);
+            shelf.cover.name.Should().Be("img.png");
+            shelf.cover.type.Should().Be("cover_bookshelf");
+            shelf.cover.uploaded_to.Should().Be(shelf.id);
+            shelf.cover.path.Should().NotBeNullOrEmpty();
+            shelf.cover.url.Should().NotBeNullOrEmpty();
+            shelf.cover.created_at.Should().BeCloseTo(now, 10.Seconds());
+            shelf.cover.updated_at.Should().BeCloseTo(now, 10.Seconds());
+            shelf.cover.created_by.Should().Be(shelf.created_by);
+            shelf.cover.updated_by.Should().Be(shelf.updated_by);
             var detail = await client.ReadShelfAsync(shelf.id);
             detail.tags.Should().BeNullOrEmpty();
             detail.books.Should().BeNullOrEmpty();
@@ -210,10 +251,11 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             var tags = (Tag[])[new("st1", "sv1"), new("st2", "sv2"),];
             var path = testResPath("images/pd002.png");
             var now = DateTime.UtcNow;
-            var shelf = await client.CreateShelfAsync(new(testName("shelf"), "desc", books, tags), path).WillBeDiscarded(container);
+            var shelf = await client.CreateShelfAsync(new(testName("shelf"), "desc", books: books, tags: tags), path).WillBeDiscarded(container);
             var detail = await client.ReadShelfAsync(shelf.id);
             detail.name.Should().Be(testName("shelf"));
             detail.description.Should().Be("desc");
+            detail.description_html.Should().Contain("desc");
             detail.slug.Should().Be(shelf.slug);
             foreach (var book in container.Books)
             {
@@ -258,12 +300,19 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             var updated = await client.UpdateShelfAsync(created.id, new(testName("ccc"), "ddd"));
             updated.name.Should().Be(testName("ccc"));
             updated.description.Should().Be("ddd");
+            updated.description_html.Should().Contain("ddd");
             updated.slug.Should().NotBe(created.slug);
             updated.created_at.Should().Be(created.created_at);
             updated.updated_at.Should().BeAfter(created.updated_at);
             updated.created_by.Should().Be(created.created_by);
             updated.updated_by.Should().Be(created.updated_by);
             updated.owned_by.Should().Be(created.owned_by);
+        }
+        {// description_html
+            var created = await client.CreateShelfAsync(new(testName("aaa"), "bbb")).WillBeDiscarded(container);
+            var updated = await client.UpdateShelfAsync(created.id, new(testName("ccc"), description_html: "ddd"));
+            updated.description.Should().Contain("ddd");
+            updated.description_html.Should().Contain("ddd");
         }
         {// books
             var created = await client.CreateShelfAsync(new(testName("aaa"), "bbb", books: new[] { book2.id, book3.id, })).WillBeDiscarded(container);
@@ -283,8 +332,11 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             created.name.Should().Be(testName("aaa"));
             created.description.Should().BeEmpty();
             created.slug.Should().NotBeNullOrEmpty();
+            created.tags.Should().BeEquivalentTo((Tag[])[new("ts1", "vs1"), new("ts2", "vs2"),]);
             await Task.Delay(3 * 1000);
             var updated = await client.UpdateShelfAsync(created.id, new(tags: [new("ts3", "vs3"), new("ts4", "vs4"),]));
+            updated.tags.Should().BeEquivalentTo((Tag[])[new("ts3", "vs3"), new("ts4", "vs4"),]);
+            updated.cover.Should().BeNull();
             var detail = await client.ReadShelfAsync(created.id);
             detail.tags.Should().BeEquivalentTo((Tag[])[new("ts3", "vs3"), new("ts4", "vs4"),]);
             detail.books.Should().BeNullOrEmpty();
@@ -295,9 +347,17 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             var binary = await testResContentAsync("images/pd001.png");
             var created = await client.CreateShelfAsync(new(testName("aaa")), binary, "img.png").WillBeDiscarded(container);
             created.name.Should().Be(testName("aaa"));
+            created.tags.Should().BeNullOrEmpty();
+            Assert.IsNotNull(created.cover);
+            created.cover.name.Should().Be("img.png");
+            created.cover.type.Should().Be("cover_bookshelf");
             await Task.Delay(3 * 1000);
             var path = testResPath("images/pd001.png");
             var updated = await client.UpdateShelfAsync(created.id, new(), path, "ttt.png");
+            updated.tags.Should().BeNullOrEmpty();
+            Assert.IsNotNull(updated.cover);
+            updated.cover.name.Should().Be("ttt.png");
+            updated.cover.type.Should().Be("cover_bookshelf");
             var detail = await client.ReadShelfAsync(created.id);
             detail.tags.Should().BeNullOrEmpty();
             detail.books.Should().BeNullOrEmpty();

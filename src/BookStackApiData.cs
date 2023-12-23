@@ -190,6 +190,9 @@ public record BookSummary(
 /// <param name="name">ブックの名前</param>
 /// <param name="slug">ブックのスラグ</param>
 /// <param name="description">ブックの概要</param>
+/// <param name="description_html">ブックの概要(HTML表現)</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
+/// <param name="tags">タグ一覧</param>
 /// <param name="cover">ブックカバー画像</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
@@ -197,8 +200,9 @@ public record BookSummary(
 /// <param name="updated_by">更新したユーザ</param>
 /// <param name="owned_by">オーナーユーザ</param>
 public record BookItem(
-    long id, string name, string slug, string description,
-    BookCover? cover,
+    long id, string name, string slug,
+    string description, string description_html, long? default_template_id,
+    ContentTag[]? tags, BookCover? cover,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by
 );
@@ -211,8 +215,13 @@ public record ListBooksResult(BookSummary[] data, long total);
 /// <summary>ブック作成要求パラメータ</summary>
 /// <param name="name">ブック名</param>
 /// <param name="description">ブック概要</param>
+/// <param name="description_html">ブック概要(HTML表現)</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="tags">付与するタグ一覧</param>
-public record CreateBookArgs(string name, string? description = null, IReadOnlyList<Tag>? tags = null);
+public record CreateBookArgs(
+    string name, string? description = null, string? description_html = null,
+    long? default_template_id = null, IReadOnlyList<Tag>? tags = null
+);
 
 /// <summary>ブック内コンテンツ基本クラス</summary>
 /// <param name="id">コンテンツID</param>
@@ -269,6 +278,8 @@ public record BookContentChapter(
 /// <param name="name">ブック名</param>
 /// <param name="slug">ブックスラグ</param>
 /// <param name="description">ブック概要</param>
+/// <param name="description_html">ブック概要(HTML表現)</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="owned_by">オーナーユーザ</param>
 /// <param name="contents">
 /// ブック内コンテンツ。
@@ -282,7 +293,8 @@ public record BookContentChapter(
 /// <param name="created_by">作成したユーザ</param>
 /// <param name="updated_by">更新したユーザ</param>
 public record ReadBookResult(
-    long id, string name, string slug, string description,
+    long id, string name, string slug,
+    string description, string description_html, long? default_template_id,
     BookContent[] contents, ContentTag[]? tags, BookCover? cover,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by
@@ -300,8 +312,13 @@ public record ReadBookResult(
 /// <summary>ブック更新要求パラメータ</summary>
 /// <param name="name">ブック名</param>
 /// <param name="description">ブック概要</param>
+/// <param name="description_html">ブック概要(HTML表現)</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="tags">更新するタグ一覧</param>
-public record UpdateBookArgs(string? name = null, string? description = null, IReadOnlyList<Tag>? tags = null);
+public record UpdateBookArgs(
+    string? name = null, string? description = null, string? description_html = null,
+    long? default_template_id = null, IReadOnlyList<Tag>? tags = null
+);
 #endregion
 
 #region chapters
@@ -330,8 +347,8 @@ public record ChapterSummary(
 /// <param name="name">チャプタ名</param>
 /// <param name="slug">チャプタスラグ</param>
 /// <param name="description">チャプタ概要</param>
+/// <param name="description_html">チャプタ概要(HTML表現)</param>
 /// <param name="book_id">ブックID</param>
-/// <param name="book_slug">ブックスラグ。APIによっては取得されない場合あり。</param>
 /// <param name="priority">順序</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
@@ -340,8 +357,8 @@ public record ChapterSummary(
 /// <param name="owned_by">オーナーユーザ</param>
 /// <param name="tags">タグ一覧</param>
 public record ChapterItem(
-    long id, string name, string slug, string description,
-    long book_id, string? book_slug, long priority,
+    long id, string name, string slug, string description, string description_html,
+    long book_id, long priority,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by,
     ContentTag[] tags
@@ -356,9 +373,13 @@ public record ListChaptersResult(ChapterSummary[] data, long total);
 /// <param name="book_id">ブックID</param>
 /// <param name="name">チャプタ名</param>
 /// <param name="description">チャプタ概要</param>
+/// <param name="description_html">チャプタ概要(HTML表現)</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
-public record CreateChapterArgs(long book_id, string name, string? description = null, long? priority = null, IReadOnlyList<Tag>? tags = null);
+public record CreateChapterArgs(
+    long book_id, string name, string? description = null, string? description_html = null,
+    long? priority = null, IReadOnlyList<Tag>? tags = null
+ );
 
 /// <summary>チャプタ内ページコンテンツ</summary>
 /// <param name="id">ページID</param>
@@ -387,6 +408,7 @@ public record ChapterContentPage(
 /// <param name="name">チャプタ名</param>
 /// <param name="slug">チャプタスラグ</param>
 /// <param name="description">チャプタ概要</param>
+/// <param name="description_html">チャプタ概要(HTML表現)</param>
 /// <param name="book_id">ブックID</param>
 /// <param name="book_slug">ブックスラグ</param>
 /// <param name="priority">順序</param>
@@ -398,7 +420,7 @@ public record ChapterContentPage(
 /// <param name="tags">タグ一覧</param>
 /// <param name="pages">ページ一覧</param>
 public record ReadChapterResult(
-    long id, string name, string slug, string description,
+    long id, string name, string slug, string description, string description_html,
     long book_id, string book_slug, long priority,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by,
@@ -408,10 +430,14 @@ public record ReadChapterResult(
 /// <summary>チャプタ更新要求パラメータ</summary>
 /// <param name="name">チャプタ名</param>
 /// <param name="description">チャプタ概要</param>
+/// <param name="description_html">チャプタ概要(HTML表現)</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
 /// <param name="book_id">ブックID</param>
-public record UpdateChapterArgs(string? name = null, string? description = null, long? priority = null, IReadOnlyList<Tag>? tags = null, long? book_id = null);
+public record UpdateChapterArgs(
+    string? name = null, string? description = null, string? description_html = null,
+    long? priority = null, IReadOnlyList<Tag>? tags = null, long? book_id = null
+);
 #endregion
 
 #region pages
@@ -568,8 +594,28 @@ public record UpdatePageArgs(string? name = null, long? book_id = null, long? ch
 /// <param name="created_by">作成したユーザ</param>
 /// <param name="updated_by">更新したユーザ</param>
 /// <param name="owned_by">オーナーユーザ</param>
-public record ShelfItem(
+public record ShelfSummary(
     long id, string name, string slug, string description,
+    DateTime created_at, DateTime updated_at,
+    long created_by, long updated_by, long owned_by
+);
+
+/// <summary>棚情報</summary>
+/// <param name="id">棚ID</param>
+/// <param name="name">棚名</param>
+/// <param name="slug">棚スラグ</param>
+/// <param name="description">棚概要</param>
+/// <param name="description_html">棚概要(HTML表現)</param>
+/// <param name="tags">タグ一覧</param>
+/// <param name="cover">棚カバー画像情報</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+/// <param name="updated_by">更新したユーザ</param>
+/// <param name="owned_by">オーナーユーザ</param>
+public record ShelfItem(
+    long id, string name, string slug, string description, string description_html,
+    ContentTag[]? tags, ShelfCover? cover,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by
 );
@@ -577,21 +623,29 @@ public record ShelfItem(
 /// <summary>棚一覧を取得する</summary>
 /// <param name="data">ページ一覧</param>
 /// <param name="total">ページ総数</param>
-public record ListShelvesResult(ShelfItem[] data, long total);
+public record ListShelvesResult(ShelfSummary[] data, long total);
 
 /// <summary>棚作成要求パラメータ</summary>
 /// <param name="name">棚名</param>
 /// <param name="description">棚概要</param>
+/// <param name="description_html">棚概要(HTML表現)</param>
 /// <param name="books">棚に含むブックIDの配列</param>
 /// <param name="tags">付与するタグ一覧</param>
-public record CreateShelfArgs(string name, string? description = null, IReadOnlyList<long>? books = null, IReadOnlyList<Tag>? tags = null);
+public record CreateShelfArgs(
+    string name, string? description = null, string? description_html = null,
+    IReadOnlyList<long>? books = null, IReadOnlyList<Tag>? tags = null
+);
 
 /// <summary>棚更新要求パラメータ</summary>
 /// <param name="name">棚名</param>
 /// <param name="description">棚概要</param>
+/// <param name="description_html">棚概要(HTML表現)</param>
 /// <param name="books">棚に含むブックIDの配列</param>
 /// <param name="tags">付与するタグ一覧</param>
-public record UpdateShelfArgs(string? name = null, string? description = null, IReadOnlyList<long>? books = null, IReadOnlyList<Tag>? tags = null);
+public record UpdateShelfArgs(
+    string? name = null, string? description = null, string? description_html = null,
+    IReadOnlyList<long>? books = null, IReadOnlyList<Tag>? tags = null
+);
 
 /// <summary>棚カバー画像情報</summary>
 /// <param name="id">棚カバー画像ID</param>
@@ -632,6 +686,7 @@ public record ShelfContentBook(
 /// <param name="name">棚名</param>
 /// <param name="slug">棚スラグ</param>
 /// <param name="description">棚概要</param>
+/// <param name="description_html">棚概要(HTML表現)</param>
 /// <param name="books">棚に含むブックの配列</param>
 /// <param name="tags">タグ一覧</param>
 /// <param name="cover">棚カバー画像情報</param>
@@ -641,7 +696,7 @@ public record ShelfContentBook(
 /// <param name="updated_by">更新したユーザ</param>
 /// <param name="owned_by">オーナーユーザ</param>
 public record ReadShelfResult(
-    long id, string name, string slug, string description,
+    long id, string name, string slug, string description, string description_html,
     ShelfContentBook[] books, ContentTag[]? tags, ShelfCover? cover,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by
@@ -1074,11 +1129,12 @@ public record DeletableContentParent(
 /// <param name="owned_by">オーナーユーザ</param>
 /// <param name="type">コンテンツ種別</param>
 /// <param name="description">ブック説明</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 public record DeletableContentParentBook(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by,
-    string type, string description
+    string type, string description, long? default_template_id
 ) : DeletableContentParent(id, name, slug, created_at, updated_at, created_by, updated_by, owned_by, type, description);
 
 /// <summary>削除コンテンツの親チャプタ情報</summary>
@@ -1146,13 +1202,14 @@ public record DeletableContentShelf(
 /// <param name="updated_by">更新したユーザ</param>
 /// <param name="owned_by">オーナーユーザ</param>
 /// <param name="description">ブック説明</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="chapters_count">含むチャプタ数</param>
 /// <param name="pages_count">含むページ数</param>
 public record DeletableContentBook(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by,
-    string description, long chapters_count, long pages_count
+    string description, long? default_template_id, long chapters_count, long pages_count
 ) : DeletableContent(id, name, slug, created_at, updated_at, created_by, updated_by, owned_by);
 
 /// <summary>削除チャプタ情報</summary>

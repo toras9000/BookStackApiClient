@@ -1124,6 +1124,8 @@ public class BookStackClient : IDisposable
             var context = new MultipartFormDataContent();
             context.Add(new StringContent(args.name), nameof(args.name));
             if (args.description != null) context.Add(new StringContent(args.description), nameof(args.description));
+            if (args.description_html != null) context.Add(new StringContent(args.description_html), nameof(args.description_html));
+            if (args.default_template_id != null) context.Add(new StringContent($"{args.default_template_id}"), nameof(args.default_template_id));
             if (args.tags != null)
             {
                 for (var i = 0; i < args.tags.Count; i++)
@@ -1164,6 +1166,8 @@ public class BookStackClient : IDisposable
             context.Add(new StringContent("PUT"), "_method");
             if (!string.IsNullOrWhiteSpace(args.name)) context.Add(new StringContent(args.name), nameof(args.name));
             if (args.description != null) context.Add(new StringContent(args.description), nameof(args.description));
+            if (args.description_html != null) context.Add(new StringContent(args.description_html), nameof(args.description_html));
+            if (args.default_template_id != null) context.Add(new StringContent($"{args.default_template_id}"), nameof(args.default_template_id));
             if (args.tags != null)
             {
                 for (var i = 0; i < args.tags.Count; i++)
@@ -1244,6 +1248,7 @@ public class BookStackClient : IDisposable
             var context = new MultipartFormDataContent();
             if (!string.IsNullOrWhiteSpace(args.name)) context.Add(new StringContent(args.name), nameof(args.name));
             if (args.description != null) context.Add(new StringContent(args.description), nameof(args.description));
+            if (args.description_html != null) context.Add(new StringContent(args.description_html), nameof(args.description_html));
             if (args.tags != null)
             {
                 for (var i = 0; i < args.tags.Count; i++)
@@ -1286,6 +1291,7 @@ public class BookStackClient : IDisposable
             context.Add(new StringContent("PUT"), "_method");
             if (!string.IsNullOrWhiteSpace(args.name)) context.Add(new StringContent(args.name), nameof(args.name));
             if (args.description != null) context.Add(new StringContent(args.description), nameof(args.description));
+            if (args.description_html != null) context.Add(new StringContent(args.description_html), nameof(args.description_html));
             if (args.tags != null)
             {
                 for (var i = 0; i < args.tags.Count; i++)

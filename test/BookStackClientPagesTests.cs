@@ -17,10 +17,10 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         await client.CreateHtmlPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "<b>aa</b>", priority: 5, tags: [new("tp3", "vp3"), new("tp4", "vp4"),]));
 
         var pages = await client.ListPagesAsync();
-        foreach (var page in container.Pages)
+        foreach (var created in container.Pages)
         {
-            var actual = pages.data.Should().Contain(i => i.id == page.id).Subject;
-            var expect = page;
+            var actual = pages.data.Should().Contain(i => i.id == created.id).Subject;
+            var expect = created;
             actual.Should().BeEquivalentTo(expect, o => o.ExcludingMissingMembers());
         }
     }
