@@ -29,7 +29,7 @@ The second pre-release version number is changed for bug fixes and other cases w
 Some samples are shown below.  
 These use C#9 or later syntax.  
 
-### Create books, chapters, and pages.
+### Create books, chapters, and pages. and attach file
 
 ```csharp
 var apiEntry = new Uri(@"http://<your-hosting-server>/api/");
@@ -40,9 +40,15 @@ var book = await client.CreateBookAsync(new("TestBook", tags: new Tag[] { new("t
 var chapter = await client.CreateChapterAsync(new(book.id, "TestChapter"));
 var page1 = await client.CreateMarkdownPageInBookAsync(new(book.id, "TestPage", "# Test page in book"));
 var page2 = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, "TestPage", "# Test page in chapter"));
+
+var filePath = "path/to/file";
+var attach1 = await client.CreateFileAttachmentAsync(new("attach from path", page1.id), filePath);
+
+var contents = new byte[]{ xxxx };
+var attach2 = await client.CreateFileAttachmentAsync(new("attach from binary", page1.id), contents, "test.bin");
 ```
 
-### Display a list of books.
+### Display a list of books
 
 Note the limit on the number of API requests to issue many requests.  
 
@@ -70,6 +76,20 @@ catch (ApiLimitResponseException ex)
 {
     Console.WriteLine($"Api Limit: Limit={ex.RequestsPerMin}, RetryAfter={ex.RetryAfter}");
 }
+```
+
+### Upload image gallery
+
+```csharp
+using var client = new BookStackClient(apiEntry, apiToken, apiSecret);
+var book = await client.CreateBookAsync(new("book"));
+var page = await client.CreateMarkdownPageInBookAsync(new(book.id, "page", "body"));
+
+var filePath = "path/to/image.png";
+await client.CreateImageAsync(new(book.id, "gallery", "image1"), filePath, "upload.png");
+
+var image = await File.ReadAllBytesAsync(@"path/to/image.jpg");
+await client.CreateImageAsync(new(book.id, "gallery", "image2"), image, "upload.jpg");
 ```
 
 ### Content Search
