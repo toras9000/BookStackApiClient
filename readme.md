@@ -86,10 +86,10 @@ var book = await client.CreateBookAsync(new("book"));
 var page = await client.CreateMarkdownPageInBookAsync(new(book.id, "page", "body"));
 
 var filePath = "path/to/image.png";
-await client.CreateImageAsync(new(book.id, "gallery", "image1"), filePath, "upload.png");
+await client.CreateImageAsync(new(page.id, "gallery", "image1"), filePath, "upload.png");
 
 var image = await File.ReadAllBytesAsync(@"path/to/image.jpg");
-await client.CreateImageAsync(new(book.id, "gallery", "image2"), image, "upload.jpg");
+await client.CreateImageAsync(new(page.id, "gallery", "image2"), image, "upload.jpg");
 ```
 
 ### Content Search
