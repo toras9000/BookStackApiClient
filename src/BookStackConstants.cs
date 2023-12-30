@@ -66,4 +66,5 @@ public static class RolePermissions
     public static string AccessSystemAPI { get; } = "access-api";
     public static string ExportContent { get; } = "content-export";
     public static string ChangePageEditor { get; } = "editor-change";
+    public static string ReceiveManageNotifications { get; } = "receive-notifications";
 }
