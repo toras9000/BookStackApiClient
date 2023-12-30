@@ -34,9 +34,8 @@ public class BookStackClientTestsBase
 
     protected async Task<long> getApiUserIdAsync()
     {
-        using var client = new BookStackClient(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret, () => this.Client);
-        await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("temporary"))).WillBeDiscarded(container);
-        return book.created_by;
+        await using var adapter = new TestBackendAdapter();
+        var id = await adapter.GetUserIdFromApiToken(this.ApiTokenId);
+        return id.Value;
     }
 }
