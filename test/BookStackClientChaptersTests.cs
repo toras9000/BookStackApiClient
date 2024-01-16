@@ -101,6 +101,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, testName("aaa")));
             chapter.book_id.Should().Be(book.id);
+            chapter.book_slug.Should().Be(book.slug);
             chapter.name.Should().Be(testName("aaa"));
             chapter.description.Should().BeEmpty();
             chapter.slug.Should().NotBeNullOrEmpty();
@@ -116,6 +117,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb"));
             chapter.book_id.Should().Be(book.id);
+            chapter.book_slug.Should().Be(book.slug);
             chapter.name.Should().Be(testName("aaa"));
             chapter.description.Should().Be(chapter.description);
             chapter.slug.Should().NotBeNullOrEmpty();
@@ -138,6 +140,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
             var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", priority: 5, tags: [new("tc1", "tv1"), new("tc2", "tv2"),]));
             chapter.book_id.Should().Be(book.id);
+            chapter.book_slug.Should().Be(book.slug);
             chapter.name.Should().Be(testName("aaa"));
             chapter.description.Should().Be(chapter.description);
             chapter.slug.Should().NotBeNullOrEmpty();
@@ -200,6 +203,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
             await Task.Delay(3 * 1000);
             var updated = await client.UpdateChapterAsync(created.id, new(name: testName("ccc"), description: "ddd", priority: 7));
             updated.book_id.Should().Be(book.id);
+            updated.book_slug.Should().Be(book.slug);
             updated.name.Should().Be(testName("ccc"));
             updated.description.Should().Be("ddd");
             updated.description_html.Should().Contain("ddd");

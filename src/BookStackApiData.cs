@@ -349,6 +349,7 @@ public record ChapterSummary(
 /// <param name="description">チャプタ概要</param>
 /// <param name="description_html">チャプタ概要(HTML表現)</param>
 /// <param name="book_id">ブックID</param>
+/// <param name="book_slug">ブックスラグ</param>
 /// <param name="priority">順序</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
@@ -358,7 +359,7 @@ public record ChapterSummary(
 /// <param name="tags">タグ一覧</param>
 public record ChapterItem(
     long id, string name, string slug, string description, string description_html,
-    long book_id, long priority,
+    long book_id, string? book_slug, long priority,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by,
     ContentTag[] tags
