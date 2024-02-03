@@ -152,6 +152,19 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
             chapter.updated_by.Should().Be(book.updated_by);
             chapter.owned_by.Should().Be(book.owned_by);
         }
+        {// default_template_id
+            var template_book = await client.CreateBookAsync(new(testName("template-page-container"))).WillBeDiscarded(container);
+            var template_page = await client.CreateMarkdownPageInBookAsync(new(template_book.id, "template-page", "template-body")).WillBeDiscarded(container);
+
+            await using var adapter = new TestBackendAdapter();
+            await adapter.SetPagaTemplateFlag(template_page.id, true);
+
+            var book = await client.CreateBookAsync(new(testName("test-book"))).WillBeDiscarded(container);
+            var chapter = await client.CreateChapterAsync(new(book.id, testName("aaa"), default_template_id: template_page.id));
+            chapter.default_template_id.Should().Be(template_page.id);
+            var detail = await client.ReadChapterAsync(chapter.id);
+            detail.default_template_id.Should().Be(template_page.id);
+        }
     }
 
     [TestMethod()]
@@ -231,6 +244,21 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
             updated.name.Should().Be(testName("aaa"));
             updated.description.Should().Be("bbb");
             updated.tags.Should().BeEquivalentTo((Tag[])[new("t1", "v1new"), new("t3", "v3"),]);
+        }
+        {// default_template_id
+            var book = await client.CreateBookAsync(new(testName("test-book"))).WillBeDiscarded(container);
+            book.default_template_id.Should().BeNull();
+            var created = await client.CreateChapterAsync(new(book.id, testName("aaa")));
+            created.default_template_id.Should().BeNull();
+
+            var template_page = await client.CreateMarkdownPageInBookAsync(new(book.id, "template-page", "template-body")).WillBeDiscarded(container);
+            await using var adapter = new TestBackendAdapter();
+            await adapter.SetPagaTemplateFlag(template_page.id, true);
+
+            var chapter = await client.UpdateChapterAsync(created.id, new(default_template_id: template_page.id));
+            chapter.default_template_id.Should().Be(template_page.id);
+            var detail = await client.ReadChapterAsync(chapter.id);
+            detail.default_template_id.Should().Be(template_page.id);
         }
     }
 

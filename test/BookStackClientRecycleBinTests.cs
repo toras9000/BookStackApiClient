@@ -23,9 +23,15 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         var shelf_no_book = await client.CreateShelfAsync(new(testName("testshelf_no_book"))).WillBeDiscarded(container);
 
         // デフォルトテンプレートIDを付けておく
-        await using (var adapter = new TestBackendAdapter()) await adapter.SetPagaTemplateFlag(page_in_book.id, true);
+        await using (var adapter = new TestBackendAdapter())
+        {
+            await adapter.SetPagaTemplateFlag(page_in_book.id, true);
+            await adapter.SetPagaTemplateFlag(page_in_chapter.id, true);
+        }
         book = await client.UpdateBookAsync(book.id, new(default_template_id: page_in_book.id));
-        page_in_book = await client.UpdatePageAsync(page_in_book.id, new());    // 以降の検証処理用に情報を取り直す。(変更なしで更新をかける)
+        chapter = await client.UpdateChapterAsync(chapter.id, new(default_template_id: page_in_chapter.id));
+        page_in_book = await client.UpdatePageAsync(page_in_book.id, new());          // 以降の検証処理用に情報を取り直す。(変更なしで更新をかける)
+        page_in_chapter = await client.UpdatePageAsync(page_in_chapter.id, new());    // 以降の検証処理用に情報を取り直す。(変更なしで更新をかける)
 
         // すべて削除する。
         await container.DisposeAsync();
@@ -84,6 +90,7 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             deletable.updated_by.Should().Be(expect.updated_by);
             deletable.owned_by.Should().Be(expect.owned_by);
             deletable.description.Should().Be(expect.description);
+            deletable.default_template_id.Should().Be(chapter.default_template_id);
             deletable.book_id.Should().Be(expect.book_id);
             deletable.priority.Should().NotBe(0);
             deletable.pages_count.Should().Be(1);
@@ -118,7 +125,6 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             deletable.updated_by.Should().Be(expect.updated_by.id);
             deletable.owned_by.Should().Be(expect.owned_by.id);
             deletable.book_id.Should().Be(expect.book_id);
-            deletable.book_slug.Should().NotBeEmpty();
             deletable.chapter_id.Should().Be(expect.chapter_id);
             deletable.draft.Should().Be(expect.draft);
             deletable.template.Should().Be(expect.template);
@@ -157,7 +163,6 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             deletable.updated_by.Should().Be(expect.updated_by.id);
             deletable.owned_by.Should().Be(expect.owned_by.id);
             deletable.book_id.Should().Be(expect.book_id);
-            deletable.book_slug.Should().NotBeNullOrEmpty();
             deletable.chapter_id.Should().Be(expect.chapter_id);
             deletable.draft.Should().Be(expect.draft);
             deletable.template.Should().Be(expect.template);
@@ -176,8 +181,8 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             parent.owned_by.Should().Be(chapter.owned_by);
             parent.type.Should().Be("chapter");
             parent.description.Should().Be(chapter.description);
+            parent.default_template_id.Should().Be(chapter.default_template_id);
             parent.book_id.Should().Be(chapter.book_id);
-            parent.book_slug.Should().NotBeNullOrEmpty();
             parent.priority.Should().Be(chapter.priority);
         }
         {

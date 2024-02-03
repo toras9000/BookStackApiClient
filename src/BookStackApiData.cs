@@ -350,6 +350,7 @@ public record ChapterSummary(
 /// <param name="description_html">チャプタ概要(HTML表現)</param>
 /// <param name="book_id">ブックID</param>
 /// <param name="book_slug">ブックスラグ</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="priority">順序</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
@@ -359,7 +360,7 @@ public record ChapterSummary(
 /// <param name="tags">タグ一覧</param>
 public record ChapterItem(
     long id, string name, string slug, string description, string description_html,
-    long book_id, string? book_slug, long priority,
+    long book_id, string? book_slug, long? default_template_id, long priority,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by,
     ContentTag[] tags
@@ -375,11 +376,12 @@ public record ListChaptersResult(ChapterSummary[] data, long total);
 /// <param name="name">チャプタ名</param>
 /// <param name="description">チャプタ概要</param>
 /// <param name="description_html">チャプタ概要(HTML表現)</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
 public record CreateChapterArgs(
     long book_id, string name, string? description = null, string? description_html = null,
-    long? priority = null, IReadOnlyList<Tag>? tags = null
+    long? default_template_id = null, long? priority = null, IReadOnlyList<Tag>? tags = null
  );
 
 /// <summary>チャプタ内ページコンテンツ</summary>
@@ -410,6 +412,7 @@ public record ChapterContentPage(
 /// <param name="slug">チャプタスラグ</param>
 /// <param name="description">チャプタ概要</param>
 /// <param name="description_html">チャプタ概要(HTML表現)</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="book_id">ブックID</param>
 /// <param name="book_slug">ブックスラグ</param>
 /// <param name="priority">順序</param>
@@ -422,7 +425,7 @@ public record ChapterContentPage(
 /// <param name="pages">ページ一覧</param>
 public record ReadChapterResult(
     long id, string name, string slug, string description, string description_html,
-    long book_id, string book_slug, long priority,
+    long? default_template_id, long book_id, string book_slug, long priority,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by,
     ContentTag[]? tags, ChapterContentPage[] pages
@@ -432,12 +435,13 @@ public record ReadChapterResult(
 /// <param name="name">チャプタ名</param>
 /// <param name="description">チャプタ概要</param>
 /// <param name="description_html">チャプタ概要(HTML表現)</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="priority">順序</param>
 /// <param name="tags">タグ</param>
 /// <param name="book_id">ブックID</param>
 public record UpdateChapterArgs(
     string? name = null, string? description = null, string? description_html = null,
-    long? priority = null, IReadOnlyList<Tag>? tags = null, long? book_id = null
+    long? default_template_id = null, long? priority = null, IReadOnlyList<Tag>? tags = null, long? book_id = null
 );
 #endregion
 
@@ -1149,15 +1153,15 @@ public record DeletableContentParentBook(
 /// <param name="owned_by">オーナーユーザ</param>
 /// <param name="type">コンテンツ種別</param>
 /// <param name="description">チャプタ説明</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="book_id">所属ブックID</param>
-/// <param name="book_slug">所属ブックスラグ</param>
 /// <param name="priority">順序</param>
 public record DeletableContentParentChapter(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by,
-    string type, string description,
-    long book_id, string book_slug, long priority
+    string type, string description, long? default_template_id,
+    long book_id, long priority
 ) : DeletableContentParent(id, name, slug, created_at, updated_at, created_by, updated_by, owned_by, type, description);
 
 /// <summary>削除コンテンツ情報</summary>
@@ -1223,8 +1227,8 @@ public record DeletableContentBook(
 /// <param name="updated_by">更新したユーザ</param>
 /// <param name="owned_by">オーナーユーザ</param>
 /// <param name="description">チャプタ説明</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
 /// <param name="book_id">所属ブックID</param>
-/// <param name="book_slug">所属ブックスラグ</param>
 /// <param name="parent">所属ブック情報</param>
 /// <param name="priority">順序</param>
 /// <param name="pages_count">含むページ数</param>
@@ -1232,7 +1236,7 @@ public record DeletableContentChapter(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by,
-    string description, long book_id, string book_slug, DeletableContentParentBook parent,
+    string description, long? default_template_id, long book_id, DeletableContentParentBook parent,
     long priority, long pages_count
 ) : DeletableContent(id, name, slug, created_at, updated_at, created_by, updated_by, owned_by);
 
@@ -1246,7 +1250,6 @@ public record DeletableContentChapter(
 /// <param name="updated_by">更新したユーザ</param>
 /// <param name="owned_by">オーナーユーザ</param>
 /// <param name="book_id">所属ブックID</param>
-/// <param name="book_slug">所属ブックスラグ</param>
 /// <param name="chapter_id">所属チャプタID</param>
 /// <param name="parent">所属ブックまたはチャプタ情報</param>
 /// <param name="draft">ドラフトであるか</param>
@@ -1258,7 +1261,7 @@ public record DeletableContentPage(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by,
-    long book_id, string book_slug, long chapter_id, DeletableContentParent parent,
+    long book_id, long chapter_id, DeletableContentParent parent,
     bool draft, bool template, string editor, long priority, long revision_count
 ) : DeletableContent(id, name, slug, created_at, updated_at, created_by, updated_by, owned_by);
 
