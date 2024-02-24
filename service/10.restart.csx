@@ -1,5 +1,4 @@
-#r "nuget: Lestaly, 0.54.0"
-using System.Net.Http;
+#r "nuget: Lestaly, 0.56.0"
 using Lestaly;
 using Lestaly.Cx;
 
@@ -11,15 +10,10 @@ await Paved.RunAsync(async () =>
     Console.WriteLine("Restart service ...");
     var composeFile = ThisSource.RelativeFile("./docker/docker-compose.yml");
     await "docker".args("compose", "--file", composeFile.FullName, "down").result().success();
-    await "docker".args("compose", "--file", composeFile.FullName, "up", "-d").result().success();
+    await "docker".args("compose", "--file", composeFile.FullName, "up", "-d", "--wait").result().success();
 
-    Console.WriteLine("Waiting for accessible ...");
-    var serviceUrl = new Uri("http://localhost:9988");
-    using var checker = new HttpClient();
-    while (!await checker.IsSuccessStatusAsync(serviceUrl)) await Task.Delay(1000);
-
-    Console.WriteLine("Launch site.");
-    await CmdShell.ExecAsync(serviceUrl.AbsoluteUri);
+    Console.WriteLine("Open service URL.");
+    await CmdShell.ExecAsync("http://localhost:9988");
 
     Console.WriteLine("completed.");
 });

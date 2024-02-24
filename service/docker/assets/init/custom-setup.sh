@@ -7,21 +7,35 @@ if [ -d /assets/template/themes/my-theme ] && [ ! -e /config/www/themes/my-theme
     cp -RT /assets/template/themes/my-theme    /config/www/themes/my-theme
 fi
 
-# Add theme setting
-if [ -z "$(grep -e '^\s*APP_THEME\s*=' /config/www/.env)" ]; then
-    echo Add theme setting
-    echo ""                    >> /config/www/.env
-    echo "# Application theme" >> /config/www/.env
-    echo "APP_THEME=my-theme"  >> /config/www/.env
-fi
+# Override environment settings
+override_envs=(
+    APP_THEME
+    API_REQUESTS_PER_MIN
+    MAIL_HOST
+    MAIL_PORT
+    MAIL_USERNAME
+    MAIL_PASSWORD
+    MAIL_ENCRYPTION
+    MAIL_VERIFY_SSL
+)
 
-# Add api limit setting
-if [ -z "$(grep -e '^\s*API_REQUESTS_PER_MIN\s*=' /config/www/.env)" ]; then
-    echo Add API limit setting
+for env_name in "${override_envs[@]}"; do
+    # Check if variables for customization of environments are defined.
+    custom_env_val=$(eval echo \${CUSTOM_${env_name}})
+    if [ -n "${custom_env_val}" ]; then
+        # Check for definitions in .env
+        if [ -z "$(grep -e "^\s*${env_name}\s*=" /config/www/.env)" ]; then
+            # If it does not exist, add it.
+            echo "Add env '${env_name}'"
     echo ""                                                                             >> /config/www/.env
-    echo "# The number of API requests that can be made per minute by a single user."   >> /config/www/.env
-    echo "API_REQUESTS_PER_MIN=99999"                                                   >> /config/www/.env
-fi
+            echo "${env_name}=${custom_env_val}"  >> /config/www/.env
+        else
+            # Update if exist.
+            echo "Replace env '${env_name}'"
+            sed -i -E "s#^${env_name}=.*#${env_name}=${custom_env_val}#" /config/www/.env
+        fi
+    fi
+done
 
 # Create test API token
 echo Create test API token

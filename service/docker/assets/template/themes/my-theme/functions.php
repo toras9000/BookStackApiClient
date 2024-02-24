@@ -30,8 +30,10 @@ class TestTokenCommand extends Command
             return SymfonyCommand::SUCCESS;
         }
         
-        $token_id     = '00001111222233334444555566667777';
-        $token_secret = '88889999aaaabbbbccccddddeeeeffff';
+        $token_id     = env('CUSTOM_TEST_TOKEN_ID');
+        $token_secret = env('CUSTOM_TEST_TOKEN_SECRET');
+        if (!$token_id)     $token_id     = '00001111222233334444555566667777';
+        if (!$token_secret) $token_secret = '88889999aaaabbbbccccddddeeeeffff';
         
         if (ApiToken::query()->where('token_id', '=', $token_id)->exists())
         {
