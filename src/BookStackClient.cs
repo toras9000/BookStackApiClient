@@ -775,7 +775,7 @@ public class BookStackClient : IDisposable
             => interpretResponseAsync((rsp) => rsp.Content.ReadAsByteArrayAsync(this.CancelToken));
 
         /// <summary>API要求デリゲート</summary>
-        private Func<RequestContext, Task<HttpResponseMessage>> requester;
+        private readonly Func<RequestContext, Task<HttpResponseMessage>> requester;
 
         /// <summary>API要求を行いJSON応答を解釈する</summary>
         /// <typeparam name="TResult">応答データ型</typeparam>

@@ -49,6 +49,7 @@ public class RecycleItemJsonConverter : JsonConverter<RecycleItem>
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Style", "IDE1006:命名スタイル", Justification = "API JSONデータインタフェース用のため言語の命名標準には従わない。")]
     private record RecycleItemFrame(
         long id, string deletable_type, long deletable_id, long deleted_by,
         DateTime created_at, DateTime updated_at

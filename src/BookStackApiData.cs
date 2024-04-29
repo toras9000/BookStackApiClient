@@ -3,6 +3,9 @@ using BookStackApiClient.Converters;
 
 namespace BookStackApiClient;
 
+// ここで定義するものは API の JSONインタフェースに利用する型なので、言語の命名標準には従わない。
+#pragma warning disable IDE1006
+
 /// <summary>リスト取得時のフィルタ条件</summary>
 /// <param name="field">
 /// フィルタ対象フィールド名。
