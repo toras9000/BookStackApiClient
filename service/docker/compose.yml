@@ -11,14 +11,12 @@ services:
     ports:
       - "9987:3306"
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "--host=localhost", "--user=root"]
-      interval: 15s
-      timeout: 10s
-      retries: 10
-      start_period: 60s
-    volumes:
-#      - ./volumes/bookstack/db:/var/lib/mysql
-      - ./assets:/dummy:ro
+      test: mysqladmin ping --host=localhost --user=$${MYSQL_USER} || exit 1
+      start_period: 180s
+      start_interval: 5s
+      timeout: 5s
+      interval: 300s
+      retries: 3
     environment:
       - TZ=Asia/Tokyo
       - MYSQL_ROOT_PASSWORD=bookstack_rootpass
@@ -27,7 +25,7 @@ services:
       - MYSQL_PASSWORD=bookstack_pass
 
   app:
-    image: lscr.io/linuxserver/bookstack:version-v24.02
+    image: lscr.io/linuxserver/bookstack:version-v24.02.3
     restart: unless-stopped
     depends_on:
       db:
@@ -39,13 +37,13 @@ services:
     ports:
       - "9988:80"
     healthcheck:
-      test: ["CMD", "curl", "http://localhost"]
-      interval: 30s
-      timeout: 10s
-      retries: 40
-      start_period: 30s
+      test: curl -f http://localhost:80 || exit 1
+      start_period: 300s
+      start_interval: 3s
+      timeout: 5s
+      interval: 300s
+      retries: 3
     volumes:
-#      - ./volumes/bookstack/app:/config
       - ./assets/init:/custom-cont-init.d
       - ./assets/template:/assets/template
     environment:
@@ -57,7 +55,7 @@ services:
       - DB_DATABASE=bookstack_store
       - DB_USER=bookstack_user
       - DB_PASS=bookstack_pass
-      - CUSTOM_APP_THEME=my-theme
-      - CUSTOM_API_REQUESTS_PER_MIN=99999
+      - APP_THEME=my-theme
+      - API_REQUESTS_PER_MIN=99999
       - CUSTOM_TEST_TOKEN_ID=00001111222233334444555566667777
       - CUSTOM_TEST_TOKEN_SECRET=88889999aaaabbbbccccddddeeeeffff
