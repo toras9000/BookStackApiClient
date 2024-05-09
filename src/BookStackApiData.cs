@@ -1291,3 +1291,26 @@ public record ListRecycleBinResult(RecycleItem[] data, long total);
 /// <param name="restore_count">復元アイテム数</param>
 public record RestoreRecycleItemResult(long restore_count);
 #endregion
+
+#region audit-log
+/// <summary>監査ログ情報</summary>
+/// <param name="id">監査ログID</param>
+/// <param name="type">イベント種別種別</param>
+/// <param name="detail">詳細情報</param>
+/// <param name="loggable_id">関連オブジェクトID</param>
+/// <param name="loggable_type">関連オブジェクト種別</param>
+/// <param name="user_id">対象ユーザID</param>
+/// <param name="ip">IPアドレス</param>
+/// <param name="created_at">アクティビティ日時</param>
+/// <param name="user">対象ユーザ情報</param>
+public record AuditLogItem(
+    long id, string type, string detail,
+    long? loggable_id, string? loggable_type, long user_id, string ip,
+    DateTime created_at, User user
+);
+
+/// <summary>監査ログ一覧取得結果</summary>
+/// <param name="data">ゴミ箱のアイテム一覧</param>
+/// <param name="total">ゴミ箱のアイテム総数</param>
+public record ListAuditLogResult(AuditLogItem[] data, long total);
+#endregion

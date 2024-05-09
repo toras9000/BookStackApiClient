@@ -676,6 +676,15 @@ public class BookStackClient : IDisposable
         => contextDeleteRequest(apiEp($"recycle-bin/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
     #endregion
 
+    #region audit-log
+    /// <summary>監査ログの一覧を取得する。</summary>
+    /// <param name="listing">リスト要求オプション</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>監査ログの一覧</returns>
+    public Task<ListAuditLogResult> ListAuditLogAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp("audit-log", listing), cancelToken).JsonResponseAsync<ListAuditLogResult>(cancelToken);
+    #endregion
+
     #region 破棄
     /// <summary>リソース破棄</summary>
     public void Dispose()

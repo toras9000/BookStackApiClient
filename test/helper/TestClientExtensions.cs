@@ -33,4 +33,20 @@ public static class TestClientExtensions
         }
         return items;
     }
+
+    public static async ValueTask<List<AuditLogItem>> ListAllAuditLogAsync(this BookStackClient self, IReadOnlyList<Filter>? filters = default, CancellationToken cancelToken = default)
+    {
+        var items = new List<AuditLogItem>();
+        var offset = 0;
+        while (true)
+        {
+            var logs = await self.ListAuditLogAsync(new(offset, count: 500, filters: filters), cancelToken);
+            items.AddRange(logs.data);
+
+            offset += logs.data.Length;
+            var finished = (logs.data.Length <= 0) || (logs.total <= offset);
+            if (finished) break;
+        }
+        return items;
+    }
 }
