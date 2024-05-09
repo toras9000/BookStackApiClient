@@ -1,6 +1,4 @@
-﻿using System.Linq;
-
-namespace BookStackApiClient.Tests;
+﻿namespace BookStackApiClient.Tests;
 
 [TestClass()]
 public class BookStackClientRecycleBinTests : BookStackClientTestsBase
@@ -37,17 +35,7 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         await container.DisposeAsync();
 
         // すべて取得
-        var items = new List<RecycleItem>();
-        var offset = 0;
-        while (true)
-        {
-            var result = await client.ListRecycleBinAsync(new(offset));
-            if (result.data.Length <= 0) break;
-
-            items.AddRange(result.data);
-            offset += result.data.Length;
-            if (result.total <= offset) break;
-        }
+        var items = await client.ListAllRecycleBinAsync();
 
         // 取得内容の検証
         {
