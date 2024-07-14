@@ -1,18 +1,26 @@
-#r "nuget: Lestaly, 0.58.0"
 #r "nuget: MySqlConnector, 2.3.7"
 #r "nuget: Dapper, 2.1.35"
 #r "nuget: Kokuban, 0.2.0"
+#r "nuget: Lestaly, 0.65.0"
+#nullable enable
 using Dapper;
 using Lestaly;
+using Lestaly.Cx;
 using Kokuban;
 using MySqlConnector;
+using System.Runtime.Intrinsics.Wasm;
 
 await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
 {
+    WriteLine("Detect database port");
+    var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
+    var pubPort = await "docker".args("compose", "--file", composeFile.FullName, "port", "db", "3306").silent().result().success().output();
+    var portNum = pubPort.AsSpan().SkipToken(':').TryParseNumber<ushort>() ?? throw new PavedMessageException("Cannot get port number");
+
     WriteLine("Open database");
     var connector = new MySqlConnectionStringBuilder();
     connector.Server = "localhost";
-    connector.Port = 9987;
+    connector.Port = portNum;
     connector.UserID = "bookstack_user";
     connector.Password = "bookstack_pass";
     connector.Database = "bookstack_store";
