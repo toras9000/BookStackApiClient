@@ -296,7 +296,7 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         {// name & desc
             var now = DateTime.UtcNow;
             var created = await client.CreateShelfAsync(new(testName("aaa"), "bbb")).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var updated = await client.UpdateShelfAsync(created.id, new(testName("ccc"), "ddd"));
             updated.name.Should().Be(testName("ccc"));
             updated.description.Should().Be("ddd");
@@ -318,7 +318,6 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             var created = await client.CreateShelfAsync(new(testName("aaa"), "bbb", books: new[] { book2.id, book3.id, })).WillBeDiscarded(container);
             created.name.Should().Be(testName("aaa"));
             created.description.Should().Be("bbb");
-            await Task.Delay(3 * 1000);
             var updated = await client.UpdateShelfAsync(created.id, new(books: new[] { book1.id, }));
             updated.name.Should().Be(testName("aaa"));
             updated.description.Should().Be("bbb");
@@ -333,7 +332,6 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             created.description.Should().BeEmpty();
             created.slug.Should().NotBeNullOrEmpty();
             created.tags.Should().BeEquivalentTo((Tag[])[new("ts1", "vs1"), new("ts2", "vs2"),]);
-            await Task.Delay(3 * 1000);
             var updated = await client.UpdateShelfAsync(created.id, new(tags: [new("ts3", "vs3"), new("ts4", "vs4"),]));
             updated.tags.Should().BeEquivalentTo((Tag[])[new("ts3", "vs3"), new("ts4", "vs4"),]);
             updated.cover.Should().BeNull();
@@ -351,7 +349,6 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             Assert.IsNotNull(created.cover);
             created.cover.name.Should().Be("img.png");
             created.cover.type.Should().Be("cover_bookshelf");
-            await Task.Delay(3 * 1000);
             var path = testResPath("images/pd001.png");
             var updated = await client.UpdateShelfAsync(created.id, new(), path, "ttt.png");
             updated.tags.Should().BeNullOrEmpty();

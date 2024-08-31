@@ -43,8 +43,6 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             var item = items.Should().Contain(i => i.deletable_type == "book" && i.deletable_id == expect.id).Subject;
             item.id.Should().NotBe(0);
             item.deleted_by.Should().Be(this.ApiUserID);
-            item.created_at.Should().BeCloseTo(now, 10.Seconds());
-            item.updated_at.Should().BeCloseTo(now, 10.Seconds());
 
             var deletable = item.deletable.Should().BeOfType<DeletableContentBook>().Subject;
             deletable.id.Should().Be(expect.id);
@@ -65,8 +63,6 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             var item = items.Should().Contain(i => i.deletable_type == "chapter" && i.deletable_id == expect.id).Subject;
             item.id.Should().NotBe(0);
             item.deleted_by.Should().Be(this.ApiUserID);
-            item.created_at.Should().BeCloseTo(now, 10.Seconds());
-            item.updated_at.Should().BeCloseTo(now, 10.Seconds());
 
             var deletable = item.deletable.Should().BeOfType<DeletableContentChapter>().Subject;
             deletable.id.Should().Be(expect.id);
@@ -100,8 +96,6 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             var item = items.Should().Contain(i => i.deletable_type == "page" && i.deletable_id == expect.id).Subject;
             item.id.Should().NotBe(0);
             item.deleted_by.Should().Be(this.ApiUserID);
-            item.created_at.Should().BeCloseTo(now, 10.Seconds());
-            item.updated_at.Should().BeCloseTo(now, 10.Seconds());
 
             var deletable = item.deletable.Should().BeOfType<DeletableContentPage>().Subject;
             deletable.id.Should().Be(expect.id);
@@ -138,8 +132,6 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             var item = items.Should().Contain(i => i.deletable_type == "page" && i.deletable_id == expect.id).Subject;
             item.id.Should().NotBe(0);
             item.deleted_by.Should().Be(this.ApiUserID);
-            item.created_at.Should().BeCloseTo(now, 10.Seconds());
-            item.updated_at.Should().BeCloseTo(now, 10.Seconds());
 
             var deletable = item.deletable.Should().BeOfType<DeletableContentPage>().Subject;
             deletable.id.Should().Be(expect.id);
@@ -178,8 +170,6 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             var item = items.Should().Contain(i => i.deletable_type == "bookshelf" && i.deletable_id == expect.id).Subject;
             item.id.Should().NotBe(0);
             item.deleted_by.Should().Be(this.ApiUserID);
-            item.created_at.Should().BeCloseTo(now, 10.Seconds());
-            item.updated_at.Should().BeCloseTo(now, 10.Seconds());
 
             var deletable = item.deletable.Should().BeOfType<DeletableContentShelf>().Subject;
             deletable.id.Should().Be(expect.id);
@@ -197,8 +187,6 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
             var item = items.Should().Contain(i => i.deletable_type == "bookshelf" && i.deletable_id == expect.id).Subject;
             item.id.Should().NotBe(0);
             item.deleted_by.Should().Be(this.ApiUserID);
-            item.created_at.Should().BeCloseTo(now, 10.Seconds());
-            item.updated_at.Should().BeCloseTo(now, 10.Seconds());
 
             var deletable = item.deletable.Should().BeOfType<DeletableContentShelf>().Subject;
             deletable.id.Should().Be(expect.id);

@@ -213,7 +213,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
             var image = await testResContentAsync("images/pd001.png");
             var book = await client.CreateBookAsync(new(testName("testbook")), image, "test.png").WillBeDiscarded(container);
             var created = await client.CreateChapterAsync(new(book.id, testName("aaa"), "bbb", priority: 3, tags: [new("t1", "v1"), new("t2", "v2"),]));
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var updated = await client.UpdateChapterAsync(created.id, new(name: testName("ccc"), description: "ddd", priority: 7));
             updated.book_id.Should().Be(book.id);
             updated.book_slug.Should().Be(book.slug);

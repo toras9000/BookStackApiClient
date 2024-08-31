@@ -247,7 +247,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         {// update name & desc
             var image = await testResContentAsync("images/pd001.png");
             var created = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),]), image, "test.png").WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var updated = await client.UpdateBookAsync(created.id, new(name: testName("ccc"), description: "ddd"));
             updated.name.Should().Be(testName("ccc"));
             updated.description.Should().Be("ddd");

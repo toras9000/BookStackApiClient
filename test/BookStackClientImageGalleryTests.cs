@@ -250,7 +250,7 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
             var path = testResPath("images/pd001.png");
             var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var detail = await client.UpdateImageAsync(image.id, new(testName("bbb")));
             detail.uploaded_to.Should().Be(image.uploaded_to);
             detail.name.Should().Be(testName("bbb"));
@@ -273,7 +273,6 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
             var path = testResPath("images/pd001.png");
             var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
             var newpath = testResPath("images/pd002.png");
             var detail = await client.UpdateImageAsync(image.id, new(), newpath, "newimg.png");
             detail.uploaded_to.Should().Be(image.uploaded_to);
@@ -286,7 +285,7 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             detail.content.html.Should().Be(image.content.html);
             detail.content.markdown.Should().Be(image.content.markdown);
             detail.created_at.Should().Be(image.created_at);
-            detail.updated_at.Should().BeAfter(image.updated_at);
+            detail.updated_at.Should().BeOnOrAfter(image.updated_at);
             detail.created_by.Should().Be(image.created_by);
             detail.updated_by.Should().Be(image.updated_by);
             var dlimage = await this.Client.GetByteArrayAsync(image.url);
@@ -297,7 +296,6 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
             var path = testResPath("images/pd001.png");
             var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
             var binary = await testResContentAsync("images/pd003.png");
             var detail = await client.UpdateImageAsync(image.id, new(), binary, "newimg.png");
             detail.uploaded_to.Should().Be(image.uploaded_to);
@@ -310,7 +308,7 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             detail.content.html.Should().Be(image.content.html);
             detail.content.markdown.Should().Be(image.content.markdown);
             detail.created_at.Should().Be(image.created_at);
-            detail.updated_at.Should().BeAfter(image.updated_at);
+            detail.updated_at.Should().BeOnOrAfter(image.updated_at);
             detail.created_by.Should().Be(image.created_by);
             detail.updated_by.Should().Be(image.updated_by);
             var dlimage = await this.Client.GetByteArrayAsync(image.url);

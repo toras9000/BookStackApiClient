@@ -179,7 +179,7 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
             var guid = Guid.NewGuid().ToString();
             var perms = new[] { RolePermissions.AccessSystemAPI, RolePermissions.CreateAllChapters, RolePermissions.CreateOwnComments, };
             var created = await client.CreateRoleAsync(new(testName($"role_{guid}"), "desc", permissions: perms)).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var newperms = new[] { RolePermissions.ViewOwnPages, RolePermissions.ManageSettings, };
             var updated = await client.UpdateRoleAsync(created.id, new(testName($"upd-role_{guid}"), "upd-desc", permissions: newperms));
             updated.id.Should().Be(created.id);

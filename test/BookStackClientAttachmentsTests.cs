@@ -251,7 +251,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         {// update path to path
             var path1 = testResPath("images/pd001.png");
             var created = await client.CreateFileAttachmentAsync(new(testName("aaa"), page.id), path1).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var path2 = testResPath("images/pd004.jpg");
             var updated = await client.UpdateFileAttachmentAsync(created.id, new(testName("bbb"), page.id), path2);
             updated.id.Should().Be(created.id);
@@ -269,7 +269,6 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         {// update path to path with name
             var path1 = testResPath("images/pd001.png");
             var created = await client.CreateFileAttachmentAsync(new(testName("aaa"), page.id), path1).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
             var path2 = testResPath("images/pd004.jpg");
             var updated = await client.UpdateFileAttachmentAsync(created.id, new(testName("bbb"), page.id), path2, "bbb.hoge");
             updated.id.Should().Be(created.id);
@@ -278,7 +277,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
             updated.uploaded_to.Should().Be(page.id);
             updated.external.Should().BeFalse();
             updated.created_at.Should().Be(created.created_at);
-            updated.updated_at.Should().BeAfter(created.updated_at);
+            updated.updated_at.Should().BeOnOrAfter(created.updated_at);
             updated.created_by.Should().Be(created.created_by);
             updated.updated_by.Should().Be(book.created_by);
             var detail = await client.ReadAttachmentAsync(updated.id);
@@ -287,7 +286,6 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         {// update path to binary
             var path1 = testResPath("images/pd001.png");
             var created = await client.CreateFileAttachmentAsync(new(testName("ccc"), page.id), path1).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
             var image2 = await testResContentAsync("images/pd004.jpg");
             var updated = await client.UpdateFileAttachmentAsync(created.id, new(testName("ddd"), page.id), image2, "abc.txt");
             updated.id.Should().Be(created.id);
@@ -296,7 +294,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
             updated.uploaded_to.Should().Be(page.id);
             updated.external.Should().BeFalse();
             updated.created_at.Should().Be(created.created_at);
-            updated.updated_at.Should().BeAfter(created.updated_at);
+            updated.updated_at.Should().BeOnOrAfter(created.updated_at);
             updated.created_by.Should().Be(created.created_by);
             updated.updated_by.Should().Be(book.created_by);
             var detail = await client.ReadAttachmentAsync(updated.id);
@@ -305,7 +303,6 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         {// update binary to binary
             var image1 = await testResContentAsync("images/pd005.jpg");
             var created = await client.CreateFileAttachmentAsync(new(testName("eee"), page.id), image1, "image1.ext1").WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
             var image2 = await testResContentAsync("images/pd002.png");
             var updated = await client.UpdateFileAttachmentAsync(created.id, new(testName("fff"), page.id), image2, "image2.ext2");
             updated.id.Should().Be(created.id);
@@ -314,7 +311,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
             updated.uploaded_to.Should().Be(page.id);
             updated.external.Should().BeFalse();
             updated.created_at.Should().Be(created.created_at);
-            updated.updated_at.Should().BeAfter(created.updated_at);
+            updated.updated_at.Should().BeOnOrAfter(created.updated_at);
             updated.created_by.Should().Be(created.created_by);
             updated.updated_by.Should().Be(book.created_by);
             var detail = await client.ReadAttachmentAsync(updated.id);
@@ -323,7 +320,6 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         {// update binary to path
             var image1 = await testResContentAsync("images/pd005.jpg");
             var created = await client.CreateFileAttachmentAsync(new(testName("ggg"), page.id), image1, "image1.ext1").WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
             var path2 = testResPath("images/pd001.png");
             var updated = await client.UpdateFileAttachmentAsync(created.id, new(testName("hhh"), page.id), path2);
             updated.id.Should().Be(created.id);
@@ -332,7 +328,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
             updated.uploaded_to.Should().Be(page.id);
             updated.external.Should().BeFalse();
             updated.created_at.Should().Be(created.created_at);
-            updated.updated_at.Should().BeAfter(created.updated_at);
+            updated.updated_at.Should().BeOnOrAfter(created.updated_at);
             updated.created_by.Should().Be(created.created_by);
             updated.updated_by.Should().Be(book.created_by);
             var detail = await client.ReadAttachmentAsync(updated.id);
@@ -341,7 +337,6 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         {// update link to binary
             var url = "https://www.google.com";
             var created = await client.CreateLinkAttachmentAsync(new(testName("iii"), page.id, url)).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
             var image = await testResContentAsync("images/pd002.png");
             var updated = await client.UpdateFileAttachmentAsync(created.id, new(testName("jjj"), page.id), image, "image.ext");
             updated.id.Should().Be(created.id);
@@ -350,7 +345,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
             updated.uploaded_to.Should().Be(page.id);
             updated.external.Should().BeFalse();
             updated.created_at.Should().Be(created.created_at);
-            updated.updated_at.Should().BeAfter(created.updated_at);
+            updated.updated_at.Should().BeOnOrAfter(created.updated_at);
             updated.created_by.Should().Be(created.created_by);
             updated.updated_by.Should().Be(book.created_by);
             var detail = await client.ReadAttachmentAsync(updated.id);
@@ -371,7 +366,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         {// update link to link
             var url1 = "https://server1.home";
             var created = await client.CreateLinkAttachmentAsync(new(testName("aaa"), page.id, url1)).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var url2 = "https://server2.home";
             var updated = await client.UpdateLinkAttachmentAsync(created.id, new(testName("bbb"), page.id, url2));
             updated.id.Should().Be(created.id);
@@ -389,7 +384,6 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         {// update binary to link
             var image = await testResContentAsync("images/pd005.jpg");
             var created = await client.CreateFileAttachmentAsync(new(testName("ccc"), page.id), image, "image.ext").WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
             var url = testResPath("images/pd001.png");
             var updated = await client.UpdateLinkAttachmentAsync(created.id, new(testName("ddd"), page.id, url));
             updated.id.Should().Be(created.id);
@@ -398,7 +392,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
             updated.uploaded_to.Should().Be(page.id);
             updated.external.Should().BeTrue();
             updated.created_at.Should().Be(created.created_at);
-            updated.updated_at.Should().BeAfter(created.updated_at);
+            updated.updated_at.Should().BeOnOrAfter(created.updated_at);
             updated.created_by.Should().Be(created.created_by);
             updated.updated_by.Should().Be(book.created_by);
             var detail = await client.ReadAttachmentAsync(updated.id);

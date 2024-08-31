@@ -554,7 +554,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.name.Should().Be(testName("aaa"));
             created.editor.Should().Be("markdown");
             created.markdown.Should().Be("m1");
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var updated = await client.UpdatePageAsync(created.id, new(testName("bbb"), markdown: "m2"));
             updated.name.Should().Be(testName("bbb"));
             updated.editor.Should().Be("markdown");
@@ -616,7 +616,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.name.Should().Be(testName("aaa"));
             created.editor.Should().Be("markdown");
             created.markdown.Should().Be("m1");
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var updated = await client.UpdatePageAsync(created.id, new(testName("bbb"), markdown: "m2"));
             updated.name.Should().Be(testName("bbb"));
             updated.editor.Should().Be("markdown");

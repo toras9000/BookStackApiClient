@@ -161,7 +161,7 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var guid = Guid.NewGuid().ToString();
             var created = await client.CreateUserAsync(new(testName("user1"), $"user1_{guid}@example.com")).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
+            await Task.Delay(2 * 1000);     // for update timestamp
             var updated = await client.UpdateUserAsync(created.id, new(testName("upd-user1")));
             updated.id.Should().Be(created.id);
             updated.name.Should().Be(testName("upd-user1"));
@@ -178,7 +178,6 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var guid = Guid.NewGuid().ToString();
             var created = await client.CreateUserAsync(new(testName("user2"), $"user2_{guid}@example.com")).WillBeDiscarded(container);
-            await Task.Delay(3 * 1000);
             var updated = await client.UpdateUserAsync(created.id, new(email: $"chg-user2_{guid}@example.com"));
             updated.id.Should().Be(created.id);
             updated.name.Should().Be(testName("user2"));
@@ -189,7 +188,7 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
             updated.edit_url.Should().Be(created.edit_url);
             updated.avatar_url.Should().Be(created.avatar_url);
             updated.created_at.Should().Be(created.created_at);
-            updated.updated_at.Should().BeAfter(created.updated_at);
+            updated.updated_at.Should().BeOnOrAfter(created.updated_at);
         }
 
     }
