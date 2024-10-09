@@ -11,7 +11,7 @@ public class BookStackClientTestsBase
     public string ApiUser { get; } = "Admin";
 
     public DirectoryInfo AssetsDirectory { get; }
-    public long ApiUserID { get; }
+    public long ApiUserID => this.apiUserId.Value;
     public IServiceProvider ServiceProvider { get; }
     public IHttpClientFactory ClientFactory { get; }
     public HttpClient Client => this.ClientFactory.CreateClient();
@@ -25,12 +25,18 @@ public class BookStackClientTestsBase
 
         this.ServiceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
         this.ClientFactory = this.ServiceProvider.GetRequiredService<IHttpClientFactory>();
-        this.ApiUserID = Task.Run(getApiUserIdAsync).GetAwaiter().GetResult();
+
+        this.apiUserId = new Lazy<long>(getApiUserId);
     }
+
+    protected Lazy<long> apiUserId;
 
     protected string testResPath(string relative) => Path.Combine(this.AssetsDirectory.FullName, relative);
     protected Task<byte[]> testResContentAsync(string relative) => File.ReadAllBytesAsync(testResPath(relative));
     protected string testName(string suffix, [CallerMemberName] string member = "") => string.IsNullOrEmpty(suffix) ? member : $"{member}_{suffix}";
+
+    protected long getApiUserId()
+        => Task.Run(getApiUserIdAsync).GetAwaiter().GetResult();
 
     protected async Task<long> getApiUserIdAsync()
     {
