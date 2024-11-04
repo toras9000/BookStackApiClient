@@ -51,10 +51,11 @@ services:
       - PUID=1000
       - PGID=1000
       - APP_URL=http://localhost:9988
+      - APP_KEY=base64:y51UjIErWO8f+sNIfbkWNC4AQV4J6Js/eSRkmyHIAXI=
       - DB_HOST=bookstack-db-container
       - DB_DATABASE=bookstack_store
-      - DB_USER=bookstack_user
-      - DB_PASS=bookstack_pass
+      - DB_USERNAME=bookstack_user
+      - DB_PASSWORD=bookstack_pass
       - APP_THEME=my-theme
       - API_REQUESTS_PER_MIN=99999
       - CUSTOM_TEST_TOKEN_ID=00001111222233334444555566667777
