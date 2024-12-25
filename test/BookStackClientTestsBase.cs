@@ -32,6 +32,7 @@ public class BookStackClientTestsBase
     protected Lazy<long> apiUserId;
 
     protected string testResPath(string relative) => Path.Combine(this.AssetsDirectory.FullName, relative);
+    protected FileInfo testResFile(string relative) => new FileInfo(testResPath(relative));
     protected Task<byte[]> testResContentAsync(string relative) => File.ReadAllBytesAsync(testResPath(relative));
     protected string testName(string suffix, [CallerMemberName] string member = "") => string.IsNullOrEmpty(suffix) ? member : $"{member}_{suffix}";
 

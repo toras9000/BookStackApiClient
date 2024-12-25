@@ -19,7 +19,9 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         await client.CreateShelfAsync(new(testName("testshelve1"), "desc1", books: [book1.id, book3.id,], tags: [new("ts1", "tv1"),])).WillBeDiscarded(container);
         await client.CreateShelfAsync(new(testName("testshelve2"), "desc2", books: [book2.id, book3.id,])).WillBeDiscarded(container);
         await client.CreateShelfAsync(new(testName("testshelve3"), "desc3", tags: [new("ts2", "tv2"),])).WillBeDiscarded(container);
-        await client.CreateShelfAsync(new(testName("testshelve4"), "desc4")).WillBeDiscarded(container);
+
+        var shelf4cover = testResFile("images/pd001.png");
+        var shelf4 = await client.CreateShelfAsync(new(testName("testshelve4"), "desc4"), imgPath: shelf4cover.FullName).WillBeDiscarded(container);
 
         var shelves = await client.ListShelvesAsync();
         foreach (var created in container.Shelves)
@@ -27,6 +29,12 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             var actual = shelves.data.Should().Contain(i => i.id == created.id).Subject;
             var expect = created;
             actual.Should().BeEquivalentTo(expect, o => o.ExcludingMissingMembers());   // 一覧取得時には取得されないものもあるので、見つからないメンバを期待値から除外する
+
+            if (actual.id == shelf4.id)
+            {
+                Assert.IsNotNull(shelf4.cover);
+                shelf4.cover.name.Should().Be(shelf4cover.Name);
+            }
         }
     }
 

@@ -15,12 +15,21 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         await client.CreateBookAsync(new(testName($"book_{Guid.NewGuid()}"), "aaa")).WillBeDiscarded(container);
         await client.CreateBookAsync(new(testName($"book_{Guid.NewGuid()}"), "bbb")).WillBeDiscarded(container);
 
+        var book3cover = testResFile("images/pd001.png");
+        var book3 = await client.CreateBookAsync(new(testName($"book_{Guid.NewGuid()}"), "bbb"), imgPath: book3cover.FullName).WillBeDiscarded(container);
+
         var books = await client.ListBooksAsync();
         foreach (var created in container.Books)
         {
             var actual = books.data.Should().Contain(i => i.id == created.id).Subject;
             var expect = created;
             actual.Should().BeEquivalentTo(expect, o => o.ExcludingMissingMembers());   // 一覧取得時には取得されないものもあるので、見つからないメンバを期待値から除外する
+
+            if (actual.id == book3.id)
+            {
+                Assert.IsNotNull(book3.cover);
+                book3.cover.name.Should().Be(book3cover.Name);
+            }
         }
     }
 

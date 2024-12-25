@@ -148,6 +148,31 @@ public record UpdateLinkAttachmentArgs(string? name = null, long? uploaded_to = 
 #endregion
 
 #region books
+/// <summary>ブックカバー画像情報</summary>
+/// <param name="id">ブックカバー画像ID</param>
+/// <param name="name">ブックカバー画像名称</param>
+/// <param name="url">ブックカバー画像URL</param>
+public record BookCoverSummary(
+    long id, string name, string url
+);
+
+/// <summary>ブック情報</summary>
+/// <param name="id">ブックID</param>
+/// <param name="name">ブックの名前</param>
+/// <param name="slug">ブックのスラグ</param>
+/// <param name="description">ブックの概要</param>
+/// <param name="cover">ブックカバー画像</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+/// <param name="updated_by">更新したユーザ</param>
+/// <param name="owned_by">オーナーユーザ</param>
+public record BookSummary(
+    long id, string name, string slug, string description, BookCoverSummary? cover,
+    DateTime created_at, DateTime updated_at,
+    long created_by, long updated_by, long owned_by
+);
+
 /// <summary>ブックカバー画像サムネイル情報</summary>
 /// <param name="display"></param>
 /// <param name="gallery"></param>
@@ -170,22 +195,6 @@ public record BookCover(
     string path, string url, BookCoverThumbs? thumbs,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by
-);
-
-/// <summary>ブック情報</summary>
-/// <param name="id">ブックID</param>
-/// <param name="name">ブックの名前</param>
-/// <param name="slug">ブックのスラグ</param>
-/// <param name="description">ブックの概要</param>
-/// <param name="created_at">作成日時</param>
-/// <param name="updated_at">更新日時</param>
-/// <param name="created_by">作成したユーザ</param>
-/// <param name="updated_by">更新したユーザ</param>
-/// <param name="owned_by">オーナーユーザ</param>
-public record BookSummary(
-    long id, string name, string slug, string description,
-    DateTime created_at, DateTime updated_at,
-    long created_by, long updated_by, long owned_by
 );
 
 /// <summary>ブック情報</summary>
@@ -592,20 +601,47 @@ public record UpdatePageArgs(string? name = null, long? book_id = null, long? ch
 #endregion
 
 #region shelves
+/// <summary>棚カバー画像情報</summary>
+/// <param name="id">棚カバー画像ID</param>
+/// <param name="name">棚カバー画像名称</param>
+/// <param name="url">棚カバー画像URL</param>
+public record ShelfCoverSummary(
+    long id, string name, string url
+);
+
 /// <summary>棚情報</summary>
 /// <param name="id">棚ID</param>
 /// <param name="name">棚名</param>
 /// <param name="slug">棚スラグ</param>
 /// <param name="description">棚概要</param>
+/// <param name="cover">棚カバー画像情報</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
 /// <param name="created_by">作成したユーザ</param>
 /// <param name="updated_by">更新したユーザ</param>
 /// <param name="owned_by">オーナーユーザ</param>
 public record ShelfSummary(
-    long id, string name, string slug, string description,
+    long id, string name, string slug, string description, ShelfCoverSummary? cover,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by
+);
+
+/// <summary>棚カバー画像情報</summary>
+/// <param name="id">棚カバー画像ID</param>
+/// <param name="name">棚カバー画像名称</param>
+/// <param name="type">棚カバー画像種別</param>
+/// <param name="uploaded_to">対象棚ID</param>
+/// <param name="path">棚カバー画像パス</param>
+/// <param name="url">棚カバー画像URL</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+/// <param name="updated_by">更新したユーザ</param>
+public record ShelfCover(
+    long id, string name, string type, long uploaded_to,
+    string path, string url,
+    DateTime created_at, DateTime updated_at,
+    long created_by, long updated_by
 );
 
 /// <summary>棚情報</summary>
@@ -653,24 +689,6 @@ public record CreateShelfArgs(
 public record UpdateShelfArgs(
     string? name = null, string? description = null, string? description_html = null,
     IReadOnlyList<long>? books = null, IReadOnlyList<Tag>? tags = null
-);
-
-/// <summary>棚カバー画像情報</summary>
-/// <param name="id">棚カバー画像ID</param>
-/// <param name="name">棚カバー画像名称</param>
-/// <param name="type">棚カバー画像種別</param>
-/// <param name="uploaded_to">対象棚ID</param>
-/// <param name="path">棚カバー画像パス</param>
-/// <param name="url">棚カバー画像URL</param>
-/// <param name="created_at">作成日時</param>
-/// <param name="updated_at">更新日時</param>
-/// <param name="created_by">作成したユーザ</param>
-/// <param name="updated_by">更新したユーザ</param>
-public record ShelfCover(
-    long id, string name, string type, long uploaded_to,
-    string path, string url,
-    DateTime created_at, DateTime updated_at,
-    long created_by, long updated_by
 );
 
 /// <summary>棚内ブックコンテンツ</summary>
@@ -794,6 +812,12 @@ public record SearchArgs(string query, int? count = null, int? page = null);
 /// <param name="content">内容</param>
 public record SearchContentPreview(string name, string content);
 
+/// <summary>検索結果コンテンツの親オブジェクト情報</summary>
+/// <param name="id">コンテンツID</param>
+/// <param name="name">コンテンツ名</param>
+/// <param name="slug">コンテンツスラグ</param>
+public record SearchContentEnvelope(long id, string name, string slug);
+
 /// <summary>検索結果コンテンツ基本クラス</summary>
 /// <param name="id">コンテンツID</param>
 /// <param name="name">コンテンツ名</param>
@@ -839,11 +863,12 @@ public record SearchContentBook(
 /// <param name="updated_at">更新日時</param>
 /// <param name="book_id">所属ブックID</param>
 /// <param name="priority">順序</param>
+/// <param name="book">親ブック情報</param>
 public record SearchContentChapter(
     long id, string name, string slug, string type,
     string url, ContentTag[]? tags, SearchContentPreview? preview_html,
     DateTime created_at, DateTime updated_at,
-    long book_id, long priority
+    long book_id, long priority, SearchContentEnvelope? book
 ) : SearchContent(id, name, slug, type, url, tags, preview_html, created_at, updated_at);
 
 /// <summary>検索結果ページコンテンツ</summary>
@@ -861,11 +886,14 @@ public record SearchContentChapter(
 /// <param name="draft">ドラフトであるか</param>
 /// <param name="template">テンプレートであるか</param>
 /// <param name="priority">順序</param>
+/// <param name="book">親ブック情報</param>
+/// <param name="chapter">親チャプタ情報</param>
 public record SearchContentPage(
     long id, string name, string slug, string type,
     string url, ContentTag[]? tags, SearchContentPreview? preview_html,
     DateTime created_at, DateTime updated_at,
-    long book_id, long chapter_id, bool draft, bool template, long priority
+    long book_id, long chapter_id, bool draft, bool template, long priority,
+    SearchContentEnvelope? book, SearchContentEnvelope? chapter
 ) : SearchContent(id, name, slug, type, url, tags, preview_html, created_at, updated_at);
 
 /// <summary>検索結果棚コンテンツ</summary>
