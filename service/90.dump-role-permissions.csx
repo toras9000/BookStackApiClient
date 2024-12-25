@@ -1,7 +1,7 @@
-#r "nuget: MySqlConnector, 2.3.7"
+#r "nuget: MySqlConnector, 2.4.0"
 #r "nuget: Dapper, 2.1.35"
 #r "nuget: Kokuban, 0.2.0"
-#r "nuget: Lestaly, 0.68.0"
+#r "nuget: Lestaly, 0.69.0"
 #nullable enable
 using Dapper;
 using Lestaly;
