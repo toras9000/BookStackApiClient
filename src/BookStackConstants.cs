@@ -67,4 +67,5 @@ public static class RolePermissions
     public static string ExportContent { get; } = "content-export";
     public static string ChangePageEditor { get; } = "editor-change";
     public static string ReceiveAndManageNotifications { get; } = "receive-notifications";
+    public static string ImportContent { get; } = "content-import";
 }
