@@ -16,27 +16,28 @@ Sorry, IntelliSense messages (documentation comments) for types and members are 
 
 Although the BookStack API specification may change from version to version, this library targets only a single version.  
 If the version targeted by the library does not match the server version, there is a large possibility that it will not work properly.  
+The server and client versions must be combined correctly.  
 
 Package versions are in semantic versioning format, but are numbered according to the following arrangement.  
-Always used the pre-release versioning for this package version number.  
+The version number of this package always uses the pre-release versioning format.   
 The core version part represents the version of the target server.  
-The pre-release version part is used to represent the library version, not as a pre-release.  
-The first of the pre-release version numbers is changed when the library specification changes (binary incompatibility).  
-The second pre-release version number is changed for bug fixes and other cases where binary compatibility is maintained.  
+The version (lib.XX) portion of the pre-release is used to indicate the version of the library, not as a pre-release.  
+Therefore, differences in pre-release version numbers are not necessarily trivial changes.  
 
 ## Examples
 
 Some samples are shown below.  
-These use C#9 or later syntax.  
+These use C#12 or later syntax.  
 
 ### Create books, chapters, and pages. and attach file
 
 ```csharp
 var apiEntry = new Uri(@"http://<your-hosting-server>/api/");
-var apiToken  = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+var apiToken = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 var apiSecret = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
 using var client = new BookStackClient(apiEntry, apiToken, apiSecret);
-var book = await client.CreateBookAsync(new("TestBook", tags: new Tag[] { new("test") }));
+var cover = "path/to/image.png";
+var book = await client.CreateBookAsync(new("TestBook", tags: [new("test"),]), imgPath: cover);
 var chapter = await client.CreateChapterAsync(new(book.id, "TestChapter"));
 var page1 = await client.CreateMarkdownPageInBookAsync(new(book.id, "TestPage", "# Test page in book"));
 var page2 = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, "TestPage", "# Test page in chapter"));
@@ -44,7 +45,7 @@ var page2 = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, "TestP
 var filePath = "path/to/file";
 var attach1 = await client.CreateFileAttachmentAsync(new("attach from path", page1.id), filePath);
 
-var contents = new byte[]{ xxxx };
+var contents = new byte[] { xxxx };
 var attach2 = await client.CreateFileAttachmentAsync(new("attach from binary", page1.id), contents, "test.bin");
 ```
 
@@ -59,7 +60,7 @@ try
     var offset = 0;
     while (true)
     {
-        var books = await client.ListBooksAsync(new(offset, sorts: new[] { "id", }));
+        var books = await client.ListBooksAsync(new(offset, sorts: ["id",]));
         foreach (var book in books.data)
         {
             var detail = await client.ReadBookAsync(book.id);
@@ -101,5 +102,5 @@ using var client = new BookStackClient(apiEntry, apiToken, apiSecret);
 var found = await client.SearchAsync(new("search query"));
 
 // list of pages (see https://demo.bookstackapp.com/api/docs#listing-endpoints)
-var pages = await client.ListPagesAsync(new(filters: new[] { new Filter("filter", "expression") }));
+var pages = await client.ListPagesAsync(new(filters: [new("filter", "expression"),]));
 ```
