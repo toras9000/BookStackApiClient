@@ -204,6 +204,7 @@ public record BookCover(
 /// <param name="description">ブックの概要</param>
 /// <param name="description_html">ブックの概要(HTML表現)</param>
 /// <param name="default_template_id">デフォルトテンプレートID</param>
+/// <param name="sort_rule_id">ソートルールID</param>
 /// <param name="tags">タグ一覧</param>
 /// <param name="cover">ブックカバー画像</param>
 /// <param name="created_at">作成日時</param>
@@ -213,7 +214,7 @@ public record BookCover(
 /// <param name="owned_by">オーナーユーザ</param>
 public record BookItem(
     long id, string name, string slug,
-    string description, string description_html, long? default_template_id,
+    string description, string description_html, long? default_template_id, long? sort_rule_id,
     ContentTag[]? tags, BookCover? cover,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by
@@ -292,6 +293,7 @@ public record BookContentChapter(
 /// <param name="description">ブック概要</param>
 /// <param name="description_html">ブック概要(HTML表現)</param>
 /// <param name="default_template_id">デフォルトテンプレートID</param>
+/// <param name="sort_rule_id">ソートルールID</param>
 /// <param name="owned_by">オーナーユーザ</param>
 /// <param name="contents">
 /// ブック内コンテンツ。
@@ -306,7 +308,7 @@ public record BookContentChapter(
 /// <param name="updated_by">更新したユーザ</param>
 public record ReadBookResult(
     long id, string name, string slug,
-    string description, string description_html, long? default_template_id,
+    string description, string description_html, long? default_template_id, long? sort_rule_id,
     BookContent[] contents, ContentTag[]? tags, BookCover? cover,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by
