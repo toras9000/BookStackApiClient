@@ -51,6 +51,14 @@ public class BookStackClient : IDisposable
         => contextGetRequest(apiEp("docs.json"), cancelToken).JsonResponseAsync<ApiDocResult>(cancelToken);
     #endregion
 
+    #region system
+    /// <summary>システム情報を取得する。</summary>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>取得結果のシステム情報</returns>
+    public Task<SystemInfo> SystemAsync(CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp("system"), cancelToken).JsonResponseAsync<SystemInfo>(cancelToken);
+    #endregion
+
     #region attachments
     /// <summary>添付ファイル/リンクの一覧を取得する。</summary>
     /// <param name="listing">リスト要求オプション</param>

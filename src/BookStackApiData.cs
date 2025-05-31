@@ -62,6 +62,20 @@ public record ApiDoc(
 public class ApiDocResult : Dictionary<string, ApiDoc[]> { }
 #endregion
 
+#region system
+/// <summary>システム情報</summary>
+/// <param name="version">バージョン</param>
+/// <param name="instance_id">インスタンスID</param>
+/// <param name="app_name">アプリケーション名称</param>
+/// <param name="app_logo">ロゴURL</param>
+/// <param name="base_url">ベースURL</param>
+public record SystemInfo(
+    string version,
+    string instance_id, string app_name,
+    string app_logo, string base_url
+);
+#endregion
+
 #region attachments
 /// <summary>添付ファイル/リンク情報</summary>
 /// <param name="id">添付ファイルID</param>
