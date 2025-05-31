@@ -1,7 +1,7 @@
 #r "nuget: MySqlConnector, 2.4.0"
-#r "nuget: Dapper, 2.1.35"
+#r "nuget: Dapper, 2.1.66"
 #r "nuget: Kokuban, 0.2.0"
-#r "nuget: Lestaly, 0.69.0"
+#r "nuget: Lestaly, 0.83.0"
 #nullable enable
 using Dapper;
 using Lestaly;
@@ -10,12 +10,12 @@ using Kokuban;
 using MySqlConnector;
 using System.Runtime.Intrinsics.Wasm;
 
-await Paved.RunAsync(config: c => c.AnyPause(), action: async () =>
+await Paved.ProceedAsync(async () =>
 {
     WriteLine("Detect database port");
     var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
-    var pubPort = await "docker".args("compose", "--file", composeFile.FullName, "port", "db", "3306").silent().result().success().output();
-    var portNum = pubPort.AsSpan().SkipToken(':').TryParseNumber<ushort>() ?? throw new PavedMessageException("Cannot get port number");
+    var pubPort = await "docker".args("compose", "--file", composeFile, "port", "db", "3306").silent().result().success().output(trim: true);
+    var portNum = pubPort.AsSpan().SkipFirstToken(':').TryParseNumber<ushort>() ?? throw new PavedMessageException("Cannot get port number");
 
     WriteLine("Open database");
     var connector = new MySqlConnectionStringBuilder();
