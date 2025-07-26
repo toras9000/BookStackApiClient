@@ -1,7 +1,7 @@
 ﻿namespace BookStackApiClient.Tests;
 
 [TestClass()]
-public class BookStackClientAuditLogTests : BookStackClientTestsBase
+public class BookStackClientHelperTests : BookStackClientTestsBase
 {
     [TestMethod()]
     public async Task ListAuditLogAsync()
