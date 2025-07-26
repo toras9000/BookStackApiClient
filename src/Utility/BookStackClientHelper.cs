@@ -32,10 +32,21 @@ public delegate ValueTask ApiLimitAsyncHandler(ApiLimitHandlerArgs args);
 /// <summary>BookStackClientクラスを補助するヘルパクラス</summary>
 /// <remarks>
 /// このクラスでは主にAPI呼び出し制限への対応するための補助処理を含む。
-/// シンプルな利用方法としては、以下のような
+/// ヘルパクラスでは呼び出し制限例外を捕捉する補助メソッド <see cref="Try{TResult}(ApiInvoker{TResult})"/> およびそれを用いたアイテムの列挙メソッドを提供する。
+/// 以下のように制限発生時の処理をハンドルして補助メソッドを呼び出す利用方法を想定している。
 /// <code>
-/// using var helper = new 
+/// using var canceller = new CancellationTokenSource();
+/// using var helper = new BookStackClientHelper(client, canceller.Token);
+/// helper.LimitHandler += async args => await Task.Delay(TimeSpan.FromSeconds(args.Exception.RetryAfter));
+/// await foreach (var book in helper.EnumerateAllBooksAsync())
+/// {
+///     var bookDetail = await helper.Try((c, t) => c.ReadBookAsync(book.id, cancelToken: t));
+///     // ...
+/// }
 /// </code>
+/// 
+/// 制限発生時に発行する <see cref="LimitHandler" /> イベントがハンドルされない場合や待機時間が不足している場合、ヘルパクラスは制限解除に必要な時間分の待機を行う。
+/// ヘルパクラスの各メソッドはキャンセルトークンを受け入れるが、コンストラクタでデフォルトのキャンセルトークンを指定しておくことで、各呼び出しでの指定を省略することができる。
 /// </remarks>
 public class BookStackClientHelper : IDisposable
 {
