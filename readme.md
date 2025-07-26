@@ -104,3 +104,24 @@ var found = await client.SearchAsync(new("search query"));
 // list of pages (see https://demo.bookstackapp.com/api/docs#listing-endpoints)
 var pages = await client.ListPagesAsync(new(filters: [new("filter", "expression"),]));
 ```
+
+### Helper class
+
+```csharp
+using var client = new BookStackClient(apiEntry, apiToken, apiSecret);
+using var helper = new BookStackClientHelper(client);
+
+// Handling when API limits are reached.
+helper.LimitHandler += async args => await Task.Delay(TimeSpan.FromSeconds(args.Exception.RetryAfter));
+
+// Be prepared to stop halfway if necessary.
+using var timeout = new CancellationTokenSource();
+timeout.CancelAfter(TimeSpan.FromMinutes(30));
+
+// List everything. If the limit is reached, the handler is called.
+await foreach (var book in helper.EnumerateAllBooksAsync(timeout.Token))
+{
+    Console.WriteLine($"{book.id}: {book.name}");
+}
+```
+
