@@ -45,19 +45,23 @@ public class BookStackClientHelper : IDisposable
     /// <param name="baseUri">APIベースURI。<see cref="BookStackClient" /> </param>
     /// <param name="token">APIトークンID</param>
     /// <param name="secret">APIトークンシークレット。</param>
-    public BookStackClientHelper(Uri baseUri, string token, string secret)
+    /// <param name="cancelToken">デフォルトのキャンセルトークン</param>
+    public BookStackClientHelper(Uri baseUri, string token, string secret, CancellationToken cancelToken = default)
     {
         this.Client = new BookStackClient(baseUri, token, secret);
         this.ownClient = true;
+        this.breaker = cancelToken;
     }
 
     /// <summary>クライアントインスタンスを指定するコンストラクタ</summary>
     /// <param name="client">クライアントインスタンス</param>
-    /// <param name="own">所有権を持たせるか(インスタンス破棄するか)否か</param>
-    public BookStackClientHelper(BookStackClient client, bool own = false)
+    /// <param name="cancelToken">デフォルトのキャンセルトークン</param>
+    /// <param name="own">クライアントの所有権を持たせるか(インスタンス破棄するか)否か</param>
+    public BookStackClientHelper(BookStackClient client, CancellationToken cancelToken = default, bool own = false)
     {
         this.Client = client;
         this.ownClient = own;
+        this.breaker = cancelToken;
     }
     #endregion
 
@@ -134,7 +138,7 @@ public class BookStackClientHelper : IDisposable
     /// <typeparam name="TResult">APIの戻り値型</typeparam>
     /// <returns>APIの戻り値</returns>
     public ValueTask<TResult> Try<TResult>(ApiInvoker<TResult> invoker)
-        => this.Try(default, invoker);
+        => this.Try(this.breaker, invoker);
 
     /// <summary>API呼び出し制限に対処するヘルパメソッド(戻り値なし)</summary>
     /// <param name="breaker">キャンセルトークン</param>
@@ -147,7 +151,7 @@ public class BookStackClientHelper : IDisposable
     /// <summary>API呼び出し制限に対処するヘルパメソッド(戻り値なし)</summary>
     /// <param name="invoker">API呼び出し処理</param>
     public ValueTask Try(ApiInvoker invoker)
-        => this.Try(default, invoker);
+        => this.Try(this.breaker, invoker);
     #endregion
 
     #region ユーティリティ：棚
@@ -158,10 +162,11 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得した棚情報を列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<ShelfSummary> EnumerateAllShelvesAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         while (true)
         {
-            var shelves = await this.Try(cancelToken, (c, t) => c.ListShelvesAsync(new(offset, count: batchCount, filters: filters), t));
+            var shelves = await this.Try(ct, (c, t) => c.ListShelvesAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var shelf in shelves.data)
             {
                 yield return shelf;
@@ -188,10 +193,11 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得した本情報を列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<BookSummary> EnumerateAllBooksAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         while (true)
         {
-            var books = await this.Try(cancelToken, (c, t) => c.ListBooksAsync(new(offset, count: batchCount, filters: filters), t));
+            var books = await this.Try(ct, (c, t) => c.ListBooksAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var book in books.data)
             {
                 yield return book;
@@ -218,10 +224,11 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得したチャプタ情報を列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<ChapterSummary> EnumerateAllChaptersAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         while (true)
         {
-            var pages = await this.Try(cancelToken, (c, t) => c.ListChaptersAsync(new(offset, count: batchCount, filters: filters), t));
+            var pages = await this.Try(ct, (c, t) => c.ListChaptersAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var page in pages.data)
             {
                 yield return page;
@@ -248,10 +255,11 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得したページ情報を列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<PageSummary> EnumerateAllPagesAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         while (true)
         {
-            var pages = await this.Try(cancelToken, (c, t) => c.ListPagesAsync(new(offset, count: batchCount, filters: filters), t));
+            var pages = await this.Try(ct, (c, t) => c.ListPagesAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var page in pages.data)
             {
                 yield return page;
@@ -278,11 +286,12 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得したユーザ情報を列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<UserSummary> EnumerateAllUsersAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         var allUsers = new List<UserSummary>();
         while (true)
         {
-            var users = await this.Try(cancelToken, (c, t) => c.ListUsersAsync(new(offset, count: batchCount, filters: filters), t));
+            var users = await this.Try(ct, (c, t) => c.ListUsersAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var user in users.data)
             {
                 yield return user;
@@ -309,11 +318,12 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得したロール情報を列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<RoleSummary> EnumerateAllRolesAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         var allRoles = new List<RoleSummary>();
         while (true)
         {
-            var roles = await this.Try(cancelToken, (c, t) => c.ListRolesAsync(new(offset, count: batchCount, filters: filters), t));
+            var roles = await this.Try(ct, (c, t) => c.ListRolesAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var role in roles.data)
             {
                 yield return role;
@@ -340,11 +350,12 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得した添付アイテム情報を列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<AttachmentItem> EnumerateAllAttachmentsAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         while (true)
         {
             // Obtain attachment information.
-            var attachments = await this.Try(cancelToken, (c, t) => c.ListAttachmentsAsync(new(offset, count: batchCount, filters: filters), t));
+            var attachments = await this.Try(ct, (c, t) => c.ListAttachmentsAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var attach in attachments.data)
             {
                 yield return attach;
@@ -395,11 +406,12 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得した画像情報を列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<ImageSummary> EnumerateAllImagesAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         while (true)
         {
             // Obtain image information.
-            var images = await this.Try(cancelToken, (c, t) => c.ListImagesAsync(new(offset, count: batchCount, filters: filters), t));
+            var images = await this.Try(ct, (c, t) => c.ListImagesAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var image in images.data)
             {
                 yield return image;
@@ -450,10 +462,11 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得したゴミ箱アイテムを列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<RecycleItem> EnumerateAllRecycleItemsAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         while (true)
         {
-            var items = await this.Try(cancelToken, (c, t) => c.ListRecycleBinAsync(new(offset, count: batchCount, filters: filters), t));
+            var items = await this.Try(ct, (c, t) => c.ListRecycleBinAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var item in items.data)
             {
                 yield return item;
@@ -480,10 +493,11 @@ public class BookStackClientHelper : IDisposable
     /// <returns>取得した監査ログを列挙する非同期シーケンス</returns>
     public async IAsyncEnumerable<AuditLogItem> EnumerateAllAuditLogsAsync(int batchCount, IReadOnlyList<Filter>? filters = default, [EnumeratorCancellation] CancellationToken cancelToken = default)
     {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
         var offset = 0;
         while (true)
         {
-            var logs = await this.Try(cancelToken, (c, t) => c.ListAuditLogAsync(new(offset, count: batchCount, filters: filters), t));
+            var logs = await this.Try(ct, (c, t) => c.ListAuditLogAsync(new(offset, count: batchCount, filters: filters), t));
             foreach (var log in logs.data)
             {
                 yield return log;
@@ -517,6 +531,9 @@ public class BookStackClientHelper : IDisposable
     #region リソース管理
     /// <summary>クライアントを所有しているか否か</summary>
     private readonly bool ownClient;
+
+    /// <summary>デフォルトのキャンセルトークン</summary>
+    private readonly CancellationToken breaker;
     #endregion
 }
 
