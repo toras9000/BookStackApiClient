@@ -1,7 +1,0 @@
-services:
-  db:
-    volumes:
-      - ./volumes/bookstack/db:/var/lib/mysql
-  app:
-    volumes:
-      - ./volumes/bookstack/app:/config

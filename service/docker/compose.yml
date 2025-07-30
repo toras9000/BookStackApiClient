@@ -1,7 +1,11 @@
+name: bookstack-for-library-test
+
+volumes:
+  bookstack-db-data:
+  bookstack-app-data:
+
 services:
   db:
-    # (windows + docker desktop + wsl2 + mariadb + bookstack) is initial migration failed.
-    # mysql is used as an alternative for samples.
     image: mysql:8
     restart: unless-stopped
     networks:
@@ -17,6 +21,10 @@ services:
       timeout: 5s
       interval: 300s
       retries: 3
+    volumes:
+      - type: volume
+        source: bookstack-db-data
+        target: /var/lib/mysql
     environment:
       - TZ=Asia/Tokyo
       - MYSQL_ROOT_PASSWORD=bookstack_rootpass
@@ -25,7 +33,7 @@ services:
       - MYSQL_PASSWORD=bookstack_pass
 
   app:
-    image: lscr.io/linuxserver/bookstack:version-v25.05
+    image: lscr.io/linuxserver/bookstack:version-v25.07
     restart: unless-stopped
     depends_on:
       db:
@@ -44,8 +52,9 @@ services:
       interval: 300s
       retries: 3
     volumes:
-      - ./assets/init:/custom-cont-init.d
-      - ./assets/template:/assets/template
+      - type: volume
+        source: bookstack-app-data
+        target: /config
     environment:
       - TZ=Asia/Tokyo
       - PUID=1000
