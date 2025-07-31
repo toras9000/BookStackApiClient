@@ -831,5 +831,20 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         using var pdf = await client.ExportPagePdfAsync(page.id);
         pdf.Should().BeReadable();
     }
+
+    [TestMethod()]
+    public async Task ExportPageZipAsync()
+    {
+        // init
+        using var client = new BookStackClient(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret, () => this.Client);
+
+        // test call & validate
+        await using var container = new TestResourceContainer(client);
+        var book = await client.CreateBookAsync(new(testName("aaa"))).WillBeDiscarded(container);
+        var chapter = await client.CreateChapterAsync(new(book.id, testName("bbb")));
+        var page = await client.CreatePageAsync(new(testName("ccc"), book_id: book.id, markdown: "aaa"));
+        using var zip = await client.ExportPageZipAsync(page.id);
+        zip.Should().BeReadable();
+    }
     #endregion
 }

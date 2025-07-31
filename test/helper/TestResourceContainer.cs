@@ -13,6 +13,7 @@ public class TestResourceContainer : IAsyncDisposable
         this.images = new List<ImageItem>();
         this.users = new List<UserItem>();
         this.roles = new List<RoleItem>();
+        this.imports = new List<ImportsItem>();
 
         this.Client = client;
         this.Attachments = this.attachments.AsReadOnly();
@@ -23,6 +24,7 @@ public class TestResourceContainer : IAsyncDisposable
         this.Images = this.images.AsReadOnly();
         this.Users = this.users.AsReadOnly();
         this.Roles = this.roles.AsReadOnly();
+        this.Imports = this.imports.AsReadOnly();
     }
 
     public BookStackClient Client { get; }
@@ -34,6 +36,7 @@ public class TestResourceContainer : IAsyncDisposable
     public IReadOnlyList<ImageItem> Images { get; }
     public IReadOnlyList<UserItem> Users { get; }
     public IReadOnlyList<RoleItem> Roles { get; }
+    public IReadOnlyList<ImportsItem> Imports { get; }
 
 
     public AttachmentItem ToBeDiscarded(AttachmentItem attachment)
@@ -92,6 +95,13 @@ public class TestResourceContainer : IAsyncDisposable
         return this.AddTo(role);
     }
 
+    public ImportsItem ToBeDiscarded(ImportsItem imports)
+    {
+        var resource = new TestResource(() => this.Client.DeleteImportsAsync(imports.id));
+        this.resources.Add(resource);
+        return this.AddTo(imports);
+    }
+
     public AttachmentItem AddTo(AttachmentItem attachment)
     {
         this.attachments.Add(attachment);
@@ -140,6 +150,12 @@ public class TestResourceContainer : IAsyncDisposable
         return role;
     }
 
+    public ImportsItem AddTo(ImportsItem imports)
+    {
+        this.imports.Add(imports);
+        return imports;
+    }
+
     public async ValueTask DisposeAsync()
     {
         foreach (var res in this.resources.AsEnumerable().Reverse())
@@ -180,6 +196,7 @@ public class TestResourceContainer : IAsyncDisposable
     private List<ImageItem> images;
     private List<UserItem> users;
     private List<RoleItem> roles;
+    private List<ImportsItem> imports;
 }
 
 public static class TestResourceContainerExtensions
@@ -208,6 +225,9 @@ public static class TestResourceContainerExtensions
     public static async Task<RoleItem> WillBeDiscarded(this Task<RoleItem> self, TestResourceContainer container)
         => container.ToBeDiscarded(await self.ConfigureAwait(false));
 
+    public static async Task<ImportsItem> WillBeDiscarded(this Task<ImportsItem> self, TestResourceContainer container)
+        => container.ToBeDiscarded(await self.ConfigureAwait(false));
+
     public static async Task<AttachmentItem> AddTo(this Task<AttachmentItem> self, TestResourceContainer container)
         => container.AddTo(await self.ConfigureAwait(false));
 
@@ -230,5 +250,8 @@ public static class TestResourceContainerExtensions
         => container.AddTo(await self.ConfigureAwait(false));
 
     public static async Task<RoleItem> AddTo(this Task<RoleItem> self, TestResourceContainer container)
+        => container.AddTo(await self.ConfigureAwait(false));
+
+    public static async Task<ImportsItem> AddTo(this Task<ImportsItem> self, TestResourceContainer container)
         => container.AddTo(await self.ConfigureAwait(false));
 }

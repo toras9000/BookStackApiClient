@@ -1150,6 +1150,139 @@ public record ContentPermissionsItem(User owner, RolePermissionEx[] role_permiss
 public record UpdateContentPermissionsArgs(long? owner_id = null, RolePermission[]? role_permissions = null, FallbackPermission? fallback_permissions = null);
 #endregion
 
+#region imports
+/// <summary>ZIPインポート情報</summary>
+/// <param name="id">インポートID</param>
+/// <param name="name">インポート名</param>
+/// <param name="size">インポートサイズ</param>
+/// <param name="type">インポート種別("book" or "chapter" or "page")</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+public record ImportsSummary(
+    long id, string name, long size, string type,
+    DateTime created_at, DateTime updated_at,
+    long created_by
+);
+
+/// <summary>ZIPインポート一覧取得結果</summary>
+/// <param name="data">インポート一覧</param>
+/// <param name="total">インポート総数</param>
+public record ListImportsResult(ImportsSummary[] data, long total);
+
+/// <summary>ZIPインポート情報</summary>
+/// <param name="id">インポートID</param>
+/// <param name="name">インポート名</param>
+/// <param name="size">インポートサイズ</param>
+/// <param name="path">インポートファイルアップロードパス</param>
+/// <param name="type">ギャラリー画像種別("book" or "chapter" or "page")</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+public record ImportsItem(
+    long id, string name, long size, string type, string path,
+    DateTime created_at, DateTime updated_at,
+    long created_by
+);
+
+/// <summary>ZIPインポートタグ詳細</summary>
+/// <param name="name">インポートタグ名</param>
+public record ImportsTag(string name);
+
+/// <summary>ZIPインポート添付詳細</summary>
+/// <param name="id">インポート添付ID</param>
+/// <param name="name">インポート添付名</param>
+public record ImportsAttachment(long id, string name);
+
+/// <summary>ZIPインポート画像詳細</summary>
+/// <param name="id">インポート画像ID</param>
+/// <param name="name">インポート画像名</param>
+/// <param name="type">インポート画像種別</param>
+/// <param name="file">インポート画像ファイル名</param>
+public record ImportsImage(long id, string name, string type, string file);
+
+/// <summary>ZIPインポートページ詳細</summary>
+/// <param name="id">ページインポートID</param>
+/// <param name="name">ページインポート名</param>
+/// <param name="priority">順序</param>
+/// <param name="attachments">添付インポート情報</param>
+/// <param name="images">画像インポート情報</param>
+/// <param name="tags">タグインポート情報</param>
+public record ImportsPageDetails(
+    long id, string name, long? priority,
+    ImportsAttachment[] attachments, ImportsImage[] images,
+    ImportsTag[] tags
+);
+
+/// <summary>ZIPインポートチャプタ詳細</summary>
+/// <param name="id">チャプタインポートID</param>
+/// <param name="name">チャプタインポート名</param>
+/// <param name="priority">順序</param>
+/// <param name="pages">ページインポート情報</param>
+/// <param name="tags">タグインポート情報</param>
+public record ImportsChapterDetails(
+    long id, string name, long? priority,
+    ImportsPageDetails[] pages,
+    ImportsTag[] tags
+);
+
+/// <summary>ZIPインポートコンテンツ詳細</summary>
+/// <param name="id">ブックインポートID</param>
+/// <param name="name">ブックインポート名</param>
+/// <param name="chapters">チャプタインポート情報</param>
+/// <param name="pages">ページインポート情報</param>
+/// <param name="tags">タグインポート情報</param>
+public record ImportsContentDetails(
+    long id, string name,
+    ImportsChapterDetails[]? chapters,
+    ImportsPageDetails[]? pages,
+    ImportsTag[] tags
+);
+
+/// <summary>ZIPインポート詳細</summary>
+/// <param name="id">インポートID</param>
+/// <param name="name">インポート名</param>
+/// <param name="size">インポートサイズ</param>
+/// <param name="type">ギャラリー画像種別("book" or "chapter" or "page")</param>
+/// <param name="path">インポートファイルアップロードパス</param>
+/// <param name="details">詳細情報</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+public record ImportsItemDetails(
+    long id, string name, long size, string type, string path,
+    ImportsContentDetails details,
+    DateTime created_at, DateTime updated_at,
+    long created_by
+);
+
+/// <summary>インポート実行パラメータ</summary>
+/// <param name="parent_type">インポート先種別("book" or "chapter")</param>
+/// <param name="parent_id">インポート先ID</param>
+public record RunImportsArgs(string parent_type, long parent_id);
+
+/// <summary>インポート実行結果</summary>
+/// <param name="id">インポートアイテムID</param>
+/// <param name="book_id">ブックID</param>
+/// <param name="name">インポートアイテム名</param>
+/// <param name="slug">インポートアイテムスラグ</param>
+/// <param name="description">インポートアイテム概要</param>
+/// <param name="priority">インポートアイテム順序</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+/// <param name="updated_by">更新したユーザ</param>
+/// <param name="owned_by">所有ユーザ</param>
+/// <param name="default_template_id">デフォルトテンプレートID</param>
+public record RunImportsResult(
+    long id, string name, string slug, long book_id,
+    string description, long priority,
+    DateTime created_at, DateTime updated_at,
+    long created_by, long updated_by, long owned_by,
+    long? default_template_id
+);
+#endregion
+
 #region recycle-bin
 /// <summary>削除コンテンツの親情報</summary>
 /// <param name="id">コンテンツID</param>

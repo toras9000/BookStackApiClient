@@ -759,6 +759,60 @@ public class BookStackClient : IDisposable
         => UpdateContentPermissionsAsync("page", id, args, cancelToken);
     #endregion
 
+    #region imports
+    /// <summary>インポートの一覧を取得する。</summary>
+    /// <param name="listing">リスト要求オプション</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>取得結果のZIPインポート一覧</returns>
+    public Task<ListImportsResult> ListImportsAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp("imports", listing), cancelToken).JsonResponseAsync<ListImportsResult>(cancelToken);
+
+    /// <summary>インポートを開始する。</summary>
+    /// <param name="path">アップロードするファイルのパス</param>
+    /// <param name="fileName">アップロードするファイル名称。指定されない場合はパスの名称をそのまま利用する。</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>インポート情報</returns>
+    public Task<ImportsItem> CreateImportsAsync(string path, string? fileName = null, CancellationToken cancelToken = default)
+        => contextCreateImportsAsync(apiEp("imports"), pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<ImportsItem>(cancelToken);
+
+    /// <summary>インポートを開始する。</summary>
+    /// <param name="content">アップロードするファイル内容</param>
+    /// <param name="fileName">アップロードするファイル名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>インポート情報</returns>
+    public Task<ImportsItem> CreateImportsAsync(byte[] content, string fileName, CancellationToken cancelToken = default)
+        => contextCreateImportsAsync(apiEp("imports"), binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImportsItem>(cancelToken);
+
+    /// <summary>インポートを開始する。</summary>
+    /// <param name="content">アップロードするファイル内容ストリーム。呼び出し後に破棄されるため注意。</param>
+    /// <param name="fileName">アップロードするファイル名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>インポート情報</returns>
+    public Task<ImportsItem> CreateImportsAsync(Stream content, string fileName, CancellationToken cancelToken = default)
+        => contextCreateImportsAsync(apiEp("imports"), streamFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImportsItem>(cancelToken);
+
+    /// <summary>インポートの詳細と内容を取得する。</summary>
+    /// <param name="id">インポートID</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>インポート詳細情報</returns>
+    public Task<ImportsItemDetails> ReadImportsAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"imports/{id}"), cancelToken).JsonResponseAsync<ImportsItemDetails>(cancelToken);
+
+    /// <summary>インポートを実行する。</summary>
+    /// <param name="id">インポートID</param>
+    /// <param name="args">インポート実行パラメータ。チャプタやページのインポート時には必須。</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>インポート詳細情報</returns>
+    public Task<RunImportsResult> RunImportsAsync(long id, RunImportsArgs? args = default, CancellationToken cancelToken = default)
+        => contextPostRequest(apiEp($"imports/{id}"), args, cancelToken).JsonResponseAsync<RunImportsResult>(cancelToken);
+
+    /// <summary>インポートを削除する。</summary>
+    /// <param name="id">インポートID</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    public Task DeleteImportsAsync(long id, CancellationToken cancelToken = default)
+        => contextDeleteRequest(apiEp($"imports/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+    #endregion
+
     #region recycle-bin
     /// <summary>ゴミ箱内容の一覧を取得する。</summary>
     /// <param name="listing">リスト要求オプション</param>
@@ -1438,6 +1492,24 @@ public class BookStackClient : IDisposable
                 var image = fileContentGenerator();
                 context.Add(image.content, "image", image.name);
             }
+            return context;
+        }, cancelToken);
+    }
+
+    /// <summary>ZIPインポート作成要求共通処理</summary>
+    /// <param name="ep">APIエンドポイント</param>
+    /// <param name="fileContentGenerator">ZIPインポート生成デリゲート</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>要求コンテキスト</returns>
+    private RequestContext contextCreateImportsAsync(ApiEndpoint ep, FileContentGenerator fileContentGenerator, CancellationToken cancelToken)
+    {
+        ArgumentNullException.ThrowIfNull(fileContentGenerator);
+
+        return contextPostContentRequest(ep, () =>
+        {
+            var context = new MultipartFormDataContent();
+            var zip = fileContentGenerator();
+            context.Add(zip.content, "file", zip.name);
             return context;
         }, cancelToken);
     }
