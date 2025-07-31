@@ -352,8 +352,8 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("tb1", "vb1"), new("tb2", "vb2"),])).WillBeDiscarded(container);
         var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", tags: [new("tc1", "vc1"), new("tc2", "vc2"),]));
-        var pdf = await client.ExportChapterPdfAsync(chapter.id);
-        pdf.Should().NotBeNullOrEmpty();
+        using var pdf = await client.ExportChapterPdfAsync(chapter.id);
+        pdf.Should().BeReadable();
     }
     #endregion
 }

@@ -385,8 +385,8 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),])).WillBeDiscarded(container);
-        var pdf = await client.ExportBookPdfAsync(book.id);
-        pdf.Should().NotBeNullOrEmpty();
+        using var pdf = await client.ExportBookPdfAsync(book.id);
+        pdf.Should().BeReadable();
     }
     #endregion
 }

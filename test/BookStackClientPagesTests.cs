@@ -828,8 +828,8 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         var book = await client.CreateBookAsync(new(testName("aaa"))).WillBeDiscarded(container);
         var chapter = await client.CreateChapterAsync(new(book.id, testName("bbb")));
         var page = await client.CreatePageAsync(new(testName("ccc"), book_id: book.id, markdown: "aaa"));
-        var pdf = await client.ExportPagePdfAsync(page.id);
-        pdf.Should().NotBeNullOrEmpty();
+        using var pdf = await client.ExportPagePdfAsync(page.id);
+        pdf.Should().BeReadable();
     }
     #endregion
 }

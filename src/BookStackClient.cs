@@ -85,6 +85,15 @@ public class BookStackClient : IDisposable
     public Task<AttachmentItem> CreateFileAttachmentAsync(CreateAttachmentArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
         => contextCreateAttachmentAsync(apiEp("attachments"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
 
+    /// <summary>ファイル内容を指定してファイルを添付する。</summary>
+    /// <param name="args">ファイル添付共通パラメータ</param>
+    /// <param name="content">添付するファイル内容ストリーム。呼び出し後に破棄されるため注意。</param>
+    /// <param name="fileName">添付するファイル名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>添付されたファイルの情報</returns>
+    public Task<AttachmentItem> CreateFileAttachmentAsync(CreateAttachmentArgs args, Stream content, string fileName, CancellationToken cancelToken = default)
+        => contextCreateAttachmentAsync(apiEp("attachments"), args, streamFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
+
     /// <summary>外部リンクを添付する。</summary>
     /// <param name="args">外部リンクの添付パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
@@ -116,8 +125,18 @@ public class BookStackClient : IDisposable
     /// <param name="fileName">添付するファイル名称</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付ファイル情報</returns>
-    public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, byte[]? content, string fileName, CancellationToken cancelToken = default)
+    public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
         => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, binaryFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
+
+    /// <summary>ファイル内容を指定して添付ファイルを更新する。</summary>
+    /// <param name="id">添付ファイル/リンクID</param>
+    /// <param name="args">添付ファイル更新パラメータ</param>
+    /// <param name="content">添付するファイル内容ストリーム。呼び出し後に破棄されるため注意。</param>
+    /// <param name="fileName">添付するファイル名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>添付ファイル情報</returns>
+    public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, Stream content, string fileName, CancellationToken cancelToken = default)
+        => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, streamFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
 
     /// <summary>添付リンクを更新する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
@@ -160,6 +179,15 @@ public class BookStackClient : IDisposable
     public Task<BookItem> CreateBookAsync(CreateBookArgs args, byte[] imgContent, string imgName, CancellationToken cancelToken = default)
         => contextCreateBook(apiEp("books"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
 
+    /// <summary>ブックを作成する。</summary>
+    /// <param name="args">ブック作成パラメータ</param>
+    /// <param name="imgContent">ブックカバーにする画像ストリーム。呼び出し後に破棄されるため注意。</param>
+    /// <param name="imgName">ブックカバー画像名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>添付されたファイル情報</returns>
+    public Task<BookItem> CreateBookAsync(CreateBookArgs args, Stream imgContent, string imgName, CancellationToken cancelToken = default)
+        => contextCreateBook(apiEp("books"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
+
     /// <summary>ブックの詳細と内容を取得する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
@@ -186,6 +214,16 @@ public class BookStackClient : IDisposable
     /// <returns>ブック情報</returns>
     public Task<BookItem> UpdateBookAsync(long id, UpdateBookArgs args, byte[] imgContent, string imgName, CancellationToken cancelToken = default)
         => contextUpdateBook(apiEp($"books/{id}"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
+
+    /// <summary>ブックを更新する。</summary>
+    /// <param name="id">ブックID</param>
+    /// <param name="args">ブック更新パラメータ</param>
+    /// <param name="imgContent">ブックカバーにする画像ストリーム。呼び出し後に破棄されるため注意。</param>
+    /// <param name="imgName">ブックカバー画像名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>ブック情報</returns>
+    public Task<BookItem> UpdateBookAsync(long id, UpdateBookArgs args, Stream imgContent, string imgName, CancellationToken cancelToken = default)
+        => contextUpdateBook(apiEp($"books/{id}"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
 
     /// <summary>ブックを削除する。</summary>
     /// <param name="id">ブックID</param>
@@ -218,8 +256,15 @@ public class BookStackClient : IDisposable
     /// <param name="id">ブックID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ブック内容PDF</returns>
-    public Task<byte[]> ExportBookPdfAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"books/{id}/export/pdf"), cancelToken).BinaryResponseAsync(cancelToken);
+    public Task<Stream> ExportBookPdfAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"books/{id}/export/pdf"), cancelToken).StreamResponseAsync(cancelToken);
+
+    /// <summary>ブックをZIPでエクスポートする</summary>
+    /// <param name="id">ブックID</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>ブック内容ZIP</returns>
+    public Task<Stream> ExportBookZipAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"books/{id}/export/zip"), cancelToken).StreamResponseAsync(cancelToken);
     #endregion
 
     #region chapters
@@ -283,8 +328,15 @@ public class BookStackClient : IDisposable
     /// <param name="id">チャプタID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>チャプタ内容PDF</returns>
-    public Task<byte[]> ExportChapterPdfAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"chapters/{id}/export/pdf"), cancelToken).BinaryResponseAsync(cancelToken);
+    public Task<Stream> ExportChapterPdfAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"chapters/{id}/export/pdf"), cancelToken).StreamResponseAsync(cancelToken);
+
+    /// <summary>チャプタをZIPでエクスポートする</summary>
+    /// <param name="id">チャプタID</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>チャプタ内容ZIP</returns>
+    public Task<Stream> ExportChapterZipAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"chapters/{id}/export/zip"), cancelToken).StreamResponseAsync(cancelToken);
     #endregion
 
     #region pages
@@ -376,8 +428,15 @@ public class BookStackClient : IDisposable
     /// <param name="id">ページID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ内容PDF</returns>
-    public Task<byte[]> ExportPagePdfAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"pages/{id}/export/pdf"), cancelToken).BinaryResponseAsync(cancelToken);
+    public Task<Stream> ExportPagePdfAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"pages/{id}/export/pdf"), cancelToken).StreamResponseAsync(cancelToken);
+
+    /// <summary>ページをZIPでエクスポートする</summary>
+    /// <param name="id">ページID</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>ページ内容ZIP</returns>
+    public Task<Stream> ExportPageZipAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"pages/{id}/export/zip"), cancelToken).StreamResponseAsync(cancelToken);
     #endregion
 
     #region shelves
@@ -406,6 +465,15 @@ public class BookStackClient : IDisposable
     public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, byte[] imgContent, string imgName, CancellationToken cancelToken = default)
         => contextCreateShelve(apiEp("shelves"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
 
+    /// <summary>棚を作成する。</summary>
+    /// <param name="args">棚作成パラメータ</param>
+    /// <param name="imgContent">棚カバーにする画像ストリーム。呼び出し後に破棄されるため注意。</param>
+    /// <param name="imgName">棚カバー画像名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>添付されたファイル情報</returns>
+    public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, Stream imgContent, string imgName, CancellationToken cancelToken = default)
+        => contextCreateShelve(apiEp("shelves"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
+
     /// <summary>棚の詳細と内容を取得する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
@@ -432,6 +500,16 @@ public class BookStackClient : IDisposable
     /// <returns>棚情報</returns>
     public Task<ShelfItem> UpdateShelfAsync(long id, UpdateShelfArgs args, byte[] imgContent, string imgName, CancellationToken cancelToken = default)
         => contextUpdateShelve(apiEp($"shelves/{id}"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
+
+    /// <summary>棚を更新する。</summary>
+    /// <param name="id">棚ID</param>
+    /// <param name="args">棚更新パラメータ</param>
+    /// <param name="imgContent">棚カバーにする画像ストリーム。呼び出し後に破棄されるため注意。</param>
+    /// <param name="imgName">棚カバー画像名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>棚情報</returns>
+    public Task<ShelfItem> UpdateShelfAsync(long id, UpdateShelfArgs args, Stream imgContent, string imgName, CancellationToken cancelToken = default)
+        => contextUpdateShelve(apiEp($"shelves/{id}"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
 
     /// <summary>棚を削除する。</summary>
     /// <param name="id">棚ID</param>
@@ -466,6 +544,15 @@ public class BookStackClient : IDisposable
     public Task<ImageItem> CreateImageAsync(CreateImageArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
         => contextCreateImageAsync(apiEp("image-gallery"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
 
+    /// <summary>ギャラリ画像を作成する。</summary>
+    /// <param name="args">ギャラリ画像作成パラメータ</param>
+    /// <param name="content">アップロードするファイル内容ストリーム。呼び出し後に破棄されるため注意。</param>
+    /// <param name="fileName">アップロードするファイル名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>ギャラリ画像情報</returns>
+    public Task<ImageItem> CreateImageAsync(CreateImageArgs args, Stream content, string fileName, CancellationToken cancelToken = default)
+        => contextCreateImageAsync(apiEp("image-gallery"), args, streamFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
+
     /// <summary>ギャラリ画像の詳細と内容を取得する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
@@ -492,6 +579,16 @@ public class BookStackClient : IDisposable
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> UpdateImageAsync(long id, UpdateImageArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
         => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, binaryFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
+
+    /// <summary>ギャラリ画像を更新する。</summary>
+    /// <param name="id">ギャラリ画像ID</param>
+    /// <param name="args">ギャラリ画像更新パラメータ</param>
+    /// <param name="content">アップロードするファイル内容ストリーム。呼び出し後に破棄されるため注意。</param>
+    /// <param name="fileName">アップロードするファイル名称</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>ギャラリ画像情報</returns>
+    public Task<ImageItem> UpdateImageAsync(long id, UpdateImageArgs args, Stream content, string fileName, CancellationToken cancelToken = default)
+        => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, streamFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
 
     /// <summary>ギャラリ画像を削除する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
@@ -780,14 +877,24 @@ public class BookStackClient : IDisposable
         public Task<byte[]> BinaryResponseAsync(CancellationToken cancelToken)
             => interpretResponseAsync((rsp) => rsp.Content.ReadAsByteArrayAsync(cancelToken));
 
+        /// <summary>API要求を行い応答をストリームとして解釈する</summary>
+        /// <param name="cancelToken">キャンセルトークン</param>
+        /// <returns>API応答データ</returns>
+        public Task<Stream> StreamResponseAsync(CancellationToken cancelToken)
+            => interpretResponseAsync((rsp) => rsp.Content.ReadAsStreamAsync(cancelToken), takeover: true);
+
         /// <summary>API要求を行いJSON応答を解釈する</summary>
         /// <typeparam name="TResult">応答データ型</typeparam>
         /// <param name="interpreter">応答の解釈デリゲート</param>
+        /// <param name="takeover">レスポンスを破棄せずに応答を返すか否か</param>
         /// <returns>応答を得るタスク</returns>
-        private async Task<TResult> interpretResponseAsync<TResult>(Func<HttpResponseMessage, Task<TResult>> interpreter)
+        private async Task<TResult> interpretResponseAsync<TResult>(Func<HttpResponseMessage, Task<TResult>> interpreter, bool takeover = false)
         {
             // API要求
-            using var response = await requester.ConfigureAwait(false);
+            var response = await requester.ConfigureAwait(false);
+
+            // リソースの持ち出しをする場合は破棄せず、それ以外の時は破棄対象にする。
+            using var stashed = takeover ? null : response;
 
             // 要求が成功レスポンスを示すかを確認
             if (!response.IsSuccessStatusCode)
@@ -891,23 +998,33 @@ public class BookStackClient : IDisposable
     }
 
     /// <summary>パスを元にHTTP要求用コンテンツの生成デリゲートを作成する</summary>
-    /// <param name="imgPath">ファイルパス</param>
-    /// <param name="imgName">ファイル名。指定されない場合はパスの名称をそのまま利用する</param>
+    /// <param name="filePath">ファイルパス</param>
+    /// <param name="fileName">ファイル名。指定されない場合はパスの名称をそのまま利用する</param>
     /// <returns>HTTP要求用コンテンツの生成デリゲートと名称のタプル</returns>
-    private FileContentGenerator? pathFileContentGenerator(string? imgPath, string? imgName)
+    private FileContentGenerator? pathFileContentGenerator(string? filePath, string? fileName)
     {
-        if (imgPath == null) return null;
-        return () => (new StreamContent(new FileStream(imgPath, FileMode.Open, FileAccess.Read, FileShare.Read)), imgName ?? Path.GetFileName(imgPath));
+        if (filePath == null) return null;
+        return () => (new StreamContent(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read)), fileName ?? Path.GetFileName(filePath));
     }
 
     /// <summary>ファイル内容バイナリを元にHTTP要求用コンテンツの生成デリゲートを作成する</summary>
-    /// <param name="imgContent">ファイル内容バイナリ</param>
-    /// <param name="imgName">ファイル名称</param>
+    /// <param name="contentBinary">ファイル内容バイナリ</param>
+    /// <param name="fileName">ファイル名称</param>
     /// <returns>HTTP要求用コンテンツの生成デリゲートと名称のタプル</returns>
-    private FileContentGenerator? binaryFileContentGenerator(byte[]? imgContent, string imgName)
+    private FileContentGenerator? binaryFileContentGenerator(byte[]? contentBinary, string fileName)
     {
-        if (imgContent == null) return null;
-        return () => (new ByteArrayContent(imgContent), imgName);
+        if (contentBinary == null) return null;
+        return () => (new ByteArrayContent(contentBinary), fileName);
+    }
+
+    /// <summary>ファイル内容ストリームを元にHTTP要求用コンテンツの生成デリゲートを作成する</summary>
+    /// <param name="contentStream">ファイル内容バイナリ</param>
+    /// <param name="fileName">ファイル名称</param>
+    /// <returns>HTTP要求用コンテンツの生成デリゲートと名称のタプル</returns>
+    private FileContentGenerator? streamFileContentGenerator(Stream? contentStream, string fileName)
+    {
+        if (contentStream == null) return null;
+        return () => (new StreamContent(contentStream), fileName);
     }
     #endregion
 
