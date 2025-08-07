@@ -14,6 +14,10 @@ services:
           - bookstack-db-container
     ports:
       - "9987:3306"
+    volumes:
+      - type: volume
+        source: bookstack-db-data
+        target: /var/lib/mysql
     healthcheck:
       test: mysqladmin ping --host=localhost --user=$${MYSQL_USER} || exit 1
       start_period: 180s
@@ -21,10 +25,6 @@ services:
       timeout: 5s
       interval: 300s
       retries: 3
-    volumes:
-      - type: volume
-        source: bookstack-db-data
-        target: /var/lib/mysql
     environment:
       - TZ=Asia/Tokyo
       - MYSQL_ROOT_PASSWORD=bookstack_rootpass
@@ -44,6 +44,10 @@ services:
           - bookstack-app-container
     ports:
       - "9988:80"
+    volumes:
+      - type: volume
+        source: bookstack-app-data
+        target: /config
     healthcheck:
       test: curl -f http://localhost:80 || exit 1
       start_period: 300s
@@ -51,10 +55,6 @@ services:
       timeout: 5s
       interval: 300s
       retries: 3
-    volumes:
-      - type: volume
-        source: bookstack-app-data
-        target: /config
     environment:
       - TZ=Asia/Tokyo
       - PUID=1000
@@ -65,7 +65,4 @@ services:
       - DB_DATABASE=bookstack_store
       - DB_USERNAME=bookstack_user
       - DB_PASSWORD=bookstack_pass
-      - APP_THEME=my-theme
       - API_REQUESTS_PER_MIN=99999
-      - CUSTOM_TEST_TOKEN_ID=00001111222233334444555566667777
-      - CUSTOM_TEST_TOKEN_SECRET=88889999aaaabbbbccccddddeeeeffff
