@@ -157,4 +157,28 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
         allLogs.Should().NotBeEmpty();
     }
 
+    [TestMethod()]
+    public async Task EnumerateAllSearchAsync()
+    {
+        using var helper = new BookStackClientHelper(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret);
+
+        await using var container = new TestResourceContainer(helper.Client);
+        var testBooks = await Observable.Range(1, 10)
+            .SelectAwait(async (n, c) => await helper.Client.CreateBookAsync(new(testName($"book{n}"))).WillBeDiscarded(container))
+            .ToArrayAsync();
+        var results = await helper.EnumerateAllSearchAsync(new("{in_name:book}", count: 1)).ToObservable().ToArrayAsync();
+        results.Select(r => r.id).Should().Contain(testBooks.Select(b => b.id));
+    }
+
+    [TestMethod()]
+    public async Task GetMeAsync()
+    {
+        using var helper = new BookStackClientHelper(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret);
+
+        await using var container = new TestResourceContainer(helper.Client);
+        var testBook = await helper.Client.CreateBookAsync(new(testName($"book"))).WillBeDiscarded(container);
+        var me = await helper.GetMeAsync();
+        me.Should().NotBeNull();
+    }
+
 }

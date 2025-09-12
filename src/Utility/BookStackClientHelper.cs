@@ -527,6 +527,82 @@ public class BookStackClientHelper : IDisposable
         => this.EnumerateAllAuditLogsAsync(this.BatchCount, default, cancelToken);
     #endregion
 
+    #region ユーティリティ：検索
+    /// <summary>全ての検索結果を列挙する</summary>
+    /// <param name="args">検索条件</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>取得した検索結果を列挙する非同期シーケンス</returns>
+    public async IAsyncEnumerable<SearchContent> EnumerateAllSearchAsync(SearchArgs args, [EnumeratorCancellation] CancellationToken cancelToken = default)
+    {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
+        var page = 1;
+        var count = 0L;
+        while (true)
+        {
+            var pageArgs = args with { page = page };
+            var results = await this.Try(ct, (c, t) => c.SearchAsync(pageArgs, t));
+            foreach (var log in results.data)
+            {
+                yield return log;
+            }
+
+            page++;
+            count += results.data.Length;
+            var finished = (results.data.Length <= 0) || (results.total <= count);
+            if (finished) break;
+        }
+    }
+    #endregion
+
+    #region ユーティリティ：その他
+    /// <summary>APIクライアントユーザのユーザ情報取得を試みる</summary>
+    /// <remarks>
+    /// このメソッドは検索APIを利用してクライアントユーザの情報取得を試みる。
+    /// そのため、記事を作成したことのないユーザの場合は
+    /// </remarks>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>取得した検索結果を列挙する非同期シーケンス</returns>
+    public async ValueTask<User?> GetMeAsync(CancellationToken cancelToken = default)
+    {
+        var ct = cancelToken == default ? this.breaker : cancelToken;
+
+        var ownedResult = await this.Try(ct, (c, t) => c.SearchAsync(new("{owned_by:me}", count: 1), t));
+        var ownedUser = ownedResult.data.FirstOrDefault() switch
+        {
+            SearchContentShelf shelf => (await this.Try(ct, (c, t) => c.ReadChapterAsync(shelf.id, t))).owned_by,
+            SearchContentBook book => (await this.Try(ct, (c, t) => c.ReadBookAsync(book.id, t))).owned_by,
+            SearchContentChapter chapter => (await this.Try(ct, (c, t) => c.ReadChapterAsync(chapter.id, t))).owned_by,
+            SearchContentPage page => (await this.Try(ct, (c, t) => c.ReadPageAsync(page.id, t))).owned_by,
+            _ => default,
+        };
+        if (ownedUser != null) return ownedUser;
+
+        var createdResult = await this.Try(ct, (c, t) => c.SearchAsync(new("{created_by:me}", count: 1), t));
+        var createdUser = createdResult.data.FirstOrDefault() switch
+        {
+            SearchContentShelf shelf => (await this.Try(ct, (c, t) => c.ReadChapterAsync(shelf.id, t))).created_by,
+            SearchContentBook book => (await this.Try(ct, (c, t) => c.ReadBookAsync(book.id, t))).created_by,
+            SearchContentChapter chapter => (await this.Try(ct, (c, t) => c.ReadChapterAsync(chapter.id, t))).created_by,
+            SearchContentPage page => (await this.Try(ct, (c, t) => c.ReadPageAsync(page.id, t))).created_by,
+            _ => default,
+        };
+        if (createdUser != null) return createdUser;
+
+        var updatedResult = await this.Try(ct, (c, t) => c.SearchAsync(new("{updated_by:me}", count: 1), t));
+        var updatedUser = updatedResult.data.FirstOrDefault() switch
+        {
+            SearchContentShelf shelf => (await this.Try(ct, (c, t) => c.ReadChapterAsync(shelf.id, t))).updated_by,
+            SearchContentBook book => (await this.Try(ct, (c, t) => c.ReadBookAsync(book.id, t))).updated_by,
+            SearchContentChapter chapter => (await this.Try(ct, (c, t) => c.ReadChapterAsync(chapter.id, t))).updated_by,
+            SearchContentPage page => (await this.Try(ct, (c, t) => c.ReadPageAsync(page.id, t))).updated_by,
+            _ => default,
+        };
+        if (updatedUser != null) return updatedUser;
+
+        return default;
+    }
+    #endregion
+
     #region 破棄
     /// <summary>Dispose resources</summary>
     public void Dispose()
