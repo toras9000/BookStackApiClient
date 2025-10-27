@@ -452,7 +452,7 @@ public class BookStackClient : IDisposable
     /// <param name="imgPath">棚カバーにする画像ファイルパス</param>
     /// <param name="imgName">棚カバー画像名称。指定されない場合はパスの名称をそのまま利用する。</param>
     /// <param name="cancelToken">キャンセルトークン</param>
-    /// <returns>添付されたファイル情報</returns>
+    /// <returns>棚情報</returns>
     public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, string? imgPath = null, string? imgName = null, CancellationToken cancelToken = default)
         => contextCreateShelve(apiEp("shelves"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
 
@@ -461,7 +461,7 @@ public class BookStackClient : IDisposable
     /// <param name="imgContent">棚カバーにする画像バイナリ</param>
     /// <param name="imgName">棚カバー画像名称</param>
     /// <param name="cancelToken">キャンセルトークン</param>
-    /// <returns>添付されたファイル情報</returns>
+    /// <returns>棚情報</returns>
     public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, byte[] imgContent, string imgName, CancellationToken cancelToken = default)
         => contextCreateShelve(apiEp("shelves"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
 
@@ -470,7 +470,7 @@ public class BookStackClient : IDisposable
     /// <param name="imgContent">棚カバーにする画像ストリーム。呼び出し後に破棄されるため注意。</param>
     /// <param name="imgName">棚カバー画像名称</param>
     /// <param name="cancelToken">キャンセルトークン</param>
-    /// <returns>添付されたファイル情報</returns>
+    /// <returns>棚情報</returns>
     public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, Stream imgContent, string imgName, CancellationToken cancelToken = default)
         => contextCreateShelve(apiEp("shelves"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
 

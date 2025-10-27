@@ -680,9 +680,9 @@ public record ShelfItem(
     long created_by, long updated_by, long owned_by
 );
 
-/// <summary>棚一覧を取得する</summary>
-/// <param name="data">ページ一覧</param>
-/// <param name="total">ページ総数</param>
+/// <summary>棚一覧の取得結果</summary>
+/// <param name="data">棚一覧</param>
+/// <param name="total">棚総数</param>
 public record ListShelvesResult(ShelfSummary[] data, long total);
 
 /// <summary>棚作成要求パラメータ</summary>
@@ -797,9 +797,9 @@ public record ImageItem(
     User created_by, User updated_by
 );
 
-/// <summary>ページ一覧取得結果</summary>
-/// <param name="data">ページ一覧</param>
-/// <param name="total">ページ総数</param>
+/// <summary>画像一覧取得結果</summary>
+/// <param name="data">画像一覧</param>
+/// <param name="total">画像総数</param>
 public record ListImagesResult(ImageSummary[] data, long total);
 
 /// <summary>ギャラリ画像の作成要求パラメータ</summary>
