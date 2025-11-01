@@ -11,6 +11,7 @@ public class TestResourceContainer : IAsyncDisposable
         this.pages = new List<PageItem>();
         this.shelves = new List<ShelfItem>();
         this.images = new List<ImageItem>();
+        this.comments = new List<CommentItem>();
         this.users = new List<UserItem>();
         this.roles = new List<RoleItem>();
         this.imports = new List<ImportsItem>();
@@ -22,6 +23,7 @@ public class TestResourceContainer : IAsyncDisposable
         this.Pages = this.pages.AsReadOnly();
         this.Shelves = this.shelves.AsReadOnly();
         this.Images = this.images.AsReadOnly();
+        this.Comments = this.comments.AsReadOnly();
         this.Users = this.users.AsReadOnly();
         this.Roles = this.roles.AsReadOnly();
         this.Imports = this.imports.AsReadOnly();
@@ -34,6 +36,7 @@ public class TestResourceContainer : IAsyncDisposable
     public IReadOnlyList<PageItem> Pages { get; }
     public IReadOnlyList<ShelfItem> Shelves { get; }
     public IReadOnlyList<ImageItem> Images { get; }
+    public IReadOnlyList<CommentItem> Comments { get; }
     public IReadOnlyList<UserItem> Users { get; }
     public IReadOnlyList<RoleItem> Roles { get; }
     public IReadOnlyList<ImportsItem> Imports { get; }
@@ -79,6 +82,13 @@ public class TestResourceContainer : IAsyncDisposable
         var resource = new TestResource(() => this.Client.DeleteImageAsync(image.id));
         this.resources.Add(resource);
         return this.AddTo(image);
+    }
+
+    public CommentItem ToBeDiscarded(CommentItem comment)
+    {
+        var resource = new TestResource(() => this.Client.DeleteCommentAsync(comment.id));
+        this.resources.Add(resource);
+        return this.AddTo(comment);
     }
 
     public UserItem ToBeDiscarded(UserItem user)
@@ -138,6 +148,12 @@ public class TestResourceContainer : IAsyncDisposable
         return image;
     }
 
+    public CommentItem AddTo(CommentItem comment)
+    {
+        this.comments.Add(comment);
+        return comment;
+    }
+
     public UserItem AddTo(UserItem user)
     {
         this.users.Add(user);
@@ -169,6 +185,7 @@ public class TestResourceContainer : IAsyncDisposable
         this.pages.Clear();
         this.shelves.Clear();
         this.images.Clear();
+        this.comments.Clear();
         this.users.Clear();
     }
 
@@ -194,6 +211,7 @@ public class TestResourceContainer : IAsyncDisposable
     private List<PageItem> pages;
     private List<ShelfItem> shelves;
     private List<ImageItem> images;
+    private List<CommentItem> comments;
     private List<UserItem> users;
     private List<RoleItem> roles;
     private List<ImportsItem> imports;
@@ -217,6 +235,9 @@ public static class TestResourceContainerExtensions
         => container.ToBeDiscarded(await self.ConfigureAwait(false));
 
     public static async Task<ImageItem> WillBeDiscarded(this Task<ImageItem> self, TestResourceContainer container)
+        => container.ToBeDiscarded(await self.ConfigureAwait(false));
+
+    public static async Task<CommentItem> WillBeDiscarded(this Task<CommentItem> self, TestResourceContainer container)
         => container.ToBeDiscarded(await self.ConfigureAwait(false));
 
     public static async Task<UserItem> WillBeDiscarded(this Task<UserItem> self, TestResourceContainer container)
@@ -244,6 +265,9 @@ public static class TestResourceContainerExtensions
         => container.AddTo(await self.ConfigureAwait(false));
 
     public static async Task<ImageItem> AddTo(this Task<ImageItem> self, TestResourceContainer container)
+        => container.AddTo(await self.ConfigureAwait(false));
+
+    public static async Task<CommentItem> AddTo(this Task<CommentItem> self, TestResourceContainer container)
         => container.AddTo(await self.ConfigureAwait(false));
 
     public static async Task<UserItem> AddTo(this Task<UserItem> self, TestResourceContainer container)

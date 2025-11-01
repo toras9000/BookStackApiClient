@@ -518,6 +518,43 @@ public class BookStackClient : IDisposable
         => contextDeleteRequest(apiEp($"shelves/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
     #endregion
 
+    #region comments
+    /// <summary>コメントの一覧を取得する。</summary>
+    /// <param name="listing">リスト要求オプション</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>取得結果のコメント一覧</returns>
+    public Task<ListCommentsResult> ListCommentsAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp("comments", listing), cancelToken).JsonResponseAsync<ListCommentsResult>(cancelToken);
+
+    /// <summary>コメントの詳細を取得する。</summary>
+    /// <param name="id">コメントID</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>コメント詳細</returns>
+    public Task<CommentDetail> ReadCommentAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"comments/{id}"), cancelToken).JsonResponseAsync<CommentDetail>(cancelToken);
+
+    /// <summary>コメントを作成する。</summary>
+    /// <param name="args">コメント作成パラメータ</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>コメント情報</returns>
+    public Task<CommentItem> CreateCommentAsync(CreateCommentArgs args, CancellationToken cancelToken = default)
+        => contextPostRequest(apiEp("comments"), args, cancelToken).JsonResponseAsync<CommentItem>(cancelToken);
+
+    /// <summary>コメントを更新する。</summary>
+    /// <param name="id">コメントID</param>
+    /// <param name="args">コメント更新パラメータ</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>コメント情報</returns>
+    public Task<CommentItem> UpdateCommentAsync(long id, UpdateCommentArgs args, CancellationToken cancelToken = default)
+        => contextPutRequest(apiEp($"comments/{id}"), args, cancelToken).JsonResponseAsync<CommentItem>(cancelToken);
+
+    /// <summary>コメントを削除する。</summary>
+    /// <param name="id">コメントID</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    public Task DeleteCommentAsync(long id, CancellationToken cancelToken = default)
+        => contextDeleteRequest(apiEp($"comments/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+    #endregion
+
     #region image-gallery
     /// <summary>ギャラリ画像の一覧を取得する。</summary>
     /// <param name="listing">リスト要求オプション</param>

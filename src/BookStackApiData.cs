@@ -537,6 +537,37 @@ public record PageItem(
     ContentTag[] tags
 );
 
+/// <summary>コメント内容</summary>
+/// <param name="id">コメントID</param>
+/// <param name="commentable_id">コメント対象ID</param>
+/// <param name="commentable_type">コメント対象種別</param>
+/// <param name="html">コメント内容</param>
+/// <param name="parent_id">親コメントID</param>
+/// <param name="local_id">ローカルID</param>
+/// <param name="content_ref">対象内の参照箇所</param>
+/// <param name="archived">アーカイブされたコメントか否か</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+/// <param name="updated_by">更新したユーザ</param>
+public record PageCommentContent(
+    long id, long commentable_id, string commentable_type, string html,
+    long? parent_id, long local_id, string content_ref, bool archived,
+    DateTime created_at, DateTime updated_at,
+    User created_by, long updated_by
+);
+
+/// <summary>ページコメント項目</summary>
+/// <param name="comment">コメント内容</param>
+/// <param name="depth">コメント階層</param>
+/// <param name="children">子コメント</param>
+public record PageCommentItem(PageCommentContent comment, long depth, PageCommentItem[] children);
+
+/// <summary>ページコメント</summary>
+/// <param name="active">アクティブなコメント</param>
+/// <param name="archived">アーカイブされたコメント</param>
+public record PageComments(PageCommentItem[] active, PageCommentItem[] archived);
+
 /// <summary>ページ一覧取得結果</summary>
 /// <param name="data">ページ一覧</param>
 /// <param name="total">ページ総数</param>
@@ -604,6 +635,7 @@ public record CreateHtmlPageInChapterArgs(long chapter_id, string name, string h
 /// <param name="updated_by">更新したユーザ</param>
 /// <param name="owned_by">オーナーユーザ</param>
 /// <param name="tags">タグ一覧</param>
+/// <param name="comments">コメント</param>
 public record ReadPageResult(
     long id, string name, string slug,
     string editor, string markdown, string html, string raw_html,
@@ -611,7 +643,7 @@ public record ReadPageResult(
     long book_id, long? chapter_id, long priority,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by,
-    ContentTag[] tags
+    ContentTag[] tags, PageComments? comments
 );
 
 /// <summary>ページ更新要求パラメータ</summary>
@@ -752,6 +784,108 @@ public record ReadShelfResult(
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by
 );
+#endregion
+
+#region comments
+/// <summary>コメント情報</summary>
+/// <param name="id">コメントID</param>
+/// <param name="commentable_id">コメント対象ID</param>
+/// <param name="commentable_type">コメント対象種別</param>
+/// <param name="parent_id">親コメントID</param>
+/// <param name="local_id">ローカルID</param>
+/// <param name="content_ref">対象内の参照箇所</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+/// <param name="updated_by">更新したユーザ</param>
+public record CommentSummary(
+    long id, long commentable_id, string commentable_type,
+    long? parent_id, long local_id, string content_ref,
+    DateTime created_at, DateTime updated_at,
+    long created_by, long updated_by
+);
+
+/// <summary>コメント返信</summary>
+/// <param name="id">コメントID</param>
+/// <param name="commentable_id">コメント対象ID</param>
+/// <param name="commentable_type">コメント対象種別</param>
+/// <param name="html">コメント内容</param>
+/// <param name="parent_id">親コメントID</param>
+/// <param name="local_id">ローカルID</param>
+/// <param name="content_ref">対象内の参照箇所</param>
+/// <param name="archived">アーカイブされたコメントか否か</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+/// <param name="updated_by">更新したユーザ</param>
+public record CommentReply(
+    long id, long commentable_id, string commentable_type, string html,
+    long? parent_id, long local_id, string content_ref, bool archived,
+    DateTime created_at, DateTime updated_at,
+    long created_by, long updated_by
+);
+
+/// <summary>コメント一覧の取得結果</summary>
+/// <param name="data">コメント一覧</param>
+/// <param name="total">コメント総数</param>
+public record ListCommentsResult(CommentSummary[] data, long total);
+
+/// <summary>コメント情報</summary>
+/// <param name="id">コメントID</param>
+/// <param name="commentable_id">コメント対象ID</param>
+/// <param name="commentable_type">コメント対象種別</param>
+/// <param name="html">コメント内容</param>
+/// <param name="parent_id">親コメントID</param>
+/// <param name="local_id">ローカルID</param>
+/// <param name="content_ref">対象内の参照箇所</param>
+/// <param name="archived">アーカイブされたコメントか否か</param>
+/// <param name="replies">リプライ</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+/// <param name="updated_by">更新したユーザ</param>
+public record CommentDetail(
+    long id, long commentable_id, string commentable_type, string html,
+    long? parent_id, long local_id, string content_ref, bool archived,
+    CommentReply[] replies,
+    DateTime created_at, DateTime updated_at,
+    User created_by, User? updated_by
+);
+
+/// <summary>コメント作成要求パラメータ</summary>
+/// <param name="page_id">ページID</param>
+/// <param name="html">コメント内容</param>
+/// <param name="content_ref">対象内の参照箇所</param>
+/// <param name="reply_to">返信先コメントID</param>
+public record CreateCommentArgs(
+    long page_id,
+    string html, string content_ref,
+    long? reply_to = null
+);
+
+/// <summary>コメント返信</summary>
+/// <param name="id">コメントID</param>
+/// <param name="commentable_id">コメント対象ID</param>
+/// <param name="commentable_type">コメント対象種別</param>
+/// <param name="parent_id">親コメントID</param>
+/// <param name="local_id">ローカルID</param>
+/// <param name="content_ref">対象内の参照箇所</param>
+/// <param name="archived">アーカイブされたコメントか否か</param>
+/// <param name="created_at">作成日時</param>
+/// <param name="updated_at">更新日時</param>
+/// <param name="created_by">作成したユーザ</param>
+/// <param name="updated_by">更新したユーザ</param>
+public record CommentItem(
+    long id, long commentable_id, string commentable_type,
+    long? parent_id, long local_id, string content_ref, bool archived,
+    DateTime created_at, DateTime updated_at,
+    long created_by, long updated_by
+);
+
+/// <summary>コメント更新要求パラメータ</summary>
+/// <param name="html">コメント内容</param>
+/// <param name="archived">アーカイブ状態</param>
+public record UpdateCommentArgs(bool archived, string? html = null);
 #endregion
 
 #region image-gallery
