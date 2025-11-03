@@ -1,4 +1,6 @@
-﻿namespace BookStackApiClient;
+﻿using System.Text.Json;
+
+namespace BookStackApiClient;
 
 /// <summary>
 /// BookStackClient で利用する例外の基本クラス
@@ -86,9 +88,11 @@ public class ErrorResponseException : BookStackClientException
     /// <summary>エラー応答情報を指定するコンストラクタ</summary>
     /// <param name="code">応答に含まれたエラーコード</param>
     /// <param name="message">応答に含まれたエラーメッセージ</param>
-    public ErrorResponseException(int code, string message) : base(message)
+    /// <param name="json">応答に含まれたエラーJSON</param>
+    public ErrorResponseException(int code, string message, JsonDocument json) : base(message)
     {
         this.Code = code;
+        this.Error = json;
     }
     #endregion
 
@@ -96,5 +100,8 @@ public class ErrorResponseException : BookStackClientException
     #region コンテキスト情報
     /// <summary>応答に含まれたエラーコード</summary>
     public int Code { get; }
+
+    /// <summary>エラーJSON</summary>
+    public JsonDocument Error { get; }
     #endregion
 }

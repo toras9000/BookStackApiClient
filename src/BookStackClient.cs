@@ -908,12 +908,8 @@ public class BookStackClient : IDisposable
                     ?? throw new ResponseInterpretException("Response is not JSON.");
 
                 // エラー応答かチェック
-                if (json.RootElement.TryGetProperty("error", out var errElem))
-                {
-                    var code = errElem.TryGetInt32(out var c) ? c : throw new ResponseInterpretException("Cannot detect error code.");
-                    var msg = errElem.GetString() ?? throw new ResponseInterpretException("Cannot detect error msg.");
-                    throw new ErrorResponseException(code, msg);
-                }
+                var errEx = tryInterpretErrorResponse(json);
+                if (errEx != null) throw errEx;
 
                 // 応答をデコードして返却
                 return json.RootElement.Deserialize<TResult>() ?? throw new ResponseInterpretException($"Cannot decode JSON to {typeof(TResult).Name}.");
@@ -972,6 +968,22 @@ public class BookStackClient : IDisposable
             }
         }
 
+        /// <summary>エラーレスポンスとして解釈を試みる</summary>
+        /// <param name="json"></param>
+        /// <returns></returns>
+        private static ErrorResponseException? tryInterpretErrorResponse(JsonDocument? json)
+        {
+            if (json == null) return null;
+            if (!json.RootElement.TryGetProperty("error", out var errElem)) return null;
+            if (!errElem.TryGetProperty("code", out var codeElem)) return null;
+            if (!errElem.TryGetProperty("message", out var msgElem)) return null;
+            if (!codeElem.TryGetInt32(out var code)) return null;
+            var msg = msgElem.GetString();
+            if (msg == null) return null;
+            return new ErrorResponseException(code, msg, json);
+        }
+
+
         /// <summary>エラーに対するレスポンス内容に応じた例外を送出する</summary>
         /// <param name="response">HTTP応答</param>
         [DoesNotReturn]
@@ -987,6 +999,15 @@ public class BookStackClient : IDisposable
                     var retryAfter = tryGetHeaderInt(response, "Retry-After") ?? 60;
                     throw new ApiLimitResponseException(limit.Value, retryAfter, response.ReasonPhrase ?? $"HTTP {(int)response.StatusCode}");
                 }
+            }
+
+            // エラー応答チェック
+            if (response.Content.Headers.ContentType?.MediaType == "application/json")
+            {
+                using var rspStream = response.Content.ReadAsStream();
+                var rspJson = JsonSerializer.Deserialize<JsonDocument>(rspStream);
+                var errEx = tryInterpretErrorResponse(rspJson);
+                if (errEx != null) throw errEx;
             }
 
             // 特定のエラー出ない場合は汎用の応答エラー例外
