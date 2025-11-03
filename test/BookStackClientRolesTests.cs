@@ -73,8 +73,8 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
             roles1.data.Select(d => d.id).Should().NotIntersectWith(roles2.data.Select(d => d.id));
         }
         {// filter
-            var roles = await client.ListRolesAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
-            roles.data.Should().AllSatisfy(d => d.display_name.StartsWith(prefix1));
+            var roles = await client.ListRolesAsync(new(filters: [new($"display_name:like", $"{prefix1}%")]));
+            roles.data.Should().AllSatisfy(d => d.display_name.Should().StartWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;

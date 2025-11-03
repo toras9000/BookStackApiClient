@@ -56,7 +56,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         }
         {// filter
             var chapters = await client.ListChaptersAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
-            chapters.data.Should().AllSatisfy(d => d.name.StartsWith(prefix1));
+            chapters.data.Should().AllSatisfy(d => d.name.Should().StartWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;

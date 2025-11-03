@@ -58,7 +58,7 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         }
         {// filter
             var images = await client.ListImagesAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
-            images.data.Should().AllSatisfy(d => d.name.StartsWith(prefix1));
+            images.data.Should().AllSatisfy(d => d.name.Should().StartWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;

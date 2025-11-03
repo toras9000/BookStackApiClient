@@ -59,7 +59,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         }
         {// filter
             var attachments = await client.ListAttachmentsAsync(new(filters: [new($"name:like", $"{prefix1}%")]));
-            attachments.data.Should().AllSatisfy(d => d.name.StartsWith(prefix1));
+            attachments.data.Should().AllSatisfy(d => d.name.Should().StartWith(prefix1));
         }
         {// filter & sort (asc)
             var offset = 0;
