@@ -277,7 +277,7 @@ public abstract record BookContent(long id, string name, string slug, string typ
 /// <param name="updated_at">更新日時</param>
 public record BookContentPage(
     long id, string name, string slug,
-    string type, long book_id, long chapter_id,
+    string type, long book_id, long? chapter_id,
     bool draft, bool template, string url, long priority,
     DateTime created_at, DateTime updated_at
 ) : BookContent(id, name, slug, type, book_id, priority, created_at, updated_at);
@@ -494,7 +494,7 @@ public record UpdateChapterArgs(
 public record PageSummary(
     long id, string name, string slug,
     string editor, long revision_count, bool draft, bool template,
-    long book_id, string book_slug, long chapter_id, long priority,
+    long book_id, string book_slug, long? chapter_id, long priority,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by
 );
@@ -522,7 +522,7 @@ public record PageItem(
     long id, string name, string slug,
     string editor, string markdown, string html,
     long revision_count, bool draft, bool template,
-    long book_id, long chapter_id, long priority,
+    long book_id, long? chapter_id, long priority,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by,
     ContentTag[] tags
@@ -599,7 +599,7 @@ public record ReadPageResult(
     long id, string name, string slug,
     string editor, string markdown, string html, string raw_html,
     long revision_count, bool draft, bool template,
-    long book_id, long chapter_id, long priority,
+    long book_id, long? chapter_id, long priority,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by,
     ContentTag[] tags
@@ -908,7 +908,7 @@ public record SearchContentPage(
     long id, string name, string slug, string type,
     string url, ContentTag[]? tags, SearchContentPreview? preview_html,
     DateTime created_at, DateTime updated_at,
-    long book_id, long chapter_id, bool draft, bool template, long priority,
+    long book_id, long? chapter_id, bool draft, bool template, long priority,
     SearchContentEnvelope? book, SearchContentEnvelope? chapter
 ) : SearchContent(id, name, slug, type, url, tags, preview_html, created_at, updated_at);
 
@@ -1357,7 +1357,7 @@ public record DeletableContentParentChapter(
 public record DeletableContent(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
-    long created_by, long updated_by, long owned_by
+    long created_by, long updated_by, long? owned_by
 );
 
 /// <summary>削除棚情報</summary>
@@ -1373,7 +1373,7 @@ public record DeletableContent(
 public record DeletableContentShelf(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
-    long created_by, long updated_by, long owned_by,
+    long created_by, long updated_by, long? owned_by,
     string description
 ) : DeletableContent(id, name, slug, created_at, updated_at, created_by, updated_by, owned_by);
 
@@ -1393,7 +1393,7 @@ public record DeletableContentShelf(
 public record DeletableContentBook(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
-    long created_by, long updated_by, long owned_by,
+    long created_by, long updated_by, long? owned_by,
     string description, long? default_template_id, long chapters_count, long pages_count
 ) : DeletableContent(id, name, slug, created_at, updated_at, created_by, updated_by, owned_by);
 
@@ -1415,7 +1415,7 @@ public record DeletableContentBook(
 public record DeletableContentChapter(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
-    long created_by, long updated_by, long owned_by,
+    long created_by, long updated_by, long? owned_by,
     string description, long? default_template_id, long book_id, DeletableContentParentBook parent,
     long priority, long pages_count
 ) : DeletableContent(id, name, slug, created_at, updated_at, created_by, updated_by, owned_by);
@@ -1440,8 +1440,8 @@ public record DeletableContentChapter(
 public record DeletableContentPage(
     long id, string name, string slug,
     DateTime created_at, DateTime updated_at,
-    long created_by, long updated_by, long owned_by,
-    long book_id, long chapter_id, DeletableContentParent parent,
+    long created_by, long updated_by, long? owned_by,
+    long book_id, long? chapter_id, DeletableContentParent parent,
     bool draft, bool template, string editor, long priority, long revision_count
 ) : DeletableContent(id, name, slug, created_at, updated_at, created_by, updated_by, owned_by);
 

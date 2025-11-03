@@ -33,9 +33,9 @@ public class TestBackendAdapter : IAsyncDisposable
 
         var parameters = new { pageId, flag };
         var query = $"""
-        update pages
+        update entity_page_data
         set template = @{nameof(parameters.flag)}
-        where id = @{nameof(parameters.pageId)}
+        where page_id = @{nameof(parameters.pageId)}
         """;
         var affected = await db.ExecuteAsync(query, parameters).ConfigureAwait(false);
         if (affected != 1) throw new Exception("failed");

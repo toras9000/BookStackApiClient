@@ -212,6 +212,8 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             var chapter2 = await client.CreateChapterAsync(new(book_id, "c2"));
             var page1 = await client.CreateMarkdownPageInBookAsync(new(book_id, "p1", "ppp"));
             var page2 = await client.CreateMarkdownPageInBookAsync(new(book_id, "p2", "ppp"));
+            var page3 = await client.CreateMarkdownPageInChapterAsync(new(chapter1.id, "p1", "ppp"));
+            var page4 = await client.CreateMarkdownPageInChapterAsync(new(chapter1.id, "p2", "ppp"));
 
             var detail = await client.ReadBookAsync(book.id);
             detail.name.Should().Be(testName("aaa"));
@@ -241,6 +243,13 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
                 {
                     new { page1.id, page1.name, },
                     new { page2.id, page2.name, },
+                });
+
+            var bookChapter1 = detail.chapters().First(c => c.id == chapter1.id);
+            bookChapter1.pages.Should().BeEquivalentTo(new[]
+                {
+                    new { page3.id, page3.name, },
+                    new { page4.id, page4.name, },
                 });
         }
     }
