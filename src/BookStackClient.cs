@@ -632,6 +632,20 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteImageAsync(long id, CancellationToken cancelToken = default)
         => contextDeleteRequest(apiEp($"image-gallery/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+
+    /// <summary>画像データをダウンロードする</summary>
+    /// <param name="id">ギャラリ画像ID</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>画像データストリーム</returns>
+    public Task<DownloadResult> DownloadImageAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"image-gallery/{id}/data"), cancelToken).FileResponseAsync(cancelToken);
+
+    /// <summary>画像データをダウンロードする</summary>
+    /// <param name="url">画像URL</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>画像データストリーム</returns>
+    public Task<DownloadResult> DownloadImageAsync(Uri url, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"image-gallery/url/data?url={url}"), cancelToken).FileResponseAsync(cancelToken);
     #endregion
 
     #region search

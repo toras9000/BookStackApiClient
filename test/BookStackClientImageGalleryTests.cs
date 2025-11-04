@@ -1,4 +1,6 @@
-﻿namespace BookStackApiClient.Tests;
+﻿using Lestaly;
+
+namespace BookStackApiClient.Tests;
 
 [TestClass()]
 public class BookStackClientImageGalleryTests : BookStackClientTestsBase
@@ -346,6 +348,37 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             (await client.ListImagesAsync(new(filters: [new("name", name)]))).data.Should().NotContain(i => i.id == image.id);
         }
 
+    }
+
+    [TestMethod()]
+    public async Task DownloadImageAsync()
+    {
+        // init
+        using var client = new BookStackClient(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret, () => this.Client);
+
+        // temp dir
+        using var tempDir = new TempDir();
+
+        // test call & validate
+        await using var container = new TestResourceContainer(client);
+        {
+            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
+            var content = await testResContentAsync("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), content, $"{testName("aaa")}.png").WillBeDiscarded(container);
+            var download = await client.DownloadImageAsync(image.id);
+            var dl_content = await download.Stream.ToMemoryAsync();
+            dl_content.ToArray().Should().Equal(content);
+        }
+        {
+            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
+            var content = await testResContentAsync("images/draw001.png");
+            var image = await client.CreateImageAsync(new(page.id, "drawio", testName("bbb")), content, $"{testName("bbb")}.png").WillBeDiscarded(container);
+            var download = await client.DownloadImageAsync(image.id);
+            var dl_content = await download.Stream.ToMemoryAsync();
+            dl_content.ToArray().Should().Equal(content);
+        }
     }
     #endregion
 
