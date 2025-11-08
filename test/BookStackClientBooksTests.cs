@@ -395,7 +395,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),])).WillBeDiscarded(container);
         using var pdf = await client.ExportBookPdfAsync(book.id);
-        pdf.Should().BeReadable();
+        pdf.Stream.Should().BeReadable();
     }
 
     [TestMethod()]
@@ -408,7 +408,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),])).WillBeDiscarded(container);
         using var zip = await client.ExportBookZipAsync(book.id);
-        zip.Should().BeReadable();
+        zip.Stream.Should().BeReadable();
     }
     #endregion
 }

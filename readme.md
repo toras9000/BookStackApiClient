@@ -93,6 +93,18 @@ var image = await File.ReadAllBytesAsync(@"path/to/image.jpg");
 await client.CreateImageAsync(new(page.id, "gallery", "image2"), image, "upload.jpg");
 ```
 
+### Export PDF
+
+```csharp
+using var client = new BookStackClient(apiEntry, apiToken, apiSecret);
+var books = await client.ListBooksAsync(new(filters: [new("name", "Book %")]));
+var targetBook = books.data.FirstOrDefault() ?? throw new Exception("Not found");
+
+using var exported = await client.ExportBookPdfAsync(targetBook.id, signal.Token);
+using var saveFile = new FileStream(exported.FileName ?? "book.pdf", FileMode.Create, FileAccess.Write);
+await exported.Stream.CopyToAsync(saveFile, signal.Token);
+```
+
 ### Content Search
 
 ```csharp

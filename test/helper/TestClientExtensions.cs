@@ -1,4 +1,6 @@
-﻿namespace BookStackApiClient.Tests.helper;
+﻿using Lestaly;
+
+namespace BookStackApiClient.Tests.helper;
 
 public static class TestClientExtensions
 {
@@ -48,5 +50,11 @@ public static class TestClientExtensions
             if (finished) break;
         }
         return items;
+    }
+
+    public static async ValueTask<FileInfo> WriteToFileAsync(this Task<DownloadResult> self, FileInfo file, CancellationToken cancelToken = default)
+    {
+        using var download = await self;
+        return await download.Stream.WriteToFileAsync(file, cancelToken);
     }
 }

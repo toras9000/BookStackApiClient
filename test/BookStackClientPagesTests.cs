@@ -829,7 +829,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         var chapter = await client.CreateChapterAsync(new(book.id, testName("bbb")));
         var page = await client.CreatePageAsync(new(testName("ccc"), book_id: book.id, markdown: "aaa"));
         using var pdf = await client.ExportPagePdfAsync(page.id);
-        pdf.Should().BeReadable();
+        pdf.Stream.Should().BeReadable();
     }
 
     [TestMethod()]
@@ -844,7 +844,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         var chapter = await client.CreateChapterAsync(new(book.id, testName("bbb")));
         var page = await client.CreatePageAsync(new(testName("ccc"), book_id: book.id, markdown: "aaa"));
         using var zip = await client.ExportPageZipAsync(page.id);
-        zip.Should().BeReadable();
+        zip.Stream.Should().BeReadable();
     }
     #endregion
 }

@@ -256,15 +256,15 @@ public class BookStackClient : IDisposable
     /// <param name="id">ブックID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ブック内容PDF</returns>
-    public Task<Stream> ExportBookPdfAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"books/{id}/export/pdf"), cancelToken).StreamResponseAsync(cancelToken);
+    public Task<DownloadResult> ExportBookPdfAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"books/{id}/export/pdf"), cancelToken).FileResponseAsync(cancelToken);
 
     /// <summary>ブックをZIPでエクスポートする</summary>
     /// <param name="id">ブックID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ブック内容ZIP</returns>
-    public Task<Stream> ExportBookZipAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"books/{id}/export/zip"), cancelToken).StreamResponseAsync(cancelToken);
+    public Task<DownloadResult> ExportBookZipAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"books/{id}/export/zip"), cancelToken).FileResponseAsync(cancelToken);
     #endregion
 
     #region chapters
@@ -328,15 +328,15 @@ public class BookStackClient : IDisposable
     /// <param name="id">チャプタID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>チャプタ内容PDF</returns>
-    public Task<Stream> ExportChapterPdfAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"chapters/{id}/export/pdf"), cancelToken).StreamResponseAsync(cancelToken);
+    public Task<DownloadResult> ExportChapterPdfAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"chapters/{id}/export/pdf"), cancelToken).FileResponseAsync(cancelToken);
 
     /// <summary>チャプタをZIPでエクスポートする</summary>
     /// <param name="id">チャプタID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>チャプタ内容ZIP</returns>
-    public Task<Stream> ExportChapterZipAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"chapters/{id}/export/zip"), cancelToken).StreamResponseAsync(cancelToken);
+    public Task<DownloadResult> ExportChapterZipAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"chapters/{id}/export/zip"), cancelToken).FileResponseAsync(cancelToken);
     #endregion
 
     #region pages
@@ -428,15 +428,15 @@ public class BookStackClient : IDisposable
     /// <param name="id">ページID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ内容PDF</returns>
-    public Task<Stream> ExportPagePdfAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"pages/{id}/export/pdf"), cancelToken).StreamResponseAsync(cancelToken);
+    public Task<DownloadResult> ExportPagePdfAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"pages/{id}/export/pdf"), cancelToken).FileResponseAsync(cancelToken);
 
     /// <summary>ページをZIPでエクスポートする</summary>
     /// <param name="id">ページID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ内容ZIP</returns>
-    public Task<Stream> ExportPageZipAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"pages/{id}/export/zip"), cancelToken).StreamResponseAsync(cancelToken);
+    public Task<DownloadResult> ExportPageZipAsync(long id, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"pages/{id}/export/zip"), cancelToken).FileResponseAsync(cancelToken);
     #endregion
 
     #region shelves
@@ -932,6 +932,17 @@ public class BookStackClient : IDisposable
         /// <returns>API応答データ</returns>
         public Task<Stream> StreamResponseAsync(CancellationToken cancelToken)
             => interpretResponseAsync((rsp) => rsp.Content.ReadAsStreamAsync(cancelToken), takeover: true);
+
+        /// <summary>API要求を行い応答をファイルダウンロードストリームとして解釈する</summary>
+        /// <param name="cancelToken">キャンセルトークン</param>
+        /// <returns>API応答データ</returns>
+        public Task<DownloadResult> FileResponseAsync(CancellationToken cancelToken)
+            => interpretResponseAsync(async (rsp) =>
+            {
+                var fileName = rsp.Content.Headers.ContentDisposition?.FileNameStar ?? rsp.Content.Headers.ContentDisposition?.FileName;
+                var fileStream = await rsp.Content.ReadAsStreamAsync().ConfigureAwait(false);
+                return new DownloadResult(fileStream, fileName);
+            }, takeover: true);
 
         /// <summary>API要求を行いJSON応答を解釈する</summary>
         /// <typeparam name="TResult">応答データ型</typeparam>

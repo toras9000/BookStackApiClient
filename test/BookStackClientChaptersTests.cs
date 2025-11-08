@@ -353,7 +353,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("tb1", "vb1"), new("tb2", "vb2"),])).WillBeDiscarded(container);
         var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", tags: [new("tc1", "vc1"), new("tc2", "vc2"),]));
         using var pdf = await client.ExportChapterPdfAsync(chapter.id);
-        pdf.Should().BeReadable();
+        pdf.Stream.Should().BeReadable();
     }
 
     [TestMethod()]
@@ -367,7 +367,7 @@ public class BookStackClientChaptersTests : BookStackClientTestsBase
         var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("tb1", "vb1"), new("tb2", "vb2"),])).WillBeDiscarded(container);
         var chapter = await client.CreateChapterAsync(new(book.id, testName("ccc"), "ddd", tags: [new("tc1", "vc1"), new("tc2", "vc2"),]));
         using var zip = await client.ExportChapterZipAsync(chapter.id);
-        zip.Should().BeReadable();
+        zip.Stream.Should().BeReadable();
     }
     #endregion
 }

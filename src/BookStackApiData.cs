@@ -39,6 +39,15 @@ public record ContentTag(string name, string value, long order) : Tag(name, valu
 /// <param name="slug">ユーザスラグ</param>
 public record User(long id, string name, string? slug);
 
+/// <summary>ダウンロード応答を表す結果型</summary>
+/// <param name="Stream">ダウンロードファイル内容ストリーム</param>
+/// <param name="FileName">ダウンロードファイル名候補</param>
+public sealed record DownloadResult(Stream Stream, string? FileName) : IDisposable
+{
+    /// <summary>リソース破棄</summary>
+    public void Dispose() => this.Stream.Dispose();
+}
+
 #region docs
 /// <summary>APIドキュメントデータ</summary>
 /// <param name="name">API名</param>
