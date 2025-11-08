@@ -13,9 +13,9 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var guid = Guid.NewGuid().ToString();
-        var perms1 = new[] { RolePermissions.CreateOwnBooks, RolePermissions.DeleteOwnComments, };
+        var perms1 = new[] { RolePermissions.BookCreateOwn, RolePermissions.CommentDeleteOwn, };
         var perms2 = new string[0] { };
-        var perms3 = new[] { RolePermissions.AccessSystemAPI, RolePermissions.CreateAllChapters, RolePermissions.CreateOwnComments, };
+        var perms3 = new[] { RolePermissions.AccessApi, RolePermissions.ChapterCreateAll, RolePermissions.CommentCreateOwn, };
 
         var role1 = await client.CreateRoleAsync(new(testName("role1"), "desc1", permissions: perms1)).WillBeDiscarded(container);
         var role2 = await client.CreateRoleAsync(new(testName("role2"), "desc2", permissions: perms2)).WillBeDiscarded(container);
@@ -138,7 +138,7 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         }
         {// permissions 
             var now = DateTime.UtcNow;
-            var permissions = new[] { RolePermissions.CreateAllBooks, RolePermissions.ViewOwnChapters, };
+            var permissions = new[] { RolePermissions.BookCreateAll, RolePermissions.ChapterViewOwn, };
             var role = await client.CreateRoleAsync(new(testName("role"), permissions: permissions)).WillBeDiscarded(container);
             role.permissions.Should().BeEquivalentTo(permissions);
         }
@@ -154,7 +154,7 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {
             var guid = Guid.NewGuid().ToString();
-            var perms = new[] { RolePermissions.AccessSystemAPI, RolePermissions.CreateAllChapters, RolePermissions.CreateOwnComments, };
+            var perms = new[] { RolePermissions.AccessApi, RolePermissions.ChapterCreateAll, RolePermissions.CommentCreateOwn, };
             var role = await client.CreateRoleAsync(new(testName($"role_{guid}"), "desc1", permissions: perms)).WillBeDiscarded(container);
             var user1 = await client.CreateUserAsync(new(testName("user1"), $"user1-{guid}@example.com", roles: new[] { role.id, })).WillBeDiscarded(container);
             var user2 = await client.CreateUserAsync(new(testName("user2"), $"user2-{guid}@example.com", roles: new[] { role.id, })).WillBeDiscarded(container);
@@ -177,10 +177,10 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         {// name & desc & permissions
             var now = DateTime.UtcNow;
             var guid = Guid.NewGuid().ToString();
-            var perms = new[] { RolePermissions.AccessSystemAPI, RolePermissions.CreateAllChapters, RolePermissions.CreateOwnComments, };
+            var perms = new[] { RolePermissions.AccessApi, RolePermissions.ChapterCreateAll, RolePermissions.CommentCreateOwn, };
             var created = await client.CreateRoleAsync(new(testName($"role_{guid}"), "desc", permissions: perms)).WillBeDiscarded(container);
             await Task.Delay(2 * 1000);     // for update timestamp
-            var newperms = new[] { RolePermissions.ViewOwnPages, RolePermissions.ManageSettings, };
+            var newperms = new[] { RolePermissions.PageViewOwn, RolePermissions.SettingsManage, };
             var updated = await client.UpdateRoleAsync(created.id, new(testName($"upd-role_{guid}"), "upd-desc", permissions: newperms));
             updated.id.Should().Be(created.id);
             updated.display_name.Should().Be(testName($"upd-role_{guid}"));

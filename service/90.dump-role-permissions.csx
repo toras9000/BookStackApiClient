@@ -1,18 +1,21 @@
 #r "nuget: MySqlConnector, 2.4.0"
 #r "nuget: Dapper, 2.1.66"
+#r "nuget: Humanizer.Core, 2.14.1"
 #r "nuget: Kokuban, 0.2.0"
 #r "nuget: Lestaly.General, 0.108.0"
 #nullable enable
 using Dapper;
 using Lestaly;
 using Lestaly.Cx;
+using Humanizer;
 using Kokuban;
 using MySqlConnector;
 
 await Paved.ProceedAsync(async () =>
 {
-    WriteLine("Detect database port");
     var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
+
+    WriteLine("Detect database port");
     var pubPort = await "docker".args("compose", "--file", composeFile, "port", "db", "3306").silent().result().success().output(trim: true);
     var portNum = pubPort.AsSpan().SkipToken(':').TryParseNumber<ushort>() ?? throw new PavedMessageException("Cannot get port number");
 
@@ -29,24 +32,16 @@ await Paved.ProceedAsync(async () =>
 
     WriteLine("Query the definition of permissions.");
     var permissions = await db.QueryAsync(
-        sql: "select id, name, display_name from role_permissions order by id",
-        map: (uint id, string name, string disp) => new { id, name, disp, },
+        sql: "select id, name from role_permissions order by id",
+        map: (uint id, string name) => new { id, name, },
         splitOn: "*"
     );
-
-    static string toCamelCase(string word) => string.Create(word.Length, word, (buf, word) =>
-    {
-        if (word.Length <= 0) return;
-        buf[0] = char.ToUpperInvariant(word[0]);
-        word[1..].CopyTo(buf[1..]);
-    });
 
     WriteLine("Generate source code");
     var defines = permissions
         .Select(perm =>
         {
-            var words = perm.disp.Replace("&", "And").Split(" ");
-            var identity = words.Select(w => toCamelCase(w)).JoinString();
+            var identity = perm.name.Humanize().Pascalize();
             return $$"""
                 public static string {{identity}} { get; } = "{{perm.name}}";
             """;
