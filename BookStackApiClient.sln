@@ -5,7 +5,7 @@ VisualStudioVersion = 17.6.33723.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStackApiClient", "src\BookStackApiClient.csproj", "{18715861-4579-4AAC-A37B-FF0A7953B43E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStackClientTests", "test\BookStackClientTests.csproj", "{01EB5BB8-9F62-4587-8F23-DEF6EF092EA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookStackApiClientTests", "test\BookStackApiClientTests.csproj", "{01EB5BB8-9F62-4587-8F23-DEF6EF092EA2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ソリューション項目", "ソリューション項目", "{3861BA07-A431-4E2F-9A1B-4FEF9D0A199F}"
 	ProjectSection(SolutionItems) = preProject
