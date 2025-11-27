@@ -1,0 +1,7 @@
+<Solution>
+  <Folder Name="/ソリューション項目/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Project Path="src/BookStackApiClient.csproj" />
+  <Project Path="test/BookStackApiClientTests.csproj" />
+</Solution>
