@@ -1,25 +1,26 @@
-#r "nuget: MySqlConnector, 2.4.0"
-#r "nuget: Dapper, 2.1.66"
-#r "nuget: Humanizer.Core, 2.14.1"
-#r "nuget: Kokuban, 0.2.0"
-#r "nuget: Lestaly.General, 0.108.0"
-#nullable enable
+#!/usr/bin/env -S dotnet run --file
+#:package MySqlConnector@2.5.0
+#:package Dapper@2.1.66
+#:package Humanizer.Core@3.0.1
+#:package Kokuban@0.2.0
+#:package Lestaly.General@0.114.0
 using Dapper;
 using Lestaly;
 using Lestaly.Cx;
 using Humanizer;
 using Kokuban;
 using MySqlConnector;
+using System.Text;
 
-await Paved.ProceedAsync(async () =>
+return await Paved.ProceedAsync(async () =>
 {
     var composeFile = ThisSource.RelativeFile("./docker/compose.yml");
 
-    WriteLine("Detect database port");
+    Console.WriteLine("Detect database port");
     var pubPort = await "docker".args("compose", "--file", composeFile, "port", "db", "3306").silent().result().success().output(trim: true);
     var portNum = pubPort.AsSpan().SkipToken(':').TryParseNumber<ushort>() ?? throw new PavedMessageException("Cannot get port number");
 
-    WriteLine("Open database");
+    Console.WriteLine("Open database");
     var connector = new MySqlConnectionStringBuilder();
     connector.Server = "localhost";
     connector.Port = portNum;
@@ -30,14 +31,14 @@ await Paved.ProceedAsync(async () =>
     using var db = new MySqlConnection(connector.ConnectionString);
     await db.OpenAsync();
 
-    WriteLine("Query the definition of permissions.");
+    Console.WriteLine("Query the definition of permissions.");
     var permissions = await db.QueryAsync(
         sql: "select id, name from role_permissions order by id",
         map: (uint id, string name) => new { id, name, },
         splitOn: "*"
     );
 
-    WriteLine("Generate source code");
+    Console.WriteLine("Generate source code");
     var defines = permissions
         .Select(perm =>
         {
@@ -62,10 +63,10 @@ await Paved.ProceedAsync(async () =>
     }
     """;
 
-    WriteLine("Save the generated source code");
+    Console.WriteLine("Save the generated source code");
     var genEnc = new UTF8Encoding(encoderShouldEmitUTF8Identifier: true);
     var genFile = ThisSource.RelativeFile("../src/BookStackConstants.cs");
     await genFile.WriteAllTextAsync(source.ReplaceLineEndings(), genEnc);
 
-    WriteLine(Chalk.Green["Completed."]);
+    Console.WriteLine(Chalk.Green["Completed."]);
 });
