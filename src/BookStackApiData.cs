@@ -230,6 +230,7 @@ public record BookCover(
 /// <param name="sort_rule_id">ソートルールID</param>
 /// <param name="tags">タグ一覧</param>
 /// <param name="cover">ブックカバー画像</param>
+/// <param name="image_id">ブックカバー画像ID</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
 /// <param name="created_by">作成したユーザ</param>
@@ -238,7 +239,7 @@ public record BookCover(
 public record BookItem(
     long id, string name, string slug,
     string description, string description_html, long? default_template_id, long? sort_rule_id,
-    ContentTag[]? tags, BookCover? cover,
+    ContentTag[]? tags, BookCover? cover, long? image_id,
     DateTime created_at, DateTime updated_at,
     long created_by, long updated_by, long owned_by
 );
@@ -325,14 +326,16 @@ public record BookContentChapter(
 /// </param>
 /// <param name="tags">タグ一覧</param>
 /// <param name="cover">ブックカバー画像</param>
+/// <param name="image_id">ブックカバー画像ID</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
 /// <param name="created_by">作成したユーザ</param>
 /// <param name="updated_by">更新したユーザ</param>
 public record ReadBookResult(
     long id, string name, string slug,
-    string description, string description_html, long? default_template_id, long? sort_rule_id,
-    BookContent[] contents, ContentTag[]? tags, BookCover? cover,
+    string description, string description_html,
+    long? default_template_id, long? sort_rule_id,
+    BookContent[] contents, ContentTag[]? tags, BookCover? cover, long? image_id,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by
 )
@@ -1021,13 +1024,12 @@ public record SearchContentBook(
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
 /// <param name="book_id">所属ブックID</param>
-/// <param name="priority">順序</param>
 /// <param name="book">親ブック情報</param>
 public record SearchContentChapter(
     long id, string name, string slug, string type,
     string url, ContentTag[]? tags, SearchContentPreview? preview_html,
     DateTime created_at, DateTime updated_at,
-    long book_id, long priority, SearchContentEnvelope? book
+    long book_id, SearchContentEnvelope? book
 ) : SearchContent(id, name, slug, type, url, tags, preview_html, created_at, updated_at);
 
 /// <summary>検索結果ページコンテンツ</summary>
@@ -1043,15 +1045,13 @@ public record SearchContentChapter(
 /// <param name="book_id">ブックID</param>
 /// <param name="chapter_id">チャプタID</param>
 /// <param name="draft">ドラフトであるか</param>
-/// <param name="template">テンプレートであるか</param>
-/// <param name="priority">順序</param>
 /// <param name="book">親ブック情報</param>
 /// <param name="chapter">親チャプタ情報</param>
 public record SearchContentPage(
     long id, string name, string slug, string type,
     string url, ContentTag[]? tags, SearchContentPreview? preview_html,
     DateTime created_at, DateTime updated_at,
-    long book_id, long? chapter_id, bool draft, bool template, long priority,
+    long book_id, long? chapter_id, bool draft,
     SearchContentEnvelope? book, SearchContentEnvelope? chapter
 ) : SearchContent(id, name, slug, type, url, tags, preview_html, created_at, updated_at);
 

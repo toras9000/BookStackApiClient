@@ -118,6 +118,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             detail.name.Should().Be(book.name);
             detail.tags.Should().BeNullOrEmpty();
             detail.cover.Should().BeNull();
+            detail.image_id.Should().BeNull();
         }
         {// name & desc
             var now = DateTime.UtcNow;
@@ -134,6 +135,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             detail.name.Should().Be(book.name);
             detail.tags.Should().BeNullOrEmpty();
             detail.cover.Should().BeNull();
+            detail.image_id.Should().BeNull();
         }
         {// desc_html
             var book = await client.CreateBookAsync(new(testName("jkl"), description_html: "mno")).WillBeDiscarded(container);
@@ -153,33 +155,40 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             detail.description.Should().Be("bbb");
             detail.tags.Should().BeEquivalentTo((Tag[])[new("t1", "v1"), new("t2", "v2"),]);
             detail.cover.Should().BeNull();
+            detail.image_id.Should().BeNull();
         }
         {// image from path
             var path = testResPath("images/pd001.png");
             var book = await client.CreateBookAsync(new(testName("aaa")), path).WillBeDiscarded(container);
             Assert.IsNotNull(book.cover);
             book.cover.name.Should().Be("pd001.png");
+            book.image_id.Should().NotBeNull();
             var detail = await client.ReadBookAsync(book.id);
             Assert.IsNotNull(detail.cover);
             detail.cover.name.Should().Be("pd001.png");
+            detail.image_id.Should().NotBeNull();
         }
         {// image from path & name
             var path = testResPath("images/pd001.png");
             var book = await client.CreateBookAsync(new(testName("aaa")), path, "aaaaaa.jpg").WillBeDiscarded(container);
             Assert.IsNotNull(book.cover);
             book.cover.name.Should().Be("aaaaaa.jpg");
+            book.image_id.Should().NotBeNull();
             var detail = await client.ReadBookAsync(book.id);
             Assert.IsNotNull(detail.cover);
             detail.cover.name.Should().Be("aaaaaa.jpg");
+            detail.image_id.Should().NotBeNull();
         }
         {// image from content
             var image = await testResContentAsync("images/pd001.png");
             var book = await client.CreateBookAsync(new(testName("aaa")), image, "testimage.png").WillBeDiscarded(container);
             Assert.IsNotNull(book.cover);
             book.cover.name.Should().Be("testimage.png");
+            book.image_id.Should().NotBeNull();
             var detail = await client.ReadBookAsync(book.id);
             Assert.IsNotNull(detail.cover);
             detail.cover.name.Should().Be("testimage.png");
+            detail.image_id.Should().NotBeNull();
         }
         {// default_template_id
             var template_book = await client.CreateBookAsync(new(testName("template-page-container"))).WillBeDiscarded(container);
