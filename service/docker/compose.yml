@@ -33,7 +33,7 @@ services:
       - MYSQL_PASSWORD=bookstack_pass
 
   app:
-    image: lscr.io/linuxserver/bookstack:version-v25.11.4
+    image: lscr.io/linuxserver/bookstack:version-v25.12.1
     restart: unless-stopped
     depends_on:
       db:
