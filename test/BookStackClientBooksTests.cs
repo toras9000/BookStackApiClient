@@ -217,6 +217,7 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
             var path = testResPath("images/pd001.png");
             var book = await client.CreateBookAsync(new(testName("aaa"), "bbb", tags: [new("t1", "v1"), new("t2", "v2"),]), path).WillBeDiscarded(container);
             var book_id = book.id;
+            var shelf = await client.CreateShelfAsync(new("s1", books: [book_id])).WillBeDiscarded(container);
             var chapter1 = await client.CreateChapterAsync(new(book_id, "c1"));
             var chapter2 = await client.CreateChapterAsync(new(book_id, "c2"));
             var page1 = await client.CreateMarkdownPageInBookAsync(new(book_id, "p1", "ppp"));
@@ -252,6 +253,10 @@ public class BookStackClientBooksTests : BookStackClientTestsBase
                 {
                     new { page1.id, page1.name, },
                     new { page2.id, page2.name, },
+                });
+            detail.shelves.Should().BeEquivalentTo(new[]
+                {
+                    new { shelf.id, shelf.name, shelf.slug, },
                 });
 
             var bookChapter1 = detail.chapters().First(c => c.id == chapter1.id);

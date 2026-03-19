@@ -310,6 +310,12 @@ public record BookContentChapter(
     DateTime created_at, DateTime updated_at
 ) : BookContent(id, name, slug, type, book_id, priority, created_at, updated_at);
 
+/// <summary>ブックの所属する棚</summary>
+/// <param name="id">棚ID</param>
+/// <param name="name">棚名</param>
+/// <param name="slug">棚スラグ</param>
+public record BookBelongShelf(long id, string name, string? slug);
+
 /// <summary>ブック詳細情報</summary>
 /// <param name="id">ブックID</param>
 /// <param name="name">ブック名</param>
@@ -327,6 +333,7 @@ public record BookContentChapter(
 /// <param name="tags">タグ一覧</param>
 /// <param name="cover">ブックカバー画像</param>
 /// <param name="image_id">ブックカバー画像ID</param>
+/// <param name="shelves">ブックの所属する棚</param>
 /// <param name="created_at">作成日時</param>
 /// <param name="updated_at">更新日時</param>
 /// <param name="created_by">作成したユーザ</param>
@@ -336,6 +343,7 @@ public record ReadBookResult(
     string description, string description_html,
     long? default_template_id, long? sort_rule_id,
     BookContent[] contents, ContentTag[]? tags, BookCover? cover, long? image_id,
+    BookBelongShelf[] shelves,
     DateTime created_at, DateTime updated_at,
     User created_by, User updated_by, User owned_by
 )
