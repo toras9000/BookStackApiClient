@@ -63,6 +63,9 @@
 #*.RTF   diff=astextplain
 
 # Specify line ending.
-*.sh     text eol=lf
-*.yml    text eol=lf
-*.cs     text=auto
+*.sh            text eol=lf
+*.yml           text eol=lf
+*.cs            text
+*.cs1           text
+*.txt           text
+Dockerfile      text eol=lf

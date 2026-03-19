@@ -1,8 +1,8 @@
 #!/usr/bin/env -S dotnet run --file
 #:package MySqlConnector@2.5.0
-#:package Dapper@2.1.66
-#:package BCrypt.Net-Next@4.0.3
-#:package Lestaly.General@0.114.0
+#:package Dapper@2.1.72
+#:package BCrypt.Net-Next@4.1.0
+#:package Lestaly.General@0.120.0
 #:property PublishAot=false
 using Dapper;
 using Lestaly;
