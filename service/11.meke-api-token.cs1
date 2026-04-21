@@ -2,7 +2,7 @@
 #:package MySqlConnector@2.5.0
 #:package Dapper@2.1.72
 #:package BCrypt.Net-Next@4.1.0
-#:package Lestaly.General@0.120.0
+#:package Lestaly.General@0.123.0
 #:property PublishAot=false
 using Dapper;
 using Lestaly;
