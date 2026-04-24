@@ -19,10 +19,10 @@ public class SearchContentJsonConverter : JsonConverter<SearchContent>
         // 種別に応じて具体型にデシリアライズ
         return contentType switch
         {
-            "book" => JsonSerializer.Deserialize<SearchContentBook>(ref reader) ?? throw new JsonException(),
-            "chapter" => JsonSerializer.Deserialize<SearchContentChapter>(ref reader) ?? throw new JsonException(),
-            "page" => JsonSerializer.Deserialize<SearchContentPage>(ref reader) ?? throw new JsonException(),
-            "bookshelf" => JsonSerializer.Deserialize<SearchContentShelf>(ref reader) ?? throw new JsonException(),
+            "book" => JsonSerializer.Deserialize(ref reader, BookStackTypeInfo.Default.SearchContentBook) ?? throw new JsonException(),
+            "chapter" => JsonSerializer.Deserialize(ref reader, BookStackTypeInfo.Default.SearchContentChapter) ?? throw new JsonException(),
+            "page" => JsonSerializer.Deserialize(ref reader, BookStackTypeInfo.Default.SearchContentPage) ?? throw new JsonException(),
+            "bookshelf" => JsonSerializer.Deserialize(ref reader, BookStackTypeInfo.Default.SearchContentShelf) ?? throw new JsonException(),
             _ => throw new JsonException(),
         };
     }
@@ -37,7 +37,14 @@ public class SearchContentJsonConverter : JsonConverter<SearchContent>
         else
         {
             // シリアライズ対象インスタンスの実体型に応じたシリアライズを行う。
-            JsonSerializer.Serialize(writer, value, value.GetType());
+            switch (value)
+            {
+                case SearchContentBook: JsonSerializer.Serialize(writer, value, BookStackTypeInfo.Default.SearchContentBook); break;
+                case SearchContentChapter: JsonSerializer.Serialize(writer, value, BookStackTypeInfo.Default.SearchContentChapter); break;
+                case SearchContentPage: JsonSerializer.Serialize(writer, value, BookStackTypeInfo.Default.SearchContentPage); break;
+                case SearchContentShelf: JsonSerializer.Serialize(writer, value, BookStackTypeInfo.Default.SearchContentShelf); break;
+                default: throw new JsonException();
+            }
         }
     }
 }

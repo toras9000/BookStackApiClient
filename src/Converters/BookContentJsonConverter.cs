@@ -20,8 +20,8 @@ public class BookContentJsonConverter : JsonConverter<BookContent>
         // (API例でページコンテンツの時にtypeプロパティがなく、過去の仕様ではそうだったのかと思われたため。)
         return contentType switch
         {
-            "chapter" => JsonSerializer.Deserialize<BookContentChapter>(ref reader) ?? throw new JsonException(),
-            "page" => JsonSerializer.Deserialize<BookContentPage>(ref reader) ?? throw new JsonException(),
+            "chapter" => JsonSerializer.Deserialize(ref reader, BookStackTypeInfo.Default.BookContentChapter) ?? throw new JsonException(),
+            "page" => JsonSerializer.Deserialize(ref reader, BookStackTypeInfo.Default.BookContentPage) ?? throw new JsonException(),
             _ => throw new JsonException(),
         };
     }
@@ -36,7 +36,12 @@ public class BookContentJsonConverter : JsonConverter<BookContent>
         else
         {
             // シリアライズ対象インスタンスの実体型に応じたシリアライズを行う。
-            JsonSerializer.Serialize(writer, value, value.GetType());
+            switch (value)
+            {
+                case BookContentChapter: JsonSerializer.Serialize(writer, value, BookStackTypeInfo.Default.BookContentChapter); break;
+                case BookContentPage: JsonSerializer.Serialize(writer, value, BookStackTypeInfo.Default.BookContentPage); break;
+                default: throw new JsonException();
+            }
         }
     }
 }

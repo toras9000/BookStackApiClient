@@ -7,13 +7,14 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 
 namespace BookStackApiClient;
 
 /// <summary>
 /// BookStack API クライアント
 /// </summary>
-public class BookStackClient : IDisposable
+public partial class BookStackClient : IDisposable
 {
     // 構築
     #region コンストラクタ
@@ -33,6 +34,7 @@ public class BookStackClient : IDisposable
         this.BaseUri = baseUri ?? throw new ArgumentNullException(nameof(baseUri));
         this.http = clientFactory?.Invoke() ?? new HttpClient();
         this.http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Token", $"{token}:{secret}");
+        this.typeInfos = BookStackTypeInfo.Default;
     }
     #endregion
 
@@ -48,7 +50,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のAPIドキュメント</returns>
     public Task<ApiDocResult> DocsAsync(CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("docs.json"), cancelToken).JsonResponseAsync<ApiDocResult>(cancelToken);
+        => contextGetRequest(apiEp("docs.json"), cancelToken).JsonResponseAsync(this.typeInfos.ApiDocResult, cancelToken);
     #endregion
 
     #region system
@@ -56,7 +58,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のシステム情報</returns>
     public Task<SystemInfo> SystemAsync(CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("system"), cancelToken).JsonResponseAsync<SystemInfo>(cancelToken);
+        => contextGetRequest(apiEp("system"), cancelToken).JsonResponseAsync(this.typeInfos.SystemInfo, cancelToken);
     #endregion
 
     #region attachments
@@ -65,7 +67,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果の添付ファイル一覧</returns>
     public Task<ListAttachmentsResult> ListAttachmentsAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("attachments", listing), cancelToken).JsonResponseAsync<ListAttachmentsResult>(cancelToken);
+        => contextGetRequest(apiEp("attachments", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListAttachmentsResult, cancelToken);
 
     /// <summary>ファイルパスを指定してファイルを添付する。</summary>
     /// <param name="args">ファイル添付共通パラメータ</param>
@@ -74,7 +76,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイル情報</returns>
     public Task<AttachmentItem> CreateFileAttachmentAsync(CreateAttachmentArgs args, string path, string? fileName = null, CancellationToken cancelToken = default)
-        => contextCreateAttachmentAsync(apiEp("attachments"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
+        => contextCreateAttachmentAsync(apiEp("attachments"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync(this.typeInfos.AttachmentItem, cancelToken);
 
     /// <summary>ファイル内容を指定してファイルを添付する。</summary>
     /// <param name="args">ファイル添付共通パラメータ</param>
@@ -83,7 +85,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイルの情報</returns>
     public Task<AttachmentItem> CreateFileAttachmentAsync(CreateAttachmentArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
-        => contextCreateAttachmentAsync(apiEp("attachments"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
+        => contextCreateAttachmentAsync(apiEp("attachments"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync(this.typeInfos.AttachmentItem, cancelToken);
 
     /// <summary>ファイル内容を指定してファイルを添付する。</summary>
     /// <param name="args">ファイル添付共通パラメータ</param>
@@ -92,21 +94,21 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイルの情報</returns>
     public Task<AttachmentItem> CreateFileAttachmentAsync(CreateAttachmentArgs args, Stream content, string fileName, CancellationToken cancelToken = default)
-        => contextCreateAttachmentAsync(apiEp("attachments"), args, streamFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
+        => contextCreateAttachmentAsync(apiEp("attachments"), args, streamFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync(this.typeInfos.AttachmentItem, cancelToken);
 
     /// <summary>外部リンクを添付する。</summary>
     /// <param name="args">外部リンクの添付パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたリンクの情報</returns>
     public Task<AttachmentItem> CreateLinkAttachmentAsync(CreateLinkAttachmentArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("attachments"), notNullArgs(args), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
+        => contextPostRequest(apiEp("attachments"), notNullArgs(args), this.typeInfos.CreateLinkAttachmentArgs, cancelToken).JsonResponseAsync(this.typeInfos.AttachmentItem, cancelToken);
 
     /// <summary>添付ファイル/リンクの詳細と内容を取得する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付ファイル詳細情報</returns>
     public Task<ReadAttachmentResult> ReadAttachmentAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"attachments/{id}"), cancelToken).JsonResponseAsync<ReadAttachmentResult>(cancelToken);
+        => contextGetRequest(apiEp($"attachments/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.ReadAttachmentResult, cancelToken);
 
     /// <summary>ファイルパスを指定して添付ファイルを更新する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
@@ -116,7 +118,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付ファイル情報</returns>
     public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, string? path = null, string? fileName = null, CancellationToken cancelToken = default)
-        => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, pathFileContentGenerator(path, fileName), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
+        => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, pathFileContentGenerator(path, fileName), cancelToken).JsonResponseAsync(this.typeInfos.AttachmentItem, cancelToken);
 
     /// <summary>ファイル内容を指定して添付ファイルを更新する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
@@ -126,7 +128,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付ファイル情報</returns>
     public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
-        => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, binaryFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
+        => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, binaryFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync(this.typeInfos.AttachmentItem, cancelToken);
 
     /// <summary>ファイル内容を指定して添付ファイルを更新する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
@@ -136,7 +138,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付ファイル情報</returns>
     public Task<AttachmentItem> UpdateFileAttachmentAsync(long id, UpdateAttachmentArgs args, Stream content, string fileName, CancellationToken cancelToken = default)
-        => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, streamFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<AttachmentItem>(cancelToken);
+        => contextUpdateAttachmentAsync(apiEp($"attachments/{id}"), args, streamFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync(this.typeInfos.AttachmentItem, cancelToken);
 
     /// <summary>添付リンクを更新する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
@@ -144,13 +146,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付ファイル情報</returns>
     public Task<AttachmentItem> UpdateLinkAttachmentAsync(long id, UpdateLinkAttachmentArgs args, CancellationToken cancelToken = default)
-        => contextPutRequest(apiEp($"attachments/{id}"), notNullArgs(args), cancelToken, JsonIgnoreNulls).JsonResponseAsync<AttachmentItem>(cancelToken);
+        => contextPutRequest(apiEp($"attachments/{id}"), notNullArgs(args), this.typeInfos.UpdateLinkAttachmentArgs, cancelToken).JsonResponseAsync(this.typeInfos.AttachmentItem, cancelToken);
 
     /// <summary>添付ファイル/リンクを削除する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteAttachmentAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"attachments/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"attachments/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
     #endregion
 
     #region books
@@ -159,7 +161,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のブック一覧</returns>
     public Task<ListBooksResult> ListBooksAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("books", listing), cancelToken).JsonResponseAsync<ListBooksResult>(cancelToken);
+        => contextGetRequest(apiEp("books", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListBooksResult, cancelToken);
 
     /// <summary>ブックを作成する。</summary>
     /// <param name="args">ブック作成パラメータ</param>
@@ -168,7 +170,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイル情報</returns>
     public Task<BookItem> CreateBookAsync(CreateBookArgs args, string? imgPath = null, string? imgName = null, CancellationToken cancelToken = default)
-        => contextCreateBook(apiEp("books"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
+        => contextCreateBook(apiEp("books"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync(this.typeInfos.BookItem, cancelToken);
 
     /// <summary>ブックを作成する。</summary>
     /// <param name="args">ブック作成パラメータ</param>
@@ -177,7 +179,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイル情報</returns>
     public Task<BookItem> CreateBookAsync(CreateBookArgs args, byte[] imgContent, string imgName, CancellationToken cancelToken = default)
-        => contextCreateBook(apiEp("books"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
+        => contextCreateBook(apiEp("books"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync(this.typeInfos.BookItem, cancelToken);
 
     /// <summary>ブックを作成する。</summary>
     /// <param name="args">ブック作成パラメータ</param>
@@ -186,14 +188,14 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>添付されたファイル情報</returns>
     public Task<BookItem> CreateBookAsync(CreateBookArgs args, Stream imgContent, string imgName, CancellationToken cancelToken = default)
-        => contextCreateBook(apiEp("books"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
+        => contextCreateBook(apiEp("books"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync(this.typeInfos.BookItem, cancelToken);
 
     /// <summary>ブックの詳細と内容を取得する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ブック詳細情報</returns>
     public Task<ReadBookResult> ReadBookAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"books/{id}"), cancelToken).JsonResponseAsync<ReadBookResult>(cancelToken);
+        => contextGetRequest(apiEp($"books/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.ReadBookResult, cancelToken);
 
     /// <summary>ブックを更新する。</summary>
     /// <param name="id">ブックID</param>
@@ -203,7 +205,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ブック情報</returns>
     public Task<BookItem> UpdateBookAsync(long id, UpdateBookArgs args, string? imgPath = null, string? imgName = null, CancellationToken cancelToken = default)
-        => contextUpdateBook(apiEp($"books/{id}"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
+        => contextUpdateBook(apiEp($"books/{id}"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync(this.typeInfos.BookItem, cancelToken);
 
     /// <summary>ブックを更新する。</summary>
     /// <param name="id">ブックID</param>
@@ -213,7 +215,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ブック情報</returns>
     public Task<BookItem> UpdateBookAsync(long id, UpdateBookArgs args, byte[] imgContent, string imgName, CancellationToken cancelToken = default)
-        => contextUpdateBook(apiEp($"books/{id}"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
+        => contextUpdateBook(apiEp($"books/{id}"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync(this.typeInfos.BookItem, cancelToken);
 
     /// <summary>ブックを更新する。</summary>
     /// <param name="id">ブックID</param>
@@ -223,13 +225,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ブック情報</returns>
     public Task<BookItem> UpdateBookAsync(long id, UpdateBookArgs args, Stream imgContent, string imgName, CancellationToken cancelToken = default)
-        => contextUpdateBook(apiEp($"books/{id}"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<BookItem>(cancelToken);
+        => contextUpdateBook(apiEp($"books/{id}"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync(this.typeInfos.BookItem, cancelToken);
 
     /// <summary>ブックを削除する。</summary>
     /// <param name="id">ブックID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteBookAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"books/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"books/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
 
     /// <summary>ブックをHTMLでエクスポートする</summary>
     /// <param name="id">ブックID</param>
@@ -273,21 +275,21 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のチャプタ一覧</returns>
     public Task<ListChaptersResult> ListChaptersAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("chapters", listing), cancelToken).JsonResponseAsync<ListChaptersResult>(cancelToken);
+        => contextGetRequest(apiEp("chapters", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListChaptersResult, cancelToken);
 
     /// <summary>チャプタを作成する。</summary>
     /// <param name="args">チャプタ作成パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>チャプタ情報</returns>
     public Task<ChapterItem> CreateChapterAsync(CreateChapterArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("chapters"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<ChapterItem>(cancelToken);
+        => contextPostRequest(apiEp("chapters"), args, this.typeInfos.CreateChapterArgs, cancelToken).JsonResponseAsync(this.typeInfos.ChapterItem, cancelToken);
 
     /// <summary>チャプタの詳細と内容を取得する。</summary>
     /// <param name="id">チャプタID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>チャプタ詳細情報</returns>
     public Task<ReadChapterResult> ReadChapterAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"chapters/{id}"), cancelToken).JsonResponseAsync<ReadChapterResult>(cancelToken);
+        => contextGetRequest(apiEp($"chapters/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.ReadChapterResult, cancelToken);
 
     /// <summary>チャプタを更新する。</summary>
     /// <param name="id">チャプタID</param>
@@ -295,13 +297,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>チャプタ情報</returns>
     public Task<ChapterItem> UpdateChapterAsync(long id, UpdateChapterArgs args, CancellationToken cancelToken = default)
-        => contextPutRequest(apiEp($"chapters/{id}"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<ChapterItem>(cancelToken);
+        => contextPutRequest(apiEp($"chapters/{id}"), args, this.typeInfos.UpdateChapterArgs, cancelToken).JsonResponseAsync(this.typeInfos.ChapterItem, cancelToken);
 
     /// <summary>チャプタを削除する。</summary>
     /// <param name="id">チャプタID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteChapterAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"chapters/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"chapters/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
 
     /// <summary>チャプタをHTMLでエクスポートする</summary>
     /// <param name="id">チャプタID</param>
@@ -345,49 +347,49 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のページ一覧</returns>
     public Task<ListPagesResult> ListPagesAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("pages", listing), cancelToken).JsonResponseAsync<ListPagesResult>(cancelToken);
+        => contextGetRequest(apiEp("pages", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListPagesResult, cancelToken);
 
     /// <summary>ページを作成する。</summary>
     /// <param name="args">ページ作成パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ情報</returns>
     public Task<PageItem> CreatePageAsync(CreatePageArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("pages"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<PageItem>(cancelToken);
+        => contextPostRequest(apiEp("pages"), args, this.typeInfos.CreatePageArgs, cancelToken).JsonResponseAsync(this.typeInfos.PageItem, cancelToken);
 
     /// <summary>ブック内にMarkdownでページを作成する。</summary>
     /// <param name="args">ページ作成パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ情報</returns>
     public Task<PageItem> CreateMarkdownPageInBookAsync(CreateMarkdownPageInBookArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("pages"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<PageItem>(cancelToken);
+        => contextPostRequest(apiEp("pages"), args, this.typeInfos.CreateMarkdownPageInBookArgs, cancelToken).JsonResponseAsync(this.typeInfos.PageItem, cancelToken);
 
     /// <summary>チャプタ内にMarkdownでページを作成する。</summary>
     /// <param name="args">ページ作成パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ情報</returns>
     public Task<PageItem> CreateMarkdownPageInChapterAsync(CreateMarkdownPageInChapterArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("pages"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<PageItem>(cancelToken);
+        => contextPostRequest(apiEp("pages"), args, this.typeInfos.CreateMarkdownPageInChapterArgs, cancelToken).JsonResponseAsync(this.typeInfos.PageItem, cancelToken);
 
     /// <summary>ブック内にHTMLでページを作成する。</summary>
     /// <param name="args">ページ作成パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ情報</returns>
     public Task<PageItem> CreateHtmlPageInBookAsync(CreateHtmlPageInBookArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("pages"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<PageItem>(cancelToken);
+        => contextPostRequest(apiEp("pages"), args, this.typeInfos.CreateHtmlPageInBookArgs, cancelToken).JsonResponseAsync(this.typeInfos.PageItem, cancelToken);
 
     /// <summary>チャプタ内にHTMLでページを作成する。</summary>
     /// <param name="args">ページ作成パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ情報</returns>
     public Task<PageItem> CreateHtmlPageInChapterAsync(CreateHtmlPageInChapterArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("pages"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<PageItem>(cancelToken);
+        => contextPostRequest(apiEp("pages"), args, this.typeInfos.CreateHtmlPageInChapterArgs, cancelToken).JsonResponseAsync(this.typeInfos.PageItem, cancelToken);
 
     /// <summary>ページの詳細と内容を取得する。</summary>
     /// <param name="id">ページID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ詳細情報</returns>
     public Task<ReadPageResult> ReadPageAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"pages/{id}"), cancelToken).JsonResponseAsync<ReadPageResult>(cancelToken);
+        => contextGetRequest(apiEp($"pages/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.ReadPageResult, cancelToken);
 
     /// <summary>ページを更新する。</summary>
     /// <param name="id">ページID</param>
@@ -395,13 +397,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ページ情報</returns>
     public Task<PageItem> UpdatePageAsync(long id, UpdatePageArgs args, CancellationToken cancelToken = default)
-        => contextPutRequest(apiEp($"pages/{id}"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<PageItem>(cancelToken);
+        => contextPutRequest(apiEp($"pages/{id}"), args, this.typeInfos.UpdatePageArgs, cancelToken).JsonResponseAsync(this.typeInfos.PageItem, cancelToken);
 
     /// <summary>ページを削除する。</summary>
     /// <param name="id">ページID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeletePageAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"pages/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"pages/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
 
     /// <summary>ページをHTMLでエクスポートする</summary>
     /// <param name="id">ページID</param>
@@ -445,7 +447,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果の棚一覧</returns>
     public Task<ListShelvesResult> ListShelvesAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("shelves", listing), cancelToken).JsonResponseAsync<ListShelvesResult>(cancelToken);
+        => contextGetRequest(apiEp("shelves", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListShelvesResult, cancelToken);
 
     /// <summary>棚を作成する。</summary>
     /// <param name="args">棚作成パラメータ</param>
@@ -454,7 +456,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>棚情報</returns>
     public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, string? imgPath = null, string? imgName = null, CancellationToken cancelToken = default)
-        => contextCreateShelve(apiEp("shelves"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
+        => contextCreateShelve(apiEp("shelves"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync(this.typeInfos.ShelfItem, cancelToken);
 
     /// <summary>棚を作成する。</summary>
     /// <param name="args">棚作成パラメータ</param>
@@ -463,7 +465,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>棚情報</returns>
     public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, byte[] imgContent, string imgName, CancellationToken cancelToken = default)
-        => contextCreateShelve(apiEp("shelves"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
+        => contextCreateShelve(apiEp("shelves"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync(this.typeInfos.ShelfItem, cancelToken);
 
     /// <summary>棚を作成する。</summary>
     /// <param name="args">棚作成パラメータ</param>
@@ -472,14 +474,14 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>棚情報</returns>
     public Task<ShelfItem> CreateShelfAsync(CreateShelfArgs args, Stream imgContent, string imgName, CancellationToken cancelToken = default)
-        => contextCreateShelve(apiEp("shelves"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
+        => contextCreateShelve(apiEp("shelves"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync(this.typeInfos.ShelfItem, cancelToken);
 
     /// <summary>棚の詳細と内容を取得する。</summary>
     /// <param name="id">添付ファイル/リンクID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>棚詳細情報</returns>
     public Task<ReadShelfResult> ReadShelfAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"shelves/{id}"), cancelToken).JsonResponseAsync<ReadShelfResult>(cancelToken);
+        => contextGetRequest(apiEp($"shelves/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.ReadShelfResult, cancelToken);
 
     /// <summary>棚を更新する。</summary>
     /// <param name="id">棚ID</param>
@@ -489,7 +491,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>棚情報</returns>
     public Task<ShelfItem> UpdateShelfAsync(long id, UpdateShelfArgs args, string? imgPath = null, string? imgName = null, CancellationToken cancelToken = default)
-        => contextUpdateShelve(apiEp($"shelves/{id}"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
+        => contextUpdateShelve(apiEp($"shelves/{id}"), args, pathFileContentGenerator(imgPath, imgName), cancelToken).JsonResponseAsync(this.typeInfos.ShelfItem, cancelToken);
 
     /// <summary>棚を更新する。</summary>
     /// <param name="id">棚ID</param>
@@ -499,7 +501,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>棚情報</returns>
     public Task<ShelfItem> UpdateShelfAsync(long id, UpdateShelfArgs args, byte[] imgContent, string imgName, CancellationToken cancelToken = default)
-        => contextUpdateShelve(apiEp($"shelves/{id}"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
+        => contextUpdateShelve(apiEp($"shelves/{id}"), args, binaryFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync(this.typeInfos.ShelfItem, cancelToken);
 
     /// <summary>棚を更新する。</summary>
     /// <param name="id">棚ID</param>
@@ -509,13 +511,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>棚情報</returns>
     public Task<ShelfItem> UpdateShelfAsync(long id, UpdateShelfArgs args, Stream imgContent, string imgName, CancellationToken cancelToken = default)
-        => contextUpdateShelve(apiEp($"shelves/{id}"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync<ShelfItem>(cancelToken);
+        => contextUpdateShelve(apiEp($"shelves/{id}"), args, streamFileContentGenerator(imgContent, imgName), cancelToken).JsonResponseAsync(this.typeInfos.ShelfItem, cancelToken);
 
     /// <summary>棚を削除する。</summary>
     /// <param name="id">棚ID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteShelfAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"shelves/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"shelves/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
     #endregion
 
     #region comments
@@ -524,21 +526,21 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のコメント一覧</returns>
     public Task<ListCommentsResult> ListCommentsAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("comments", listing), cancelToken).JsonResponseAsync<ListCommentsResult>(cancelToken);
+        => contextGetRequest(apiEp("comments", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListCommentsResult, cancelToken);
 
     /// <summary>コメントの詳細を取得する。</summary>
     /// <param name="id">コメントID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>コメント詳細</returns>
     public Task<CommentDetail> ReadCommentAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"comments/{id}"), cancelToken).JsonResponseAsync<CommentDetail>(cancelToken);
+        => contextGetRequest(apiEp($"comments/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.CommentDetail, cancelToken);
 
     /// <summary>コメントを作成する。</summary>
     /// <param name="args">コメント作成パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>コメント情報</returns>
     public Task<CommentItem> CreateCommentAsync(CreateCommentArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("comments"), args, cancelToken).JsonResponseAsync<CommentItem>(cancelToken);
+        => contextPostRequest(apiEp("comments"), args, this.typeInfos.CreateCommentArgs, cancelToken).JsonResponseAsync(this.typeInfos.CommentItem, cancelToken);
 
     /// <summary>コメントを更新する。</summary>
     /// <param name="id">コメントID</param>
@@ -546,13 +548,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>コメント情報</returns>
     public Task<CommentItem> UpdateCommentAsync(long id, UpdateCommentArgs args, CancellationToken cancelToken = default)
-        => contextPutRequest(apiEp($"comments/{id}"), args, cancelToken).JsonResponseAsync<CommentItem>(cancelToken);
+        => contextPutRequest(apiEp($"comments/{id}"), args, this.typeInfos.UpdateCommentArgs, cancelToken).JsonResponseAsync(this.typeInfos.CommentItem, cancelToken);
 
     /// <summary>コメントを削除する。</summary>
     /// <param name="id">コメントID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteCommentAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"comments/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"comments/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
     #endregion
 
     #region image-gallery
@@ -561,7 +563,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のギャラリ画像一覧</returns>
     public Task<ListImagesResult> ListImagesAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("image-gallery", listing), cancelToken).JsonResponseAsync<ListImagesResult>(cancelToken);
+        => contextGetRequest(apiEp("image-gallery", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListImagesResult, cancelToken);
 
     /// <summary>ギャラリ画像を作成する。</summary>
     /// <param name="args">ギャラリ画像作成パラメータ</param>
@@ -570,7 +572,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> CreateImageAsync(CreateImageArgs args, string path, string? fileName = null, CancellationToken cancelToken = default)
-        => contextCreateImageAsync(apiEp("image-gallery"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
+        => contextCreateImageAsync(apiEp("image-gallery"), args, pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync(this.typeInfos.ImageItem, cancelToken);
 
     /// <summary>ギャラリ画像を作成する。</summary>
     /// <param name="args">ギャラリ画像作成パラメータ</param>
@@ -579,7 +581,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> CreateImageAsync(CreateImageArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
-        => contextCreateImageAsync(apiEp("image-gallery"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
+        => contextCreateImageAsync(apiEp("image-gallery"), args, binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync(this.typeInfos.ImageItem, cancelToken);
 
     /// <summary>ギャラリ画像を作成する。</summary>
     /// <param name="args">ギャラリ画像作成パラメータ</param>
@@ -588,14 +590,14 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> CreateImageAsync(CreateImageArgs args, Stream content, string fileName, CancellationToken cancelToken = default)
-        => contextCreateImageAsync(apiEp("image-gallery"), args, streamFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
+        => contextCreateImageAsync(apiEp("image-gallery"), args, streamFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync(this.typeInfos.ImageItem, cancelToken);
 
     /// <summary>ギャラリ画像の詳細と内容を取得する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> ReadImageAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"image-gallery/{id}"), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
+        => contextGetRequest(apiEp($"image-gallery/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.ImageItem, cancelToken);
 
     /// <summary>ギャラリ画像を更新する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
@@ -605,7 +607,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> UpdateImageAsync(long id, UpdateImageArgs args, string? path = null, string? fileName = null, CancellationToken cancelToken = default)
-        => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, pathFileContentGenerator(path, fileName), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
+        => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, pathFileContentGenerator(path, fileName), cancelToken).JsonResponseAsync(this.typeInfos.ImageItem, cancelToken);
 
     /// <summary>ギャラリ画像を更新する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
@@ -615,7 +617,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> UpdateImageAsync(long id, UpdateImageArgs args, byte[] content, string fileName, CancellationToken cancelToken = default)
-        => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, binaryFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
+        => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, binaryFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync(this.typeInfos.ImageItem, cancelToken);
 
     /// <summary>ギャラリ画像を更新する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
@@ -625,13 +627,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ギャラリ画像情報</returns>
     public Task<ImageItem> UpdateImageAsync(long id, UpdateImageArgs args, Stream content, string fileName, CancellationToken cancelToken = default)
-        => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, streamFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync<ImageItem>(cancelToken);
+        => contextUpdateImageAsync(apiEp($"image-gallery/{id}"), args, streamFileContentGenerator(content, fileName), cancelToken).JsonResponseAsync(this.typeInfos.ImageItem, cancelToken);
 
     /// <summary>ギャラリ画像を削除する。</summary>
     /// <param name="id">ギャラリ画像ID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteImageAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"image-gallery/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"image-gallery/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
 
     /// <summary>画像データをダウンロードする</summary>
     /// <param name="id">ギャラリ画像ID</param>
@@ -654,7 +656,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>検索結果</returns>
     public Task<SearchResult> SearchAsync(SearchArgs args, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("search", args), cancelToken).JsonResponseAsync<SearchResult>(cancelToken);
+        => contextGetRequest(apiEp("search", args), cancelToken).JsonResponseAsync(this.typeInfos.SearchResult, cancelToken);
     #endregion
 
     #region users
@@ -663,21 +665,21 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のユーザ一覧</returns>
     public Task<ListUsersResult> ListUsersAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("users", listing), cancelToken).JsonResponseAsync<ListUsersResult>(cancelToken);
+        => contextGetRequest(apiEp("users", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListUsersResult, cancelToken);
 
     /// <summary>ユーザを作成する。</summary>
     /// <param name="args">ユーザ作成パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ユーザ情報</returns>
     public Task<UserItem> CreateUserAsync(CreateUserArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("users"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<UserItem>(cancelToken);
+        => contextPostRequest(apiEp("users"), args, this.typeInfos.CreateUserArgs, cancelToken).JsonResponseAsync(this.typeInfos.UserItem, cancelToken);
 
     /// <summary>ユーザの詳細と内容を取得する。</summary>
     /// <param name="id">ユーザID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ユーザ詳細情報</returns>
     public Task<UserItem> ReadUserAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"users/{id}"), cancelToken).JsonResponseAsync<UserItem>(cancelToken);
+        => contextGetRequest(apiEp($"users/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.UserItem, cancelToken);
 
     /// <summary>ユーザを更新する。</summary>
     /// <param name="id">ユーザID</param>
@@ -685,13 +687,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ユーザ情報</returns>
     public Task<UserItem> UpdateUserAsync(long id, UpdateUserArgs args, CancellationToken cancelToken = default)
-        => contextPutRequest(apiEp($"users/{id}"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<UserItem>(cancelToken);
+        => contextPutRequest(apiEp($"users/{id}"), args, this.typeInfos.UpdateUserArgs, cancelToken).JsonResponseAsync(this.typeInfos.UserItem, cancelToken);
 
     /// <summary>ユーザを削除する。</summary>
     /// <param name="id">ユーザID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteUserAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"users/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"users/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
     #endregion
 
     #region roles
@@ -700,21 +702,21 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のロール一覧</returns>
     public Task<ListRolesResult> ListRolesAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("roles", listing), cancelToken).JsonResponseAsync<ListRolesResult>(cancelToken);
+        => contextGetRequest(apiEp("roles", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListRolesResult, cancelToken);
 
     /// <summary>ロールを作成する。</summary>
     /// <param name="args">ロール作成パラメータ</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ロール情報</returns>
     public Task<RoleItem> CreateRoleAsync(CreateRoleArgs args, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp("roles"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<RoleItem>(cancelToken);
+        => contextPostRequest(apiEp("roles"), args, this.typeInfos.CreateRoleArgs, cancelToken).JsonResponseAsync(this.typeInfos.RoleItem, cancelToken);
 
     /// <summary>ロールの詳細と内容を取得する。</summary>
     /// <param name="id">ロールID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ロール詳細情報</returns>
     public Task<RoleItem> ReadRoleAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"roles/{id}"), cancelToken).JsonResponseAsync<RoleItem>(cancelToken);
+        => contextGetRequest(apiEp($"roles/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.RoleItem, cancelToken);
 
     /// <summary>ロールを更新する。</summary>
     /// <param name="id">ロールID</param>
@@ -722,13 +724,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ロール情報</returns>
     public Task<RoleItem> UpdateRoleAsync(long id, UpdateRoleArgs args, CancellationToken cancelToken = default)
-        => contextPutRequest(apiEp($"roles/{id}"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<RoleItem>(cancelToken);
+        => contextPutRequest(apiEp($"roles/{id}"), args, this.typeInfos.UpdateRoleArgs, cancelToken).JsonResponseAsync(this.typeInfos.RoleItem, cancelToken);
 
     /// <summary>ロールを削除する。</summary>
     /// <param name="id">ロールID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteRoleAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"roles/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"roles/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
     #endregion
 
     #region content-permissions
@@ -738,7 +740,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>コンテンツパーミッション情報</returns>
     public Task<ContentPermissionsItem> ReadContentPermissionsAsync(string type, long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"content-permissions/{type}/{id}"), cancelToken).JsonResponseAsync<ContentPermissionsItem>(cancelToken);
+        => contextGetRequest(apiEp($"content-permissions/{type}/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.ContentPermissionsItem, cancelToken);
 
     /// <summary>棚パーミッションを取得する。</summary>
     /// <param name="id">コンテンツID</param>
@@ -775,7 +777,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>コンテンツパーミッション情報</returns>
     public Task<ContentPermissionsItem> UpdateContentPermissionsAsync(string type, long id, UpdateContentPermissionsArgs args, CancellationToken cancelToken = default)
-        => contextPutRequest(apiEp($"content-permissions/{type}/{id}"), args, cancelToken, JsonIgnoreNulls).JsonResponseAsync<ContentPermissionsItem>(cancelToken);
+        => contextPutRequest(apiEp($"content-permissions/{type}/{id}"), args, this.typeInfos.UpdateContentPermissionsArgs, cancelToken).JsonResponseAsync(this.typeInfos.ContentPermissionsItem, cancelToken);
 
     /// <summary>棚パーミッションを更新する。</summary>
     /// <param name="id">コンテンツID</param>
@@ -816,7 +818,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のZIPインポート一覧</returns>
     public Task<ListImportsResult> ListImportsAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("imports", listing), cancelToken).JsonResponseAsync<ListImportsResult>(cancelToken);
+        => contextGetRequest(apiEp("imports", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListImportsResult, cancelToken);
 
     /// <summary>インポートを開始する。</summary>
     /// <param name="path">アップロードするファイルのパス</param>
@@ -824,7 +826,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>インポート情報</returns>
     public Task<ImportsItem> CreateImportsAsync(string path, string? fileName = null, CancellationToken cancelToken = default)
-        => contextCreateImportsAsync(apiEp("imports"), pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync<ImportsItem>(cancelToken);
+        => contextCreateImportsAsync(apiEp("imports"), pathFileContentGenerator(path, fileName) ?? throw new ArgumentNullException(nameof(path)), cancelToken).JsonResponseAsync(this.typeInfos.ImportsItem, cancelToken);
 
     /// <summary>インポートを開始する。</summary>
     /// <param name="content">アップロードするファイル内容</param>
@@ -832,7 +834,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>インポート情報</returns>
     public Task<ImportsItem> CreateImportsAsync(byte[] content, string fileName, CancellationToken cancelToken = default)
-        => contextCreateImportsAsync(apiEp("imports"), binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImportsItem>(cancelToken);
+        => contextCreateImportsAsync(apiEp("imports"), binaryFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync(this.typeInfos.ImportsItem, cancelToken);
 
     /// <summary>インポートを開始する。</summary>
     /// <param name="content">アップロードするファイル内容ストリーム。呼び出し後に破棄されるため注意。</param>
@@ -840,14 +842,14 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>インポート情報</returns>
     public Task<ImportsItem> CreateImportsAsync(Stream content, string fileName, CancellationToken cancelToken = default)
-        => contextCreateImportsAsync(apiEp("imports"), streamFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync<ImportsItem>(cancelToken);
+        => contextCreateImportsAsync(apiEp("imports"), streamFileContentGenerator(content, fileName) ?? throw new ArgumentNullException(nameof(content)), cancelToken).JsonResponseAsync(this.typeInfos.ImportsItem, cancelToken);
 
     /// <summary>インポートの詳細と内容を取得する。</summary>
     /// <param name="id">インポートID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>インポート詳細情報</returns>
     public Task<ImportsItemDetails> ReadImportsAsync(long id, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp($"imports/{id}"), cancelToken).JsonResponseAsync<ImportsItemDetails>(cancelToken);
+        => contextGetRequest(apiEp($"imports/{id}"), cancelToken).JsonResponseAsync(this.typeInfos.ImportsItemDetails, cancelToken);
 
     /// <summary>インポートを実行する。</summary>
     /// <param name="id">インポートID</param>
@@ -855,13 +857,13 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>インポート詳細情報</returns>
     public Task<RunImportsResult> RunImportsAsync(long id, RunImportsArgs? args = default, CancellationToken cancelToken = default)
-        => contextPostRequest(apiEp($"imports/{id}"), args, cancelToken).JsonResponseAsync<RunImportsResult>(cancelToken);
+        => contextPostRequest(apiEp($"imports/{id}"), args!, this.typeInfos.RunImportsArgs, cancelToken).JsonResponseAsync(this.typeInfos.RunImportsResult, cancelToken);
 
     /// <summary>インポートを削除する。</summary>
     /// <param name="id">インポートID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DeleteImportsAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"imports/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"imports/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
     #endregion
 
     #region recycle-bin
@@ -870,20 +872,20 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ゴミ箱内容の一覧</returns>
     public Task<ListRecycleBinResult> ListRecycleBinAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("recycle-bin", listing), cancelToken).JsonResponseAsync<ListRecycleBinResult>(cancelToken);
+        => contextGetRequest(apiEp("recycle-bin", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListRecycleBinResult, cancelToken);
 
     /// <summary>ゴミ箱アイテムを復元する。</summary>
     /// <param name="id">ゴミ箱アイテムID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>復元情報</returns>
     public Task<RestoreRecycleItemResult> RestoreRecycleItemAsync(long id, CancellationToken cancelToken = default)
-        => contextPutRequest(apiEp($"recycle-bin/{id}"), new object(), cancelToken).JsonResponseAsync<RestoreRecycleItemResult>(cancelToken);
+        => contextPutRequest(apiEp($"recycle-bin/{id}"), new object(), this.typeInfos.Object, cancelToken).JsonResponseAsync(this.typeInfos.RestoreRecycleItemResult, cancelToken);
 
     /// <summary>ゴミ箱アイテムを削除する。</summary>
     /// <param name="id">ゴミ箱アイテムID</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     public Task DestroyRecycleItemAsync(long id, CancellationToken cancelToken = default)
-        => contextDeleteRequest(apiEp($"recycle-bin/{id}"), cancelToken).JsonResponseAsync<EmptyResult>(cancelToken);
+        => contextDeleteRequest(apiEp($"recycle-bin/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
     #endregion
 
     #region audit-log
@@ -892,7 +894,7 @@ public class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>監査ログの一覧</returns>
     public Task<ListAuditLogResult> ListAuditLogAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("audit-log", listing), cancelToken).JsonResponseAsync<ListAuditLogResult>(cancelToken);
+        => contextGetRequest(apiEp("audit-log", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListAuditLogResult, cancelToken);
     #endregion
 
     #region 破棄
@@ -934,6 +936,10 @@ public class BookStackClient : IDisposable
     /// <summary>空の応答(応答ボディ無し)を期待する際に利用する型</summary>
     private record EmptyResult;
 
+    /// <summary>クライアント内部型のシリアライズ型情報</summary>
+    [JsonSerializable(typeof(EmptyResult))]
+    private partial class ClientTypeInfo : JsonSerializerContext;
+
     /// <summary>要求コンテキスト型</summary>
     /// <remarks>
     /// この型はAPI要求の結果を任意の型に解釈するための中継的な役割のクラスとなる。
@@ -943,19 +949,19 @@ public class BookStackClient : IDisposable
     /// <param name="requester">API要求デリゲート</param>
     private struct RequestContext(Task<HttpResponseMessage> requester)
     {
-
         /// <summary>API要求を行い応答をJSONとして解釈して型にマッピングする</summary>
         /// <typeparam name="TResult">応答結果データ型</typeparam>
+        /// <param name="resultTypeInfo">レスポンスシリアライズ型情報</param>
         /// <param name="cancelToken">キャンセルトークン</param>
         /// <returns>API応答データ</returns>
-        public Task<TResult> JsonResponseAsync<TResult>(CancellationToken cancelToken)
+        public Task<TResult> JsonResponseAsync<TResult>(JsonTypeInfo<TResult> resultTypeInfo, CancellationToken cancelToken)
             => interpretResponseAsync(async (rsp) =>
             {
                 // 空の応答の場合もある。空応答を期待する場合はデコードせずに。
-                if (typeof(EmptyResult).Equals(typeof(TResult))) return default!;
+                if (object.ReferenceEquals(resultTypeInfo, ClientTypeInfo.Default.EmptyResult)) return default!;
 
                 // JSON応答を取得
-                var json = await rsp.Content.ReadFromJsonAsync<JsonDocument>(options: null, cancelToken).ConfigureAwait(false)
+                var json = await rsp.Content.ReadFromJsonAsync(BookStackTypeInfo.Default.JsonDocument, cancelToken).ConfigureAwait(false)
                     ?? throw new ResponseInterpretException("Response is not JSON.");
 
                 // エラー応答かチェック
@@ -963,7 +969,7 @@ public class BookStackClient : IDisposable
                 if (errEx != null) throw errEx;
 
                 // 応答をデコードして返却
-                return json.RootElement.Deserialize<TResult>() ?? throw new ResponseInterpretException($"Cannot decode JSON to {typeof(TResult).Name}.");
+                return json.RootElement.Deserialize(resultTypeInfo) ?? throw new ResponseInterpretException($"Cannot decode JSON to {typeof(TResult).Name}.");
             });
 
         /// <summary>API要求を行い応答をテキストとして解釈する</summary>
@@ -1067,7 +1073,7 @@ public class BookStackClient : IDisposable
             if (response.Content.Headers.ContentType?.MediaType == "application/json")
             {
                 using var rspStream = response.Content.ReadAsStream();
-                var rspJson = JsonSerializer.Deserialize<JsonDocument>(rspStream);
+                var rspJson = JsonSerializer.Deserialize(rspStream, BookStackTypeInfo.Default.JsonDocument);
                 var errEx = tryInterpretErrorResponse(rspJson);
                 if (errEx != null) throw errEx;
             }
@@ -1106,9 +1112,9 @@ public class BookStackClient : IDisposable
     #endregion
 
     // 非公開フィールド
-    #region 定数：シリアル化
-    /// <summary>値がnullのプロパティを無視するシリアライズオプション</summary>
-    private static readonly JsonSerializerOptions JsonIgnoreNulls = new JsonSerializerOptions { DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull, };
+    #region シリアライズ
+    /// <summary>シリアライズ型情報</summary>
+    private readonly BookStackTypeInfo typeInfos;
     #endregion
 
     #region リソース
@@ -1123,7 +1129,7 @@ public class BookStackClient : IDisposable
 
     // 非公開メソッド
     #region ユーティリティ
-    /// <summary>引数がnull出ないことを検証する</summary>
+    /// <summary>引数がnullでないことを検証する</summary>
     /// <typeparam name="T">引数の型</typeparam>
     /// <param name="args">引数</param>
     /// <param name="argsName">引数の名称。通常は指定を省略する。</param>
@@ -1282,11 +1288,11 @@ public class BookStackClient : IDisposable
     /// <typeparam name="TArgs">要求パラメータ型</typeparam>
     /// <param name="ep">APIエンドポイント</param>
     /// <param name="args">要求コンテンツとしてJSON形式で送信するパラメータ</param>
+    /// <param name="argsTypeInfo">パラメータシリアライズ型情報</param>
     /// <param name="cancelToken">キャンセルトークン</param>
-    /// <param name="options">シリアライズオプション</param>
     /// <returns>要求コンテキスト</returns>
-    private RequestContext contextPostRequest<TArgs>(ApiEndpoint ep, TArgs? args, CancellationToken cancelToken, JsonSerializerOptions? options = null) where TArgs : class
-        => new RequestContext(this.http.PostAsJsonAsync(ep.Uri, args, options, cancelToken));
+    private RequestContext contextPostRequest<TArgs>(ApiEndpoint ep, TArgs args, JsonTypeInfo<TArgs> argsTypeInfo, CancellationToken cancelToken) where TArgs : class
+        => new RequestContext(this.http.PostAsJsonAsync(ep.Uri, args, argsTypeInfo, cancelToken));
 
     /// <summary>指定のコンテンツによるAPIへのPOSTアクセスコンテキストを生成する</summary>
     /// <param name="ep">APIエンドポイント</param>
@@ -1308,11 +1314,11 @@ public class BookStackClient : IDisposable
     /// <typeparam name="TArgs">要求パラメータ型</typeparam>
     /// <param name="ep">APIエンドポイント</param>
     /// <param name="args">要求コンテンツとしてJSON形式で送信するパラメータ</param>
+    /// <param name="argsTypeInfo">パラメータシリアライズ型情報</param>
     /// <param name="cancelToken">キャンセルトークン</param>
-    /// <param name="options">シリアライズオプション</param>
     /// <returns>要求コンテキスト</returns>
-    private RequestContext contextPutRequest<TArgs>(ApiEndpoint ep, TArgs? args, CancellationToken cancelToken, JsonSerializerOptions? options = null) where TArgs : class
-        => new RequestContext(this.http.PutAsJsonAsync(ep.Uri, args, options, cancelToken));
+    private RequestContext contextPutRequest<TArgs>(ApiEndpoint ep, TArgs args, JsonTypeInfo<TArgs> argsTypeInfo, CancellationToken cancelToken) where TArgs : class
+        => new RequestContext(this.http.PutAsJsonAsync(ep.Uri, args, argsTypeInfo, cancelToken));
 
     /// <summary>APIへのDELETEアクセスコンテキストを生成する</summary>
     /// <param name="ep">APIエンドポイント</param>

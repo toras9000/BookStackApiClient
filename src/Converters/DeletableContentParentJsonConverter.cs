@@ -19,8 +19,8 @@ public class DeletableContentParentJsonConverter : JsonConverter<DeletableConten
         // 種別に応じて具体型にデシリアライズ
         return contentType switch
         {
-            "book" => JsonSerializer.Deserialize<DeletableContentParentBook>(ref reader) ?? throw new JsonException(),
-            "chapter" => JsonSerializer.Deserialize<DeletableContentParentChapter>(ref reader) ?? throw new JsonException(),
+            "book" => JsonSerializer.Deserialize(ref reader, BookStackTypeInfo.Default.DeletableContentParentBook) ?? throw new JsonException(),
+            "chapter" => JsonSerializer.Deserialize(ref reader, BookStackTypeInfo.Default.DeletableContentParentChapter) ?? throw new JsonException(),
             _ => throw new JsonException(),
         };
     }
@@ -35,7 +35,12 @@ public class DeletableContentParentJsonConverter : JsonConverter<DeletableConten
         else
         {
             // シリアライズ対象インスタンスの実体型に応じたシリアライズを行う。
-            JsonSerializer.Serialize(writer, value, value.GetType());
+            switch (value)
+            {
+                case DeletableContentParentBook: JsonSerializer.Serialize(writer, value, BookStackTypeInfo.Default.DeletableContentParentBook); break;
+                case DeletableContentParentChapter: JsonSerializer.Serialize(writer, value, BookStackTypeInfo.Default.DeletableContentParentChapter); break;
+                default: throw new JsonException();
+            }
         }
     }
 }

@@ -6,7 +6,7 @@ namespace BookStackApiClient.Converters;
 /// <summary>
 /// ゴミ箱アイテムを内容に応じた型にデシリアライズするJSONコンバータ
 /// </summary>
-public class RecycleItemJsonConverter : JsonConverter<RecycleItem>
+public partial class RecycleItemJsonConverter : JsonConverter<RecycleItem>
 {
     /// <inheritdoc />
     public override RecycleItem? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
@@ -16,19 +16,19 @@ public class RecycleItemJsonConverter : JsonConverter<RecycleItem>
 
         // コンテンツプロパティ以外をデシリアライズ。
         // 元のリーダはこのオブジェクトの次まで読み進めておく。
-        var item = JsonSerializer.Deserialize<RecycleItemFrame>(ref reader) ?? throw new JsonException();
+        var item = JsonSerializer.Deserialize(ref reader, ConverterTypeInfo.Default.RecycleItemFrame) ?? throw new JsonException();
 
         // デシリアライズ対象がどの種別のコンテンツかを判別
         var found = JsonConverterHelper.ForwardToProperty(ref contentReader, "deletable");
         if (!found) throw new JsonException();
 
-        // 
+        // コンテンツ種別に応じたデシリアライズ
         DeletableContent content = item.deletable_type switch
         {
-            "book" => JsonSerializer.Deserialize<DeletableContentBook>(ref contentReader) ?? throw new JsonException(),
-            "chapter" => JsonSerializer.Deserialize<DeletableContentChapter>(ref contentReader) ?? throw new JsonException(),
-            "page" => JsonSerializer.Deserialize<DeletableContentPage>(ref contentReader) ?? throw new JsonException(),
-            "bookshelf" => JsonSerializer.Deserialize<DeletableContentShelf>(ref contentReader) ?? throw new JsonException(),
+            "book" => JsonSerializer.Deserialize(ref contentReader, BookStackTypeInfo.Default.DeletableContentBook) ?? throw new JsonException(),
+            "chapter" => JsonSerializer.Deserialize(ref contentReader, BookStackTypeInfo.Default.DeletableContentChapter) ?? throw new JsonException(),
+            "page" => JsonSerializer.Deserialize(ref contentReader, BookStackTypeInfo.Default.DeletableContentPage) ?? throw new JsonException(),
+            "bookshelf" => JsonSerializer.Deserialize(ref contentReader, BookStackTypeInfo.Default.DeletableContentShelf) ?? throw new JsonException(),
             _ => throw new JsonException(),
         };
 
@@ -44,8 +44,7 @@ public class RecycleItemJsonConverter : JsonConverter<RecycleItem>
         }
         else
         {
-            // シリアライズ対象インスタンスの実体型に応じたシリアライズを行う。
-            JsonSerializer.Serialize(writer, value, value.GetType());
+            JsonSerializer.Serialize(writer, value, BookStackTypeInfo.Default.RecycleItem);
         }
     }
 
@@ -54,4 +53,7 @@ public class RecycleItemJsonConverter : JsonConverter<RecycleItem>
         long id, string deletable_type, long deletable_id, long deleted_by,
         DateTime created_at, DateTime updated_at
     );
+
+    [JsonSerializable(typeof(RecycleItemFrame))]
+    private partial class ConverterTypeInfo : JsonSerializerContext;
 }
