@@ -42,7 +42,7 @@ public class BookStackClientTestsBase
     protected async Task<long> getApiUserIdAsync()
     {
         await using var adapter = new TestBackendAdapter();
-        var id = await adapter.GetUserIdFromApiToken(this.ApiTokenId);
-        return id.Value;
+        var id = await adapter.GetUserIdFromApiToken(this.ApiTokenId) ?? throw new Exception("Missing user");
+        return id;
     }
 }
