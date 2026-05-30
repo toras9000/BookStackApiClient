@@ -26,6 +26,8 @@ namespace BookStackApiClient;
 [JsonSerializable(typeof(ShelfItem))]
 [JsonSerializable(typeof(ListShelvesResult))]
 [JsonSerializable(typeof(ReadShelfResult))]
+[JsonSerializable(typeof(ListTagNamesResult))]
+[JsonSerializable(typeof(ListTagValuesResult))]
 [JsonSerializable(typeof(CommentItem))]
 [JsonSerializable(typeof(CommentDetail))]
 [JsonSerializable(typeof(ListCommentsResult))]

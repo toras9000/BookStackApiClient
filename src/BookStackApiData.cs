@@ -797,6 +797,44 @@ public record ReadShelfResult(
 );
 #endregion
 
+#region tags
+/// <summary>タグ名情報</summary>
+/// <param name="name">タグ名</param>
+/// <param name="values">タグ値の数</param>
+/// <param name="usages">使用数</param>
+/// <param name="page_count">使用ページ数</param>
+/// <param name="chapter_count">使用チャプタ数</param>
+/// <param name="book_count">使用ブック数</param>
+/// <param name="shelf_count">使用棚数</param>
+public record TagNameITem(
+    string name, long values, long usages,
+    long page_count, long chapter_count, long book_count, long shelf_count
+);
+
+/// <summary>タグ値情報</summary>
+/// <param name="name">タグ名</param>
+/// <param name="value">タグ値</param>
+/// <param name="usages">使用数</param>
+/// <param name="page_count">使用ページ数</param>
+/// <param name="chapter_count">使用チャプタ数</param>
+/// <param name="book_count">使用ブック数</param>
+/// <param name="shelf_count">使用棚数</param>
+public record TagValueITem(
+    string name, string? value, long usages,
+    long page_count, long chapter_count, long book_count, long shelf_count
+);
+
+/// <summary>タグ名一覧の取得結果</summary>
+/// <param name="data">タグ名一覧</param>
+/// <param name="total">タグ総数</param>
+public record ListTagNamesResult(TagNameITem[] data, long total);
+
+/// <summary>タグ値一覧の取得結果</summary>
+/// <param name="data">タグ値一覧</param>
+/// <param name="total">タグ総数</param>
+public record ListTagValuesResult(TagValueITem[] data, long total);
+#endregion
+
 #region comments
 /// <summary>コメント情報</summary>
 /// <param name="id">コメントID</param>

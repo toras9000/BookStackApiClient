@@ -68,4 +68,5 @@ public static class RolePermissions
     public static string EditorChange { get; } = "editor-change";
     public static string ReceiveNotifications { get; } = "receive-notifications";
     public static string ContentImport { get; } = "content-import";
+    public static string RevisionViewAll { get; } = "revision-view-all";
 }

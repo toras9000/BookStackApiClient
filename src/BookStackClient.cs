@@ -67,7 +67,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果の添付ファイル一覧</returns>
     public Task<ListAttachmentsResult> ListAttachmentsAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("attachments", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListAttachmentsResult, cancelToken);
+        => contextGetRequest(apiEp("attachments", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListAttachmentsResult, cancelToken);
 
     /// <summary>ファイルパスを指定してファイルを添付する。</summary>
     /// <param name="args">ファイル添付共通パラメータ</param>
@@ -161,7 +161,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のブック一覧</returns>
     public Task<ListBooksResult> ListBooksAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("books", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListBooksResult, cancelToken);
+        => contextGetRequest(apiEp("books", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListBooksResult, cancelToken);
 
     /// <summary>ブックを作成する。</summary>
     /// <param name="args">ブック作成パラメータ</param>
@@ -275,7 +275,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のチャプタ一覧</returns>
     public Task<ListChaptersResult> ListChaptersAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("chapters", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListChaptersResult, cancelToken);
+        => contextGetRequest(apiEp("chapters", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListChaptersResult, cancelToken);
 
     /// <summary>チャプタを作成する。</summary>
     /// <param name="args">チャプタ作成パラメータ</param>
@@ -347,7 +347,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のページ一覧</returns>
     public Task<ListPagesResult> ListPagesAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("pages", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListPagesResult, cancelToken);
+        => contextGetRequest(apiEp("pages", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListPagesResult, cancelToken);
 
     /// <summary>ページを作成する。</summary>
     /// <param name="args">ページ作成パラメータ</param>
@@ -447,7 +447,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果の棚一覧</returns>
     public Task<ListShelvesResult> ListShelvesAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("shelves", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListShelvesResult, cancelToken);
+        => contextGetRequest(apiEp("shelves", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListShelvesResult, cancelToken);
 
     /// <summary>棚を作成する。</summary>
     /// <param name="args">棚作成パラメータ</param>
@@ -520,13 +520,30 @@ public partial class BookStackClient : IDisposable
         => contextDeleteRequest(apiEp($"shelves/{id}"), cancelToken).JsonResponseAsync(ClientTypeInfo.Default.EmptyResult, cancelToken);
     #endregion
 
+    #region tags
+    /// <summary>タグの一覧を取得する。</summary>
+    /// <param name="listing">リスト要求オプション</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>取得結果のタグ一覧</returns>
+    public Task<ListTagNamesResult> ListTagNamesAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp("tags/names", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListTagNamesResult, cancelToken);
+
+    /// <summary>タグ値の一覧を取得する。</summary>
+    /// <param name="name">対象タグ名</param>
+    /// <param name="listing">リスト要求オプション</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>取得結果のタグ一覧</returns>
+    public Task<ListTagValuesResult> ListTagValuesAsync(string name, ListingOptions? listing = null, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp("tags/values-for-name", makeQuery(listing).AppendParameter("name", name)), cancelToken).JsonResponseAsync(this.typeInfos.ListTagValuesResult, cancelToken);
+    #endregion
+
     #region comments
     /// <summary>コメントの一覧を取得する。</summary>
     /// <param name="listing">リスト要求オプション</param>
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のコメント一覧</returns>
     public Task<ListCommentsResult> ListCommentsAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("comments", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListCommentsResult, cancelToken);
+        => contextGetRequest(apiEp("comments", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListCommentsResult, cancelToken);
 
     /// <summary>コメントの詳細を取得する。</summary>
     /// <param name="id">コメントID</param>
@@ -563,7 +580,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のギャラリ画像一覧</returns>
     public Task<ListImagesResult> ListImagesAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("image-gallery", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListImagesResult, cancelToken);
+        => contextGetRequest(apiEp("image-gallery", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListImagesResult, cancelToken);
 
     /// <summary>ギャラリ画像を作成する。</summary>
     /// <param name="args">ギャラリ画像作成パラメータ</param>
@@ -656,7 +673,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>検索結果</returns>
     public Task<SearchResult> SearchAsync(SearchArgs args, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("search", args), cancelToken).JsonResponseAsync(this.typeInfos.SearchResult, cancelToken);
+        => contextGetRequest(apiEp("search", makeQuery(args)), cancelToken).JsonResponseAsync(this.typeInfos.SearchResult, cancelToken);
     #endregion
 
     #region users
@@ -665,7 +682,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のユーザ一覧</returns>
     public Task<ListUsersResult> ListUsersAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("users", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListUsersResult, cancelToken);
+        => contextGetRequest(apiEp("users", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListUsersResult, cancelToken);
 
     /// <summary>ユーザを作成する。</summary>
     /// <param name="args">ユーザ作成パラメータ</param>
@@ -702,7 +719,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のロール一覧</returns>
     public Task<ListRolesResult> ListRolesAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("roles", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListRolesResult, cancelToken);
+        => contextGetRequest(apiEp("roles", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListRolesResult, cancelToken);
 
     /// <summary>ロールを作成する。</summary>
     /// <param name="args">ロール作成パラメータ</param>
@@ -818,7 +835,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>取得結果のZIPインポート一覧</returns>
     public Task<ListImportsResult> ListImportsAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("imports", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListImportsResult, cancelToken);
+        => contextGetRequest(apiEp("imports", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListImportsResult, cancelToken);
 
     /// <summary>インポートを開始する。</summary>
     /// <param name="path">アップロードするファイルのパス</param>
@@ -872,7 +889,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>ゴミ箱内容の一覧</returns>
     public Task<ListRecycleBinResult> ListRecycleBinAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("recycle-bin", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListRecycleBinResult, cancelToken);
+        => contextGetRequest(apiEp("recycle-bin", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListRecycleBinResult, cancelToken);
 
     /// <summary>ゴミ箱アイテムを復元する。</summary>
     /// <param name="id">ゴミ箱アイテムID</param>
@@ -894,7 +911,7 @@ public partial class BookStackClient : IDisposable
     /// <param name="cancelToken">キャンセルトークン</param>
     /// <returns>監査ログの一覧</returns>
     public Task<ListAuditLogResult> ListAuditLogAsync(ListingOptions? listing = null, CancellationToken cancelToken = default)
-        => contextGetRequest(apiEp("audit-log", listing), cancelToken).JsonResponseAsync(this.typeInfos.ListAuditLogResult, cancelToken);
+        => contextGetRequest(apiEp("audit-log", makeQuery(listing)), cancelToken).JsonResponseAsync(this.typeInfos.ListAuditLogResult, cancelToken);
     #endregion
 
     #region 破棄
@@ -1172,6 +1189,22 @@ public partial class BookStackClient : IDisposable
     #endregion
 
     #region API-Endpoint
+    /// <summary>リスト要求用のパラメータを作成する</summary>
+    /// <param name="listing">リスト要求オプション</param>
+    /// <returns>クエリパラメータ構築バッファ</returns>
+    private StringBuilder makeQuery(ListingOptions? listing) => new StringBuilder().AppendQuery(listing);
+
+    /// <summary>リスト要求用のパラメータを作成する</summary>
+    /// <param name="search">検索オプション</param>
+    /// <returns>クエリパラメータ構築バッファ</returns>
+    private StringBuilder makeQuery(SearchArgs? search) => new StringBuilder().AppendQuery(search);
+
+    /// <summary>リスト要求用のパラメータを作成する</summary>
+    /// <param name="name">パラメータ名</param>
+    /// <param name="value">パラメータ値。null の場合は追加しない。</param>
+    /// <returns>クエリパラメータ構築バッファ</returns>
+    private StringBuilder makeParameter(string name, string? value) => new StringBuilder().AppendParameter(name, value);
+
     /// <summary>API要求URIを作成する</summary>
     /// <param name="api">APIパス</param>
     /// <returns>APIエンドポイント情報</returns>
@@ -1180,97 +1213,18 @@ public partial class BookStackClient : IDisposable
 
     /// <summary>リスト要求用のAPI要求URIを作成する</summary>
     /// <param name="api">APIパス</param>
-    /// <param name="listing">リスト要求オプション</param>
+    /// <param name="query">クエリパラメータ</param>
     /// <returns>APIエンドポイント情報</returns>
-    private ApiEndpoint apiEp(string api, ListingOptions? listing)
+    private ApiEndpoint apiEp(string api, StringBuilder? query)
     {
         // オプション指定がなければパスのみで生成
-        if (listing == null)
+        if (query == null || query.Length <= 0)
         {
             return apiEp(api);
         }
 
-        // 基本APIパス
-        var query = api;
-
-        // リストオプションがあればそれをURIに構築
-        // 何らかのオプションが指定されている場合のみ構築するため、最初はインスタンスを作らない
-        var builder = default(StringBuilder);
-
-        // 取得位置
-        if (listing.offset.HasValue)
-        {
-            if (builder == null) builder = new StringBuilder(api).Append('?'); else builder.Append('&');
-            builder.Append("offset=").Append(listing.offset.Value);
-        }
-
-        // 最大数
-        if (listing.count.HasValue)
-        {
-            if (builder == null) builder = new StringBuilder(api).Append('?'); else builder.Append('&');
-            builder.Append("count=").Append(listing.count.Value);
-        }
-
-        // ソート
-        if (listing.sorts != null)
-        {
-            if (builder == null) builder = new StringBuilder(api).Append('?'); else builder.Append('&');
-            var delimiter = "";
-            foreach (var sort in listing.sorts)
-            {
-                builder.Append(delimiter);
-                builder.Append("sort=").Append(sort);
-                delimiter = "&";
-            }
-        }
-
-        // フィルタ
-        if (listing.filters != null)
-        {
-            if (builder == null) builder = new StringBuilder(api).Append('?'); else builder.Append('&');
-            var delimiter = "";
-            foreach (var filter in listing.filters)
-            {
-                builder.Append(delimiter);
-                builder.Append("filter[").Append(filter.field).Append("]=").Append(filter.expr);
-                delimiter = "&";
-            }
-        }
-
-        // 何らかのオプションを負荷した場合にAPIパスを置き換え
-        if (builder != null)
-        {
-            query = builder.ToString();
-        }
-
         // ベースURIと連結したURIを返却
-        var uri = new Uri(this.BaseUri, query);
-
-        return new(api, uri);
-    }
-
-    /// <summary>検索用のAPI要求URIを作成する</summary>
-    /// <param name="api">APIパス</param>
-    /// <param name="search">検索オプション</param>
-    /// <returns>APIエンドポイント情報</returns>
-    private ApiEndpoint apiEp(string api, SearchArgs search)
-    {
-        var builder = new StringBuilder(api).Append('?');
-
-        builder.Append("query=").Append(search.query);
-
-        if (search.page.HasValue)
-        {
-            builder.Append("&page=").Append(search.page.Value);
-        }
-
-        if (search.count.HasValue)
-        {
-            builder.Append("&count=").Append(search.count.Value);
-        }
-
-        // ベースURIと連結したURIを返却
-        var uri = new Uri(this.BaseUri, builder.ToString());
+        var uri = new Uri(this.BaseUri, $"{api}?{query}");
 
         return new(api, uri);
     }
