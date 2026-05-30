@@ -806,7 +806,7 @@ public record ReadShelfResult(
 /// <param name="chapter_count">使用チャプタ数</param>
 /// <param name="book_count">使用ブック数</param>
 /// <param name="shelf_count">使用棚数</param>
-public record TagNameITem(
+public record TagNameItem(
     string name, long values, long usages,
     long page_count, long chapter_count, long book_count, long shelf_count
 );
@@ -819,7 +819,7 @@ public record TagNameITem(
 /// <param name="chapter_count">使用チャプタ数</param>
 /// <param name="book_count">使用ブック数</param>
 /// <param name="shelf_count">使用棚数</param>
-public record TagValueITem(
+public record TagValueItem(
     string name, string? value, long usages,
     long page_count, long chapter_count, long book_count, long shelf_count
 );
@@ -827,12 +827,12 @@ public record TagValueITem(
 /// <summary>タグ名一覧の取得結果</summary>
 /// <param name="data">タグ名一覧</param>
 /// <param name="total">タグ総数</param>
-public record ListTagNamesResult(TagNameITem[] data, long total);
+public record ListTagNamesResult(TagNameItem[] data, long total);
 
 /// <summary>タグ値一覧の取得結果</summary>
 /// <param name="data">タグ値一覧</param>
 /// <param name="total">タグ総数</param>
-public record ListTagValuesResult(TagValueITem[] data, long total);
+public record ListTagValuesResult(TagValueItem[] data, long total);
 #endregion
 
 #region comments
