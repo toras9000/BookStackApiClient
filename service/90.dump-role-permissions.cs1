@@ -1,9 +1,9 @@
 #!/usr/bin/env -S dotnet run --file
-#:package MySqlConnector@2.5.0
-#:package Dapper@2.1.79
+#:package MySqlConnector@2.6.2
+#:package Dapper@2.1.89
 #:package Humanizer.Core@3.0.10
 #:package Kokuban@0.2.0
-#:package Lestaly.General@0.128.0
+#:package Lestaly.General@0.146.0
 using Dapper;
 using Lestaly;
 using Lestaly.Cx;

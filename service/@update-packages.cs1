@@ -1,11 +1,11 @@
 #!/usr/bin/env -S dotnet run --file 
-#:package NuGet.Protocol@7.6.0
+#:package NuGet.Protocol@7.9.0
 #:package R3@1.3.1
 #:package Kokuban@0.2.0
-#:package Lestaly.General@0.128.0
-#:property PublishAot=false
+#:package Lestaly.General@0.146.0
 using System.Text.RegularExpressions;
 using Kokuban;
+using Kokuban.AnsiEscape;
 using Lestaly;
 using NuGet.Common;
 using NuGet.Packaging.Core;
@@ -40,7 +40,12 @@ return await Paved.ProceedAsync(async () =>
     var logger = NullLogger.Instance;
 
     // Dictionary of packages to be updated
-    var versions = settings.FixedVersions.ToDictionary(p => p.Id, p => (PackageIdentity?)p);
+    var versions = settings.FixedVersions
+        .Where(p => p.Id != "Dummy")
+        .ToDictionary(p => p.Id, p => (PackageIdentity?)p);
+
+    // Set of updated packages
+    var updatedPackages = new HashSet<string>();
 
     // Detection regular expression for package reference directives
     var detector = new Regex(@"^#:package\s+(?<package>[a-zA-Z0-9_\-\.]+)\s*@\s*(?<version>.+)\s*");
@@ -67,6 +72,7 @@ return await Paved.ProceedAsync(async () =>
             // Determine if the package is eligible for renewal
             var srcName = match.Groups["package"].Value;
             var srcVer = match.Groups["version"].Value;
+            if (srcVer.Trim() == "*") continue;
             if (!versions.TryGetValue(srcName, out var identity))
             {
                 // Interpret the original version to determine if it is a pre-release.
@@ -74,7 +80,8 @@ return await Paved.ProceedAsync(async () =>
 
                 // Retrieve the latest package version.
                 var metadatas = await seachers.ToObservable()
-                    .SelectAwait(async (r, c) => await r.GetMetadataAsync(srcName, includePrerelease: usePrerelease, includeUnlisted: false, cache, logger, c))
+                    .Where(r => r != null)
+                    .SelectAwait(async (r, c) => await r!.GetMetadataAsync(srcName, includePrerelease: usePrerelease, includeUnlisted: false, cache, logger, c))
                     .SelectMany(vers => vers.ToObservable())
                     .ToArrayAsync();
                 var latest = metadatas.MaxBy(m => m.Identity.Version, VersionComparer.Default);
@@ -108,6 +115,7 @@ return await Paved.ProceedAsync(async () =>
 
             // set a flag that there is an update
             updated = true;
+            updatedPackages.Add(srcName);
             Console.WriteLine(Chalk.Green[$"  Update: {srcName} {srcVer} -> {latestVer}"]);
         }
 
@@ -120,6 +128,15 @@ return await Paved.ProceedAsync(async () =>
         {
             Console.WriteLine(Chalk.Gray[$"  Directive not found"]);
         }
+    }
+
+    Console.WriteLine();
+    Console.WriteLine("List of Updated Packages:");
+    var nameWidth = versions.Keys.Max(n => n.Length);
+    foreach (var pkg in versions.OrderBy(e => e.Key))
+    {
+        var chalk = updatedPackages.Contains(pkg.Key) ? Chalk.Green : new AnsiStyle();
+        Console.WriteLine($"  {chalk[pkg.Key.PadRight(nameWidth)]}  {chalk[pkg.Value?.Version.ToFullString() ?? "?"]}");
     }
 
 });
