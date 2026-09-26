@@ -384,7 +384,7 @@ public class BookStackClientAttachmentsTests : BookStackClientTestsBase
         {// update binary to link
             var image = await TestResContentAsync("images/pd005.jpg");
             var created = await client.CreateFileAttachmentAsync(new($"{TestName()}_ccc", page.id), image, "image.ext").WillBeDiscarded(container);
-            var url = TestResPath("images/pd001.png");
+            var url = "https://server3.home";
             var updated = await client.UpdateLinkAttachmentAsync(created.id, new($"{TestName()}_ddd", page.id, url));
             updated.id.Should().Be(created.id);
             updated.name.Should().Be($"{TestName()}_ddd");

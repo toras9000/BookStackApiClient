@@ -674,6 +674,22 @@ public partial class BookStackClient : IDisposable
     /// <returns>検索結果</returns>
     public Task<SearchResult> SearchAsync(SearchArgs args, CancellationToken cancelToken = default)
         => contextGetRequest(apiEp("search", makeQuery(args)), cancelToken).JsonResponseAsync(this.typeInfos.SearchResult, cancelToken);
+
+    /// <summary>指定のブックに所属するコンテンツ内容を検索する。</summary>
+    /// <param name="id">対象ブックID</param>
+    /// <param name="args">検索パラメータ</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>検索結果</returns>
+    public Task<SearchResult> SearchBookContentsAsync(long id, SearchArgs args, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"search/book/{id}", makeQuery(args)), cancelToken).JsonResponseAsync(this.typeInfos.SearchResult, cancelToken);
+
+    /// <summary>指定のチャプタに所属するコンテンツ内容を検索する。</summary>
+    /// <param name="id">対象チャプタID</param>
+    /// <param name="args">検索パラメータ</param>
+    /// <param name="cancelToken">キャンセルトークン</param>
+    /// <returns>検索結果</returns>
+    public Task<SearchResult> SearchChapterContentsAsync(long id, SearchArgs args, CancellationToken cancelToken = default)
+        => contextGetRequest(apiEp($"search/chapter/{id}", makeQuery(args)), cancelToken).JsonResponseAsync(this.typeInfos.SearchResult, cancelToken);
     #endregion
 
     #region users

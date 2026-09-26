@@ -116,7 +116,6 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
         }
     }
 
-
     [TestMethod()]
     public async Task SearchAsync_paging()
     {
@@ -138,6 +137,70 @@ public class BookStackClientSearchTests : BookStackClientTestsBase
 
             paging1.data.Select(d => d.id).Should().NotIntersectWith(paging2.data.Select(d => d.id));
         }
+    }
+
+    [TestMethod()]
+    public async Task SearchBookContentsAsync()
+    {
+        // init
+        using var client = new BookStackClient(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret, () => this.Client);
+
+        await using var container = new TestResourceContainer(client);
+
+        var book1 = await client.CreateBookAsync(new($"{TestName()}_book1", $"book1_desc", tags: [new($"b1_t", $"b1_tv")])).WillBeDiscarded(container);
+        var book1chapter1 = await client.CreateChapterAsync(new(book1.id, $"{TestName()}_b1_chapter1", $"b1_chapter1_desc", tags: [new($"b1c1_t", $"b1c1_tv")])).AddTo(container);
+        var book1chapter1page1 = await client.CreateMarkdownPageInChapterAsync(new(book1chapter1.id, $"{TestName()}_b1c1_page1", $"b1c1_page1_desc", tags: [new($"b1c1p1_t", $"b1c1p1_tv")])).AddTo(container);
+        var book1chapter1page2 = await client.CreateMarkdownPageInChapterAsync(new(book1chapter1.id, $"{TestName()}_b1c1_page2", $"b1c1_page2_desc", tags: [new($"b1c1p2_t", $"b1c1p2_tv")])).AddTo(container);
+        var book1chapter2 = await client.CreateChapterAsync(new(book1.id, $"{TestName()}_b1_chapter2", $"b1_chapter2_desc", tags: [new($"b1c2_t", $"b1c2_tv")])).AddTo(container);
+        var book1chapter2page1 = await client.CreateMarkdownPageInChapterAsync(new(book1chapter2.id, $"{TestName()}_b1c2_page1", $"b1c2_page1_desc", tags: [new($"b1c2p1_t", $"b1c2p1_tv")])).AddTo(container);
+        var book1chapter2page2 = await client.CreateMarkdownPageInChapterAsync(new(book1chapter2.id, $"{TestName()}_b1c2_page2", $"b1c2_page2_desc", tags: [new($"b1c2p2_t", $"b1c2p2_tv")])).AddTo(container);
+
+        var book2 = await client.CreateBookAsync(new($"{TestName()}_book2", $"book2_desc", tags: [new($"b2_t", $"b2_tv")])).WillBeDiscarded(container);
+        var book2chapter1 = await client.CreateChapterAsync(new(book2.id, $"{TestName()}_b2_chapter1", $"b2_chapter1_desc", tags: [new($"b2c1_t", $"b2c1_tv")])).AddTo(container);
+        var book2chapter1page1 = await client.CreateMarkdownPageInChapterAsync(new(book2chapter1.id, $"{TestName()}_b2c1_page1", $"b2c1_page1_desc", tags: [new($"b2c1p1_t", $"b2c1p1_tv")])).AddTo(container);
+        var book2chapter1page2 = await client.CreateMarkdownPageInChapterAsync(new(book2chapter1.id, $"{TestName()}_b2c1_page2", $"b2c1_page2_desc", tags: [new($"b2c1p2_t", $"b2c1p2_tv")])).AddTo(container);
+        var book2chapter2 = await client.CreateChapterAsync(new(book2.id, $"{TestName()}_b2_chapter2", $"b2_chapter2_desc", tags: [new($"b2c2_t", $"b2c2_tv")])).AddTo(container);
+        var book2chapter2page1 = await client.CreateMarkdownPageInChapterAsync(new(book2chapter2.id, $"{TestName()}_b2c2_page1", $"b2c2_page1_desc", tags: [new($"b2c2p1_t", $"b2c2p1_tv")])).AddTo(container);
+        var book2chapter2page2 = await client.CreateMarkdownPageInChapterAsync(new(book2chapter2.id, $"{TestName()}_b2c2_page2", $"b2c2_page2_desc", tags: [new($"b2c2p2_t", $"b2c2p2_tv")])).AddTo(container);
+
+        // test call & validate
+        var results = await client.SearchBookContentsAsync(book2.id, new("{in_name:page2}"));
+        results.books().Select(b => b.id).Should().BeEmpty();
+        results.chapters().Select(c => c.id).Should().BeEmpty();
+        results.pages().Select(p => p.id).Should().BeEquivalentTo([book2chapter1page2.id, book2chapter2page2.id]);
+        results.shelves().Select(s => s.id).Should().BeEmpty();
+    }
+
+    [TestMethod()]
+    public async Task SearchChapterContentsAsync()
+    {
+        // init
+        using var client = new BookStackClient(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret, () => this.Client);
+
+        await using var container = new TestResourceContainer(client);
+
+        var book1 = await client.CreateBookAsync(new($"{TestName()}_book1", $"book1_desc", tags: [new($"b1_t", $"b1_tv")])).WillBeDiscarded(container);
+        var book1chapter1 = await client.CreateChapterAsync(new(book1.id, $"{TestName()}_b1_chapter1", $"b1_chapter1_desc", tags: [new($"b1c1_t", $"b1c1_tv")])).AddTo(container);
+        var book1chapter1page1 = await client.CreateMarkdownPageInChapterAsync(new(book1chapter1.id, $"{TestName()}_b1c1_page1", $"b1c1_page1_desc", tags: [new($"b1c1p1_t", $"b1c1p1_tv")])).AddTo(container);
+        var book1chapter1page2 = await client.CreateMarkdownPageInChapterAsync(new(book1chapter1.id, $"{TestName()}_b1c1_page2", $"b1c1_page2_desc", tags: [new($"b1c1p2_t", $"b1c1p2_tv")])).AddTo(container);
+        var book1chapter2 = await client.CreateChapterAsync(new(book1.id, $"{TestName()}_b1_chapter2", $"b1_chapter2_desc", tags: [new($"b1c2_t", $"b1c2_tv")])).AddTo(container);
+        var book1chapter2page1 = await client.CreateMarkdownPageInChapterAsync(new(book1chapter2.id, $"{TestName()}_b1c2_page1", $"b1c2_page1_desc", tags: [new($"b1c2p1_t", $"b1c2p1_tv")])).AddTo(container);
+        var book1chapter2page2 = await client.CreateMarkdownPageInChapterAsync(new(book1chapter2.id, $"{TestName()}_b1c2_page2", $"b1c2_page2_desc", tags: [new($"b1c2p2_t", $"b1c2p2_tv")])).AddTo(container);
+
+        var book2 = await client.CreateBookAsync(new($"{TestName()}_book2", $"book2_desc", tags: [new($"b2_t", $"b2_tv")])).WillBeDiscarded(container);
+        var book2chapter1 = await client.CreateChapterAsync(new(book2.id, $"{TestName()}_b2_chapter1", $"b2_chapter1_desc", tags: [new($"b2c1_t", $"b2c1_tv")])).AddTo(container);
+        var book2chapter1page1 = await client.CreateMarkdownPageInChapterAsync(new(book2chapter1.id, $"{TestName()}_b2c1_page1", $"b2c1_page1_desc", tags: [new($"b2c1p1_t", $"b2c1p1_tv")])).AddTo(container);
+        var book2chapter1page2 = await client.CreateMarkdownPageInChapterAsync(new(book2chapter1.id, $"{TestName()}_b2c1_page2", $"b2c1_page2_desc", tags: [new($"b2c1p2_t", $"b2c1p2_tv")])).AddTo(container);
+        var book2chapter2 = await client.CreateChapterAsync(new(book2.id, $"{TestName()}_b2_chapter2", $"b2_chapter2_desc", tags: [new($"b2c2_t", $"b2c2_tv")])).AddTo(container);
+        var book2chapter2page1 = await client.CreateMarkdownPageInChapterAsync(new(book2chapter2.id, $"{TestName()}_b2c2_page1", $"b2c2_page1_desc", tags: [new($"b2c2p1_t", $"b2c2p1_tv")])).AddTo(container);
+        var book2chapter2page2 = await client.CreateMarkdownPageInChapterAsync(new(book2chapter2.id, $"{TestName()}_b2c2_page2", $"b2c2_page2_desc", tags: [new($"b2c2p2_t", $"b2c2p2_tv")])).AddTo(container);
+
+        // test call & validate
+        var results = await client.SearchChapterContentsAsync(book2chapter1.id, new("{in_name:page2}"));
+        results.books().Select(b => b.id).Should().BeEmpty();
+        results.chapters().Select(c => c.id).Should().BeEmpty();
+        results.pages().Select(p => p.id).Should().BeEquivalentTo([book2chapter1page2.id]);
+        results.shelves().Select(s => s.id).Should().BeEmpty();
     }
     #endregion
 }

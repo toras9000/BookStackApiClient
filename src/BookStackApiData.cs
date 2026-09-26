@@ -591,40 +591,45 @@ public record ListPagesResult(PageSummary[] data, long total);
 /// <param name="html">ページ内容HTML</param>
 /// <param name="markdown">ページ内容Markdown</param>
 /// <param name="priority">順序</param>
+/// <param name="changelog">変更メモ</param>
 /// <param name="tags">タグ</param>
-public record CreatePageArgs(string name, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, IReadOnlyList<Tag>? tags = null);
+public record CreatePageArgs(string name, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, string? changelog = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ作成(Markdown/ブック内)要求パラメータ</summary>
 /// <param name="book_id">作成先ブックID</param>
 /// <param name="name">ページ名</param>
 /// <param name="markdown">ページ内容Markdown</param>
 /// <param name="priority">順序</param>
+/// <param name="changelog">変更メモ</param>
 /// <param name="tags">タグ</param>
-public record CreateMarkdownPageInBookArgs(long book_id, string name, string markdown, long? priority = null, IReadOnlyList<Tag>? tags = null);
+public record CreateMarkdownPageInBookArgs(long book_id, string name, string markdown, long? priority = null, string? changelog = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ作成(Markdown/チャプタ内)要求パラメータ</summary>
 /// <param name="chapter_id">作成先チャプタID</param>
 /// <param name="name">ページ名</param>
 /// <param name="markdown">ページ内容Markdown</param>
 /// <param name="priority">順序</param>
+/// <param name="changelog">変更メモ</param>
 /// <param name="tags">タグ</param>
-public record CreateMarkdownPageInChapterArgs(long chapter_id, string name, string markdown, long? priority = null, IReadOnlyList<Tag>? tags = null);
+public record CreateMarkdownPageInChapterArgs(long chapter_id, string name, string markdown, long? priority = null, string? changelog = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ作成(HTML/ブック内)要求パラメータ</summary>
 /// <param name="book_id">作成先ブックID</param>
 /// <param name="name">ページ名</param>
 /// <param name="html">ページ内容HTML</param>
 /// <param name="priority">順序</param>
+/// <param name="changelog">変更メモ</param>
 /// <param name="tags">タグ</param>
-public record CreateHtmlPageInBookArgs(long book_id, string name, string html, long? priority = null, IReadOnlyList<Tag>? tags = null);
+public record CreateHtmlPageInBookArgs(long book_id, string name, string html, long? priority = null, string? changelog = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ作成(HTML/ブック内)要求パラメータ</summary>
 /// <param name="chapter_id">作成先チャプタID</param>
 /// <param name="name">ページ名</param>
 /// <param name="html">ページ内容HTML</param>
 /// <param name="priority">順序</param>
+/// <param name="changelog">変更メモ</param>
 /// <param name="tags">タグ</param>
-public record CreateHtmlPageInChapterArgs(long chapter_id, string name, string html, long? priority = null, IReadOnlyList<Tag>? tags = null);
+public record CreateHtmlPageInChapterArgs(long chapter_id, string name, string html, long? priority = null, string? changelog = null, IReadOnlyList<Tag>? tags = null);
 
 /// <summary>ページ詳細情報</summary>
 /// <param name="id">ページID</param>
@@ -664,8 +669,9 @@ public record ReadPageResult(
 /// <param name="html">ページ内容HTML</param>
 /// <param name="markdown">ページ内容Markdown</param>
 /// <param name="priority">順序</param>
+/// <param name="changelog">変更メモ</param>
 /// <param name="tags">タグ</param>
-public record UpdatePageArgs(string? name = null, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, IReadOnlyList<Tag>? tags = null);
+public record UpdatePageArgs(string? name = null, long? book_id = null, long? chapter_id = null, string? html = null, string? markdown = null, long? priority = null, string? changelog = null, IReadOnlyList<Tag>? tags = null);
 #endregion
 
 #region shelves

@@ -99,10 +99,10 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {// name & markdown
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new($"{TestName()}_aaa", book_id: book.id, markdown: "aaa"));
+            var page = await client.CreatePageAsync(new($"{TestName()}_markdown", book_id: book.id, markdown: "aaa", changelog: $"create from markdown - {TestName()}"));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().BeNull();
-            page.name.Should().Be($"{TestName()}_aaa");
+            page.name.Should().Be($"{TestName()}_markdown");
             page.editor.Should().Be("markdown");
             page.draft.Should().BeFalse();
             page.template.Should().BeFalse();
@@ -116,10 +116,10 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {// name & html
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new($"{TestName()}_aaa", book_id: book.id, html: "aaa"));
+            var page = await client.CreatePageAsync(new($"{TestName()}_html", book_id: book.id, html: "aaa", changelog: $"create from html - {TestName()}"));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().BeNull();
-            page.name.Should().Be($"{TestName()}_aaa");
+            page.name.Should().Be($"{TestName()}_html");
             page.editor.Should().Be("wysiwyg");
             page.draft.Should().BeFalse();
             page.template.Should().BeFalse();
@@ -133,10 +133,10 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {//  tags
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new($"{TestName()}_aaa", book_id: book.id, markdown: "aaa", tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
+            var page = await client.CreatePageAsync(new($"{TestName()}_tags", book_id: book.id, markdown: "aaa", tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().BeNull();
-            page.name.Should().Be($"{TestName()}_aaa");
+            page.name.Should().Be($"{TestName()}_tags");
             page.editor.Should().Be("markdown");
             page.draft.Should().BeFalse();
             page.template.Should().BeFalse();
@@ -161,10 +161,10 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter"));
-            var page = await client.CreatePageAsync(new($"{TestName()}_aaa", chapter_id: chapter.id, markdown: "aaa"));
+            var page = await client.CreatePageAsync(new($"{TestName()}_markdown", chapter_id: chapter.id, markdown: "aaa", changelog: $"create from markdown - {TestName()}"));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(chapter.id);
-            page.name.Should().Be($"{TestName()}_aaa");
+            page.name.Should().Be($"{TestName()}_markdown");
             page.editor.Should().Be("markdown");
             page.draft.Should().BeFalse();
             page.template.Should().BeFalse();
@@ -179,10 +179,10 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter"));
-            var page = await client.CreatePageAsync(new($"{TestName()}_aaa", chapter_id: chapter.id, html: "aaa"));
+            var page = await client.CreatePageAsync(new($"{TestName()}_html", chapter_id: chapter.id, html: "aaa", changelog: $"create from html - {TestName()}"));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(chapter.id);
-            page.name.Should().Be($"{TestName()}_aaa");
+            page.name.Should().Be($"{TestName()}_html");
             page.editor.Should().Be("wysiwyg");
             page.draft.Should().BeFalse();
             page.template.Should().BeFalse();
@@ -197,10 +197,10 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter"));
-            var page = await client.CreatePageAsync(new($"{TestName()}_aaa", chapter_id: chapter.id, markdown: "aaa", tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
+            var page = await client.CreatePageAsync(new($"{TestName()}_tags", chapter_id: chapter.id, markdown: "aaa", tags: [new("tpv1", "tpv1"), new("tpv2", "tpv2"),]));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(chapter.id);
-            page.name.Should().Be($"{TestName()}_aaa");
+            page.name.Should().Be($"{TestName()}_tags");
             page.editor.Should().Be("markdown");
             page.draft.Should().BeFalse();
             page.template.Should().BeFalse();
@@ -224,7 +224,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
-            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_aaa", "mdmd"));
+            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_aaa", "mdmd", changelog: $"changelog {TestName()}"));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().BeNull();
             page.name.Should().Be($"{TestName()}_aaa");
@@ -270,7 +270,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter"));
-            var page = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, $"{TestName()}_aaa", "mdmd"));
+            var page = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, $"{TestName()}_aaa", "mdmd", changelog: $"changelog {TestName()}"));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(chapter.id);
             page.name.Should().Be($"{TestName()}_aaa");
@@ -316,7 +316,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
         {
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
-            var page = await client.CreateHtmlPageInBookAsync(new(book.id, $"{TestName()}_aaa", "htht"));
+            var page = await client.CreateHtmlPageInBookAsync(new(book.id, $"{TestName()}_aaa", "htht", changelog: $"changelog {TestName()}"));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().BeNull();
             page.name.Should().Be($"{TestName()}_aaa");
@@ -362,7 +362,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
             var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter"));
-            var page = await client.CreateHtmlPageInChapterAsync(new(chapter.id, $"{TestName()}_aaa", "htht"));
+            var page = await client.CreateHtmlPageInChapterAsync(new(chapter.id, $"{TestName()}_aaa", "htht", changelog: $"changelog {TestName()}"));
             page.book_id.Should().Be(book.id);
             page.chapter_id.Should().Be(chapter.id);
             page.name.Should().Be($"{TestName()}_aaa");
@@ -555,7 +555,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.editor.Should().Be("markdown");
             created.markdown.Should().Be("m1");
             await Task.Delay(2 * 1000);     // for update timestamp
-            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_bbb", markdown: "m2"));
+            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_bbb", markdown: "m2", changelog: $"MD to MD : {TestName()}"));
             updated.name.Should().Be($"{TestName()}_bbb");
             updated.editor.Should().Be("markdown");
             updated.markdown.Should().Be("m2");
@@ -572,7 +572,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.name.Should().Be($"{TestName()}_ccc");
             created.editor.Should().Be("wysiwyg");
             created.html.Should().Contain("h1");
-            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_ddd", html: "h2"));
+            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_ddd", html: "h2", changelog: $"HTML to HTML : {TestName()}"));
             updated.name.Should().Be($"{TestName()}_ddd");
             updated.editor.Should().Be("wysiwyg");
             updated.html.Should().Contain("h2");
@@ -583,7 +583,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.name.Should().Be($"{TestName()}_eee");
             created.editor.Should().Be("markdown");
             created.markdown.Should().Be("mdmd");
-            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_fff", html: "htht"));
+            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_fff", html: "htht", changelog: $"MD to HTML : {TestName()}"));
             updated.name.Should().Be($"{TestName()}_fff");
             updated.editor.Should().Be("wysiwyg");
             updated.html.Should().Contain("htht");
@@ -594,7 +594,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.name.Should().Be($"{TestName()}_ggg");
             created.editor.Should().Be("wysiwyg");
             created.html.Should().Contain("htht");
-            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_hhh", markdown: "mdmd"));
+            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_hhh", markdown: "mdmd", changelog: $"HTML to MD : {TestName()}"));
             updated.name.Should().Be($"{TestName()}_hhh");
             updated.editor.Should().Be("markdown");
             updated.markdown.Should().Be("mdmd");
@@ -617,7 +617,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.editor.Should().Be("markdown");
             created.markdown.Should().Be("m1");
             await Task.Delay(2 * 1000);     // for update timestamp
-            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_bbb", markdown: "m2"));
+            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_bbb", markdown: "m2", changelog: $"MD to MD : {TestName()}"));
             updated.name.Should().Be($"{TestName()}_bbb");
             updated.editor.Should().Be("markdown");
             updated.markdown.Should().Be("m2");
@@ -634,7 +634,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.name.Should().Be($"{TestName()}_ccc");
             created.editor.Should().Be("wysiwyg");
             created.html.Should().Contain("h1");
-            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_ddd", html: "h2"));
+            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_ddd", html: "h2", changelog: $"HTML to HTML : {TestName()}"));
             updated.name.Should().Be($"{TestName()}_ddd");
             updated.editor.Should().Be("wysiwyg");
             updated.html.Should().Contain("h2");
@@ -646,7 +646,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.name.Should().Be($"{TestName()}_eee");
             created.editor.Should().Be("markdown");
             created.markdown.Should().Be("mdmd");
-            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_fff", html: "htht"));
+            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_fff", html: "htht", changelog: $"MD to HTML : {TestName()}"));
             updated.name.Should().Be($"{TestName()}_fff");
             updated.editor.Should().Be("wysiwyg");
             updated.html.Should().Contain("htht");
@@ -658,7 +658,7 @@ public class BookStackClientPagesTests : BookStackClientTestsBase
             created.name.Should().Be($"{TestName()}_ggg");
             created.editor.Should().Be("wysiwyg");
             created.html.Should().Contain("htht");
-            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_hhh", markdown: "mdmd"));
+            var updated = await client.UpdatePageAsync(created.id, new($"{TestName()}_hhh", markdown: "mdmd", changelog: $"HTML to MD : {TestName()}"));
             updated.name.Should().Be($"{TestName()}_hhh");
             updated.editor.Should().Be("markdown");
             updated.markdown.Should().Be("mdmd");
