@@ -12,16 +12,16 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book1 = await client.CreateBookAsync(new(testName("book1"))).WillBeDiscarded(container);
-        var book2 = await client.CreateBookAsync(new(testName("book2"))).WillBeDiscarded(container);
-        var book3 = await client.CreateBookAsync(new(testName("book3"))).WillBeDiscarded(container);
+        var book1 = await client.CreateBookAsync(new($"{TestName()}_book1")).WillBeDiscarded(container);
+        var book2 = await client.CreateBookAsync(new($"{TestName()}_book2")).WillBeDiscarded(container);
+        var book3 = await client.CreateBookAsync(new($"{TestName()}_book3")).WillBeDiscarded(container);
 
-        await client.CreateShelfAsync(new(testName("testshelve1"), "desc1", books: [book1.id, book3.id,], tags: [new("ts1", "tv1"),])).WillBeDiscarded(container);
-        await client.CreateShelfAsync(new(testName("testshelve2"), "desc2", books: [book2.id, book3.id,])).WillBeDiscarded(container);
-        await client.CreateShelfAsync(new(testName("testshelve3"), "desc3", tags: [new("ts2", "tv2"),])).WillBeDiscarded(container);
+        await client.CreateShelfAsync(new($"{TestName()}_testshelve1", "desc1", books: [book1.id, book3.id,], tags: [new("ts1", "tv1"),])).WillBeDiscarded(container);
+        await client.CreateShelfAsync(new($"{TestName()}_testshelve2", "desc2", books: [book2.id, book3.id,])).WillBeDiscarded(container);
+        await client.CreateShelfAsync(new($"{TestName()}_testshelve3", "desc3", tags: [new("ts2", "tv2"),])).WillBeDiscarded(container);
 
-        var shelf4cover = testResFile("images/pd001.png");
-        var shelf4 = await client.CreateShelfAsync(new(testName("testshelve4"), "desc4"), imgPath: shelf4cover.FullName).WillBeDiscarded(container);
+        var shelf4cover = TestResFile("images/pd001.png");
+        var shelf4 = await client.CreateShelfAsync(new($"{TestName()}_testshelve4", "desc4"), imgPath: shelf4cover.FullName).WillBeDiscarded(container);
 
         var shelves = await client.ListShelvesAsync();
         foreach (var created in container.Shelves)
@@ -47,12 +47,12 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
 
-        var prefix1 = testName($"shelve_{Guid.NewGuid()}_");
+        var prefix1 = $"{TestName()}_shelve_{Guid.NewGuid()}_";
         for (var i = 0; i < 10; i++)
         {
             await client.CreateShelfAsync(new($"{prefix1}_{i:D2}")).WillBeDiscarded(container);
         }
-        var prefix2 = testName($"shelve_{Guid.NewGuid()}_");
+        var prefix2 = $"{TestName()}_shelve_{Guid.NewGuid()}_";
         for (var i = 0; i < 10; i++)
         {
             await client.CreateShelfAsync(new($"{prefix2}_{i:D2}")).WillBeDiscarded(container);
@@ -108,14 +108,14 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book1 = await client.CreateBookAsync(new(testName("book1"))).WillBeDiscarded(container);
-        var book2 = await client.CreateBookAsync(new(testName("book2"))).WillBeDiscarded(container);
-        var book3 = await client.CreateBookAsync(new(testName("book3"))).WillBeDiscarded(container);
+        var book1 = await client.CreateBookAsync(new($"{TestName()}_book1")).WillBeDiscarded(container);
+        var book2 = await client.CreateBookAsync(new($"{TestName()}_book2")).WillBeDiscarded(container);
+        var book3 = await client.CreateBookAsync(new($"{TestName()}_book3")).WillBeDiscarded(container);
 
         {// name & desc
             var now = DateTime.UtcNow;
-            var shelf = await client.CreateShelfAsync(new(testName("aaa"), "bbb")).WillBeDiscarded(container);
-            shelf.name.Should().Be(testName("aaa"));
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_aaa", "bbb")).WillBeDiscarded(container);
+            shelf.name.Should().Be($"{TestName()}_aaa");
             shelf.description.Should().Be("bbb");
             shelf.description_html.Should().Contain("bbb");
             shelf.slug.Should().NotBeNullOrEmpty();
@@ -126,21 +126,21 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             shelf.owned_by.Should().Be(shelf.owned_by);
         }
         {// description_html
-            var shelf = await client.CreateShelfAsync(new(testName("aaa"), description_html: "bbb")).WillBeDiscarded(container);
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_aaa", description_html: "bbb")).WillBeDiscarded(container);
             shelf.description.Should().Contain("bbb");
             shelf.description_html.Should().Contain("bbb");
         }
         {// books
-            var shelf = await client.CreateShelfAsync(new(testName("ccc"), books: new[] { book2.id, book3.id, })).WillBeDiscarded(container);
-            shelf.name.Should().Be(testName("ccc"));
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_ccc", books: new[] { book2.id, book3.id, })).WillBeDiscarded(container);
+            shelf.name.Should().Be($"{TestName()}_ccc");
             var detail = await client.ReadShelfAsync(shelf.id);
             detail.tags.Should().BeNullOrEmpty();
             detail.books.Should().BeEquivalentTo(new[] { book2, book3 }, o => o.ExcludingMissingMembers());
             detail.cover.Should().BeNull();
         }
         {// tags
-            var shelf = await client.CreateShelfAsync(new(testName("ddd"), tags: [new("ts1", "vs1"), new("ts2", "vs2"),])).WillBeDiscarded(container);
-            shelf.name.Should().Be(testName("ddd"));
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_ddd", tags: [new("ts1", "vs1"), new("ts2", "vs2"),])).WillBeDiscarded(container);
+            shelf.name.Should().Be($"{TestName()}_ddd");
             shelf.description.Should().BeEmpty();
             shelf.slug.Should().NotBeNullOrEmpty();
             shelf.tags.Should().BeEquivalentTo((Tag[])[new("ts1", "vs1"), new("ts2", "vs2"),]);
@@ -152,9 +152,9 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         }
         {// cover (path)
             var now = DateTime.UtcNow;
-            var path = testResPath("images/pd001.png");
-            var shelf = await client.CreateShelfAsync(new(testName("eee")), path).WillBeDiscarded(container);
-            shelf.name.Should().Be(testName("eee"));
+            var path = TestResPath("images/pd001.png");
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_eee"), path).WillBeDiscarded(container);
+            shelf.name.Should().Be($"{TestName()}_eee");
             shelf.tags.Should().BeNullOrEmpty();
             Assert.IsNotNull(shelf.cover);
             shelf.cover.name.Should().Be("pd001.png");
@@ -182,9 +182,9 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         }
         {// cover (path & name)
             var now = DateTime.UtcNow;
-            var path = testResPath("images/pd001.png");
-            var shelf = await client.CreateShelfAsync(new(testName("eee")), path, "xxx.png").WillBeDiscarded(container);
-            shelf.name.Should().Be(testName("eee"));
+            var path = TestResPath("images/pd001.png");
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_eee"), path, "xxx.png").WillBeDiscarded(container);
+            shelf.name.Should().Be($"{TestName()}_eee");
             shelf.tags.Should().BeNullOrEmpty();
             Assert.IsNotNull(shelf.cover);
             shelf.cover.name.Should().Be("xxx.png");
@@ -212,9 +212,9 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         }
         {// cover (binary)
             var now = DateTime.UtcNow;
-            var binary = await testResContentAsync("images/pd001.png");
-            var shelf = await client.CreateShelfAsync(new(testName("eee")), binary, "img.png").WillBeDiscarded(container);
-            shelf.name.Should().Be(testName("eee"));
+            var binary = await TestResContentAsync("images/pd001.png");
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_eee"), binary, "img.png").WillBeDiscarded(container);
+            shelf.name.Should().Be($"{TestName()}_eee");
             shelf.tags.Should().BeNullOrEmpty();
             Assert.IsNotNull(shelf.cover);
             shelf.cover.name.Should().Be("img.png");
@@ -250,18 +250,18 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book1 = await client.CreateBookAsync(new(testName("book1"), "desc1")).WillBeDiscarded(container);
-        var book2 = await client.CreateBookAsync(new(testName("book2"), "desc2", tags: [new("bt1", "bv1"), new("bt2", "bv2"),])).WillBeDiscarded(container);
-        var book3 = await client.CreateBookAsync(new(testName("book3"), "desc3"), testResPath("images/pd001.png")).WillBeDiscarded(container);
+        var book1 = await client.CreateBookAsync(new($"{TestName()}_book1", "desc1")).WillBeDiscarded(container);
+        var book2 = await client.CreateBookAsync(new($"{TestName()}_book2", "desc2", tags: [new("bt1", "bv1"), new("bt2", "bv2"),])).WillBeDiscarded(container);
+        var book3 = await client.CreateBookAsync(new($"{TestName()}_book3", "desc3"), TestResPath("images/pd001.png")).WillBeDiscarded(container);
 
         {
             var books = new[] { book1.id, book2.id, book3.id };
             var tags = (Tag[])[new("st1", "sv1"), new("st2", "sv2"),];
-            var path = testResPath("images/pd002.png");
+            var path = TestResPath("images/pd002.png");
             var now = DateTime.UtcNow;
-            var shelf = await client.CreateShelfAsync(new(testName("shelf"), "desc", books: books, tags: tags), path).WillBeDiscarded(container);
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_shelf", "desc", books: books, tags: tags), path).WillBeDiscarded(container);
             var detail = await client.ReadShelfAsync(shelf.id);
-            detail.name.Should().Be(testName("shelf"));
+            detail.name.Should().Be($"{TestName()}_shelf");
             detail.description.Should().Be("desc");
             detail.description_html.Should().Contain("desc");
             detail.slug.Should().Be(shelf.slug);
@@ -297,16 +297,16 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book1 = await client.CreateBookAsync(new(testName("book1"))).WillBeDiscarded(container);
-        var book2 = await client.CreateBookAsync(new(testName("book2"))).WillBeDiscarded(container);
-        var book3 = await client.CreateBookAsync(new(testName("book3"))).WillBeDiscarded(container);
+        var book1 = await client.CreateBookAsync(new($"{TestName()}_book1")).WillBeDiscarded(container);
+        var book2 = await client.CreateBookAsync(new($"{TestName()}_book2")).WillBeDiscarded(container);
+        var book3 = await client.CreateBookAsync(new($"{TestName()}_book3")).WillBeDiscarded(container);
 
         {// name & desc
             var now = DateTime.UtcNow;
-            var created = await client.CreateShelfAsync(new(testName("aaa"), "bbb")).WillBeDiscarded(container);
+            var created = await client.CreateShelfAsync(new($"{TestName()}_aaa", "bbb")).WillBeDiscarded(container);
             await Task.Delay(2 * 1000);     // for update timestamp
-            var updated = await client.UpdateShelfAsync(created.id, new(testName("ccc"), "ddd"));
-            updated.name.Should().Be(testName("ccc"));
+            var updated = await client.UpdateShelfAsync(created.id, new($"{TestName()}_ccc", "ddd"));
+            updated.name.Should().Be($"{TestName()}_ccc");
             updated.description.Should().Be("ddd");
             updated.description_html.Should().Contain("ddd");
             updated.slug.Should().NotBe(created.slug);
@@ -317,17 +317,17 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             updated.owned_by.Should().Be(created.owned_by);
         }
         {// description_html
-            var created = await client.CreateShelfAsync(new(testName("aaa"), "bbb")).WillBeDiscarded(container);
-            var updated = await client.UpdateShelfAsync(created.id, new(testName("ccc"), description_html: "ddd"));
+            var created = await client.CreateShelfAsync(new($"{TestName()}_aaa", "bbb")).WillBeDiscarded(container);
+            var updated = await client.UpdateShelfAsync(created.id, new($"{TestName()}_ccc", description_html: "ddd"));
             updated.description.Should().Contain("ddd");
             updated.description_html.Should().Contain("ddd");
         }
         {// books
-            var created = await client.CreateShelfAsync(new(testName("aaa"), "bbb", books: new[] { book2.id, book3.id, })).WillBeDiscarded(container);
-            created.name.Should().Be(testName("aaa"));
+            var created = await client.CreateShelfAsync(new($"{TestName()}_aaa", "bbb", books: new[] { book2.id, book3.id, })).WillBeDiscarded(container);
+            created.name.Should().Be($"{TestName()}_aaa");
             created.description.Should().Be("bbb");
             var updated = await client.UpdateShelfAsync(created.id, new(books: new[] { book1.id, }));
-            updated.name.Should().Be(testName("aaa"));
+            updated.name.Should().Be($"{TestName()}_aaa");
             updated.description.Should().Be("bbb");
             var detail = await client.ReadShelfAsync(created.id);
             detail.tags.Should().BeNullOrEmpty();
@@ -335,8 +335,8 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
             detail.cover.Should().BeNull();
         }
         {// tags
-            var created = await client.CreateShelfAsync(new(testName("aaa"), tags: [new("ts1", "vs1"), new("ts2", "vs2"),])).WillBeDiscarded(container);
-            created.name.Should().Be(testName("aaa"));
+            var created = await client.CreateShelfAsync(new($"{TestName()}_aaa", tags: [new("ts1", "vs1"), new("ts2", "vs2"),])).WillBeDiscarded(container);
+            created.name.Should().Be($"{TestName()}_aaa");
             created.description.Should().BeEmpty();
             created.slug.Should().NotBeNullOrEmpty();
             created.tags.Should().BeEquivalentTo((Tag[])[new("ts1", "vs1"), new("ts2", "vs2"),]);
@@ -350,14 +350,14 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         }
         {// cover
             var now = DateTime.UtcNow;
-            var binary = await testResContentAsync("images/pd001.png");
-            var created = await client.CreateShelfAsync(new(testName("aaa")), binary, "img.png").WillBeDiscarded(container);
-            created.name.Should().Be(testName("aaa"));
+            var binary = await TestResContentAsync("images/pd001.png");
+            var created = await client.CreateShelfAsync(new($"{TestName()}_aaa"), binary, "img.png").WillBeDiscarded(container);
+            created.name.Should().Be($"{TestName()}_aaa");
             created.tags.Should().BeNullOrEmpty();
             Assert.IsNotNull(created.cover);
             created.cover.name.Should().Be("img.png");
             created.cover.type.Should().Be("cover_bookshelf");
-            var path = testResPath("images/pd001.png");
+            var path = TestResPath("images/pd001.png");
             var updated = await client.UpdateShelfAsync(created.id, new(), path, "ttt.png");
             updated.tags.Should().BeNullOrEmpty();
             Assert.IsNotNull(updated.cover);
@@ -379,7 +379,7 @@ public class BookStackClientShelvesTests : BookStackClientTestsBase
         using var client = new BookStackClient(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret, () => this.Client);
 
         // test call & validate
-        var name = testName($"shelf_{Guid.NewGuid()}");
+        var name = $"{TestName()}_shelf_{Guid.NewGuid()}";
         var shelf = await client.CreateShelfAsync(new(name));
         (await client.ListShelvesAsync(new(filters: [new("name", name)]))).data.Should().Contain(d => d.id == shelf.id);
         await client.DeleteShelfAsync(shelf.id);

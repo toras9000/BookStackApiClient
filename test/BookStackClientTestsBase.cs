@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Lestaly;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace BookStackApiClient.Tests;
@@ -19,9 +20,8 @@ public class BookStackClientTestsBase
     public BookStackClientTestsBase()
     {
         var thisAsm = System.Reflection.Assembly.GetExecutingAssembly();
-        var asmDir = Path.GetDirectoryName(thisAsm.Location);
-        var assetsDir = Path.Combine(asmDir!, "assets");
-        this.AssetsDirectory = new DirectoryInfo(assetsDir);
+        var asmDir = Path.GetDirectoryName(thisAsm.Location)?.AsDirectoryInfo() ?? throw new Exception();
+        this.AssetsDirectory = asmDir.RelativeDirectory("assets");
 
         this.ServiceProvider = new ServiceCollection().AddHttpClient().BuildServiceProvider();
         this.ClientFactory = this.ServiceProvider.GetRequiredService<IHttpClientFactory>();
@@ -29,20 +29,21 @@ public class BookStackClientTestsBase
         this.apiUserId = new Lazy<long>(getApiUserId);
     }
 
-    protected Lazy<long> apiUserId;
+    public string TestName([CallerMemberName] string member = "") => member;
 
-    protected string testResPath(string relative) => Path.Combine(this.AssetsDirectory.FullName, relative);
-    protected FileInfo testResFile(string relative) => new FileInfo(testResPath(relative));
-    protected Task<byte[]> testResContentAsync(string relative) => File.ReadAllBytesAsync(testResPath(relative));
-    protected string testName(string suffix, [CallerMemberName] string member = "") => string.IsNullOrEmpty(suffix) ? member : $"{member}_{suffix}";
+    public string TestResPath(string relative) => this.TestResFile(relative).FullName;
+    public FileInfo TestResFile(string relative) => this.AssetsDirectory.RelativeFile(relative);
+    public Task<byte[]> TestResContentAsync(string relative) => this.TestResFile(relative).ReadAllBytesAsync();
 
-    protected long getApiUserId()
-        => Task.Run(getApiUserIdAsync).GetAwaiter().GetResult();
-
-    protected async Task<long> getApiUserIdAsync()
+    public async Task<long> GetApiUserIdAsync()
     {
         await using var adapter = new TestBackendAdapter();
         var id = await adapter.GetUserIdFromApiToken(this.ApiTokenId) ?? throw new Exception("Missing user");
         return id;
     }
+
+    private Lazy<long> apiUserId;
+
+    private long getApiUserId()
+        => Task.Run(GetApiUserIdAsync).GetAwaiter().GetResult();
 }

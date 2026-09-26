@@ -12,18 +12,18 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
         // テスト用のオブジェクトを作成
         await using var container = new TestResourceContainer(client);
         var now = DateTime.UtcNow;
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
-        var page_in_book = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage_in_book"), "in_book")).WillBeDiscarded(container);
-        var page_in_chapter = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("testpage_in_chapter"), "in_chapter")).WillBeDiscarded(container);
-        var shelf_has_book = await client.CreateShelfAsync(new(testName("testshelf_has_book"), books: new[] { book.id, })).WillBeDiscarded(container);
-        var shelf_no_book = await client.CreateShelfAsync(new(testName("testshelf_no_book"))).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter")).WillBeDiscarded(container);
+        var page_in_book = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_testpage_in_book", "in_book")).WillBeDiscarded(container);
+        var page_in_chapter = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, $"{TestName()}_testpage_in_chapter", "in_chapter")).WillBeDiscarded(container);
+        var shelf_has_book = await client.CreateShelfAsync(new($"{TestName()}_testshelf_has_book", books: new[] { book.id, })).WillBeDiscarded(container);
+        var shelf_no_book = await client.CreateShelfAsync(new($"{TestName()}_testshelf_no_book")).WillBeDiscarded(container);
 
         // 更新する
-        book = await client.UpdateBookAsync(book.id, new(testName("testbook-renamed")));
-        chapter = await client.UpdateChapterAsync(chapter.id, new(testName("testchapter-renamed")));
-        page_in_book = await client.UpdatePageAsync(page_in_book.id, new(testName("testpage_in_book-renamed")));
-        page_in_chapter = await client.UpdatePageAsync(page_in_chapter.id, new(testName("testpage_in_chapter-renamed")));
+        book = await client.UpdateBookAsync(book.id, new($"{TestName()}_testbook-renamed"));
+        chapter = await client.UpdateChapterAsync(chapter.id, new($"{TestName()}_testchapter-renamed"));
+        page_in_book = await client.UpdatePageAsync(page_in_book.id, new($"{TestName()}_testpage_in_book-renamed"));
+        page_in_chapter = await client.UpdatePageAsync(page_in_chapter.id, new($"{TestName()}_testpage_in_chapter-renamed"));
 
         // 削除する
         await container.DisposeAsync();

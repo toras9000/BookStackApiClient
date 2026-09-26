@@ -12,10 +12,10 @@ public class BookStackClientTagsTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var shelf = await client.CreateShelfAsync(new(testName("shelve1"), tags: [new("TagName_shelf1", "TagValue_shelf1"),])).WillBeDiscarded(container);
-        var book = await client.CreateBookAsync(new(testName("book1"), tags: [new("TagName_book1", "TagValue_book1")])).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("chapter1"), tags: [new("TagName_chapter1", "TagValue_chapter1"),])).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("page1"), "asd", tags: [new("TagName_page1", "TagValue_page1"),])).WillBeDiscarded(container);
+        var shelf = await client.CreateShelfAsync(new($"{TestName()}_shelve1", tags: [new("TagName_shelf1", "TagValue_shelf1"),])).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_book1", tags: [new("TagName_book1", "TagValue_book1")])).WillBeDiscarded(container);
+        var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_chapter1", tags: [new("TagName_chapter1", "TagValue_chapter1"),])).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_page1", "asd", tags: [new("TagName_page1", "TagValue_page1"),])).WillBeDiscarded(container);
 
         var tags = await client.ListTagNamesAsync();
 
@@ -72,10 +72,10 @@ public class BookStackClientTagsTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var shelf = await client.CreateShelfAsync(new(testName("shelve1"), tags: [new("TagName_shelf1", "TagValue_shelf1"),])).WillBeDiscarded(container);
-        var book = await client.CreateBookAsync(new(testName("book1"), tags: [new("TagName_book1", "TagValue_book1")])).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("chapter1"), tags: [new("TagName_chapter1", "TagValue_chapter1"),])).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("page1"), "asd", tags: [new("TagName_page1", "TagValue_page1"),])).WillBeDiscarded(container);
+        var shelf = await client.CreateShelfAsync(new($"{TestName()}_shelve1", tags: [new("TagName_shelf1", "TagValue_shelf1"),])).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_book1", tags: [new("TagName_book1", "TagValue_book1")])).WillBeDiscarded(container);
+        var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_chapter1", tags: [new("TagName_chapter1", "TagValue_chapter1"),])).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_page1", "asd", tags: [new("TagName_page1", "TagValue_page1"),])).WillBeDiscarded(container);
 
         var shelf_tags = await client.ListTagValuesAsync("TagName_shelf1");
         var shelf_tag = shelf_tags.data.Should().HaveCount(1).And.Subject.First();

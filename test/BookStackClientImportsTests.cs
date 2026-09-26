@@ -14,15 +14,15 @@ public class BookStackClientImportsTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"), "book-desc", tags: [new("book-tag", "book-tag-val")])).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"), "chapt-desc", tags: [new("chapt-tag", "chapt-tag-val")])).WillBeDiscarded(container);
-        var cpage = await client.CreatePageAsync(new(testName("test-cpage"), book_id: book.id, chapter.id, markdown: "md-cpage", tags: [new("cpage-tag", "cpage-tag-val")]));
-        var cimage = await client.CreateImageAsync(new(cpage.id, "gallery", testName("image-cpage")), testResPath("images/pd001.png")).WillBeDiscarded(container);
-        var cattach = await client.CreateFileAttachmentAsync(new(testName("attach-cpage"), cpage.id), testResPath("images/pd002.png")).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook", "book-desc", tags: [new("book-tag", "book-tag-val")])).WillBeDiscarded(container);
+        var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter", "chapt-desc", tags: [new("chapt-tag", "chapt-tag-val")])).WillBeDiscarded(container);
+        var cpage = await client.CreatePageAsync(new($"{TestName()}_test-cpage", book_id: book.id, chapter.id, markdown: "md-cpage", tags: [new("cpage-tag", "cpage-tag-val")]));
+        var cimage = await client.CreateImageAsync(new(cpage.id, "gallery", $"{TestName()}_image-cpage"), TestResPath("images/pd001.png")).WillBeDiscarded(container);
+        var cattach = await client.CreateFileAttachmentAsync(new($"{TestName()}_attach-cpage", cpage.id), TestResPath("images/pd002.png")).WillBeDiscarded(container);
         cpage = await client.UpdatePageAsync(cpage.id, new(markdown: $"[![cimage]({cimage.url})"));
-        var bpage = await client.CreatePageAsync(new(testName("test-bpage"), book_id: book.id, markdown: "md-bpage", tags: [new("bpage-tag", "bpage-tag-val")]));
-        var bimage = await client.CreateImageAsync(new(bpage.id, "gallery", testName("image-bpage")), testResPath("images/pd003.png")).WillBeDiscarded(container);
-        var battach = await client.CreateFileAttachmentAsync(new(testName("attach-bpage"), bpage.id), testResPath("images/pd004.jpg")).WillBeDiscarded(container);
+        var bpage = await client.CreatePageAsync(new($"{TestName()}_test-bpage", book_id: book.id, markdown: "md-bpage", tags: [new("bpage-tag", "bpage-tag-val")]));
+        var bimage = await client.CreateImageAsync(new(bpage.id, "gallery", $"{TestName()}_image-bpage"), TestResPath("images/pd003.png")).WillBeDiscarded(container);
+        var battach = await client.CreateFileAttachmentAsync(new($"{TestName()}_attach-bpage", bpage.id), TestResPath("images/pd004.jpg")).WillBeDiscarded(container);
         bpage = await client.UpdatePageAsync(bpage.id, new(markdown: $"[![bimage]({bimage.url})"));
 
         // temp dir

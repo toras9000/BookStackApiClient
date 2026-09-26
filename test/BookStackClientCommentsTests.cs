@@ -12,8 +12,8 @@ public class BookStackClientCommentsTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_page_{Guid.NewGuid()}", "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
 
         var comment1 = await client.CreateCommentAsync(new(page.id, "<p>aaa</p>", content_ref: "")).WillBeDiscarded(container);
         var comment2 = await client.CreateCommentAsync(new(page.id, "<p>bbb</p>", content_ref: "", reply_to: comment1.id)).WillBeDiscarded(container);
@@ -35,8 +35,8 @@ public class BookStackClientCommentsTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_page_{Guid.NewGuid()}", "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
 
         var now = DateTime.UtcNow;
         var comment1 = await client.CreateCommentAsync(new(page.id, "<p>aaa</p>", content_ref: "")).WillBeDiscarded(container);
@@ -67,8 +67,8 @@ public class BookStackClientCommentsTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_page_{Guid.NewGuid()}", "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
 
         var now = DateTime.UtcNow;
         var created = await client.CreateCommentAsync(new(page.id, "<p>aaa</p>", content_ref: "")).WillBeDiscarded(container);
@@ -98,8 +98,8 @@ public class BookStackClientCommentsTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_page_{Guid.NewGuid()}", "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
 
         var now = DateTime.UtcNow;
         var created = await client.CreateCommentAsync(new(page.id, "<p>aaa</p>", content_ref: "")).WillBeDiscarded(container);
@@ -126,8 +126,8 @@ public class BookStackClientCommentsTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_page_{Guid.NewGuid()}", "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
 
         var comment = await client.CreateCommentAsync(new(page.id, "<p>aaa</p>", content_ref: ""));
 
@@ -146,8 +146,8 @@ public class BookStackClientCommentsTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName($"page_{Guid.NewGuid()}"), "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_page_{Guid.NewGuid()}", "- aaa", priority: 4, tags: [new("tp1", "vp1"), new("tp2", "vp2"),]));
 
         var comment1 = await client.CreateCommentAsync(new(page.id, "<p>aaa</p>", content_ref: "")).WillBeDiscarded(container);
         var comment2 = await client.CreateCommentAsync(new(page.id, "<p>bbb</p>", content_ref: "", reply_to: comment1.id)).WillBeDiscarded(container);

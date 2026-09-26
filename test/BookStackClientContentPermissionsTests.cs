@@ -14,16 +14,16 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {
             var guid = Guid.NewGuid().ToString();
-            var shelf = await client.CreateShelfAsync(new(testName("testshelf"))).WillBeDiscarded(container);
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_testshelf")).WillBeDiscarded(container);
 
             var before = await client.ReadShelfPermissionsAsync(shelf.id);
             before.owner.id.Should().Be(shelf.owned_by);
             before.role_permissions.Should().BeNullOrEmpty();
             before.fallback_permissions.inheriting.Should().BeTrue();
 
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
-            var role1 = await client.CreateRoleAsync(new(testName($"role1_{guid}"))).WillBeDiscarded(container);
-            var role2 = await client.CreateRoleAsync(new(testName($"role2_{guid}"))).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var role1 = await client.CreateRoleAsync(new($"{TestName()}_role1_{guid}")).WillBeDiscarded(container);
+            var role2 = await client.CreateRoleAsync(new($"{TestName()}_role2_{guid}")).WillBeDiscarded(container);
             var newperms = new RolePermission[]
             {
                 new(role1.id, false, true,  true,  false),
@@ -56,16 +56,16 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
 
             var before = await client.ReadBookPermissionsAsync(book.id);
             before.owner.id.Should().Be(book.owned_by);
             before.role_permissions.Should().BeNullOrEmpty();
             before.fallback_permissions.inheriting.Should().BeTrue();
 
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
-            var role1 = await client.CreateRoleAsync(new(testName($"role1_{guid}"))).WillBeDiscarded(container);
-            var role2 = await client.CreateRoleAsync(new(testName($"role2_{guid}"))).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var role1 = await client.CreateRoleAsync(new($"{TestName()}_role1_{guid}")).WillBeDiscarded(container);
+            var role2 = await client.CreateRoleAsync(new($"{TestName()}_role2_{guid}")).WillBeDiscarded(container);
             var newperms = new RolePermission[]
             {
                 new(role1.id, false, true,  true,  false),
@@ -98,17 +98,17 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter")).WillBeDiscarded(container);
 
             var before = await client.ReadChapterPermissionsAsync(chapter.id);
             before.owner.id.Should().Be(chapter.owned_by);
             before.role_permissions.Should().BeNullOrEmpty();
             before.fallback_permissions.inheriting.Should().BeTrue();
 
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
-            var role1 = await client.CreateRoleAsync(new(testName($"role1_{guid}"))).WillBeDiscarded(container);
-            var role2 = await client.CreateRoleAsync(new(testName($"role2_{guid}"))).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var role1 = await client.CreateRoleAsync(new($"{TestName()}_role1_{guid}")).WillBeDiscarded(container);
+            var role2 = await client.CreateRoleAsync(new($"{TestName()}_role2_{guid}")).WillBeDiscarded(container);
             var newperms = new RolePermission[]
             {
                 new(role1.id, false, true,  true,  false),
@@ -141,17 +141,17 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage"), markdown: "mdmd")).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_testpage", markdown: "mdmd")).WillBeDiscarded(container);
 
             var before = await client.ReadPagePermissionsAsync(page.id);
             before.owner.id.Should().Be(page.owned_by.id);
             before.role_permissions.Should().BeNullOrEmpty();
             before.fallback_permissions.inheriting.Should().BeTrue();
 
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
-            var role1 = await client.CreateRoleAsync(new(testName($"role1_{guid}"))).WillBeDiscarded(container);
-            var role2 = await client.CreateRoleAsync(new(testName($"role2_{guid}"))).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var role1 = await client.CreateRoleAsync(new($"{TestName()}_role1_{guid}")).WillBeDiscarded(container);
+            var role2 = await client.CreateRoleAsync(new($"{TestName()}_role2_{guid}")).WillBeDiscarded(container);
             var newperms = new RolePermission[]
             {
                 new(role1.id, false, true,  true,  false),
@@ -184,8 +184,8 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {// owner_id
             var guid = Guid.NewGuid().ToString();
-            var shelf = await client.CreateShelfAsync(new(testName("testshelf"))).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_testshelf")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
 
             var before = await client.ReadShelfPermissionsAsync(shelf.id);
             before.owner.id.Should().Be(shelf.owned_by);
@@ -199,10 +199,10 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         }
         {// role_permissions
             var guid = Guid.NewGuid().ToString();
-            var shelf = await client.CreateShelfAsync(new(testName("testshelf"))).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
-            var role1 = await client.CreateRoleAsync(new(testName($"role1_{guid}"))).WillBeDiscarded(container);
-            var role2 = await client.CreateRoleAsync(new(testName($"role2_{guid}"))).WillBeDiscarded(container);
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_testshelf")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var role1 = await client.CreateRoleAsync(new($"{TestName()}_role1_{guid}")).WillBeDiscarded(container);
+            var role2 = await client.CreateRoleAsync(new($"{TestName()}_role2_{guid}")).WillBeDiscarded(container);
 
             var before = await client.ReadShelfPermissionsAsync(shelf.id);
             before.owner.id.Should().Be(shelf.owned_by);
@@ -222,8 +222,8 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         }
         {// role_permissions
             var guid = Guid.NewGuid().ToString();
-            var shelf = await client.CreateShelfAsync(new(testName("testshelf"))).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var shelf = await client.CreateShelfAsync(new($"{TestName()}_testshelf")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
 
             var before = await client.ReadShelfPermissionsAsync(shelf.id);
             before.owner.id.Should().Be(shelf.owned_by);
@@ -248,8 +248,8 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {// owner_id
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
 
             var before = await client.ReadBookPermissionsAsync(book.id);
             before.owner.id.Should().Be(book.owned_by);
@@ -263,10 +263,10 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         }
         {// role_permissions
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
-            var role1 = await client.CreateRoleAsync(new(testName($"role1_{guid}"))).WillBeDiscarded(container);
-            var role2 = await client.CreateRoleAsync(new(testName($"role2_{guid}"))).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var role1 = await client.CreateRoleAsync(new($"{TestName()}_role1_{guid}")).WillBeDiscarded(container);
+            var role2 = await client.CreateRoleAsync(new($"{TestName()}_role2_{guid}")).WillBeDiscarded(container);
 
             var before = await client.ReadBookPermissionsAsync(book.id);
             before.owner.id.Should().Be(book.owned_by);
@@ -286,8 +286,8 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         }
         {// role_permissions
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
 
             var before = await client.ReadBookPermissionsAsync(book.id);
             before.owner.id.Should().Be(book.owned_by);
@@ -312,9 +312,9 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {// owner_id
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
 
             var before = await client.ReadChapterPermissionsAsync(chapter.id);
             before.owner.id.Should().Be(chapter.owned_by);
@@ -328,11 +328,11 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         }
         {// role_permissions
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
-            var role1 = await client.CreateRoleAsync(new(testName($"role1_{guid}"))).WillBeDiscarded(container);
-            var role2 = await client.CreateRoleAsync(new(testName($"role2_{guid}"))).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var role1 = await client.CreateRoleAsync(new($"{TestName()}_role1_{guid}")).WillBeDiscarded(container);
+            var role2 = await client.CreateRoleAsync(new($"{TestName()}_role2_{guid}")).WillBeDiscarded(container);
 
             var before = await client.ReadChapterPermissionsAsync(chapter.id);
             before.owner.id.Should().Be(chapter.owned_by);
@@ -352,9 +352,9 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         }
         {// role_permissions
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
 
             var before = await client.ReadChapterPermissionsAsync(chapter.id);
             before.owner.id.Should().Be(chapter.owned_by);
@@ -379,9 +379,9 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {// owner_id
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage"), markdown: "mdmd")).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_testpage", markdown: "mdmd")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
 
             var before = await client.ReadPagePermissionsAsync(page.id);
             before.owner.id.Should().Be(page.owned_by.id);
@@ -395,11 +395,11 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         }
         {// role_permissions
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage"), markdown: "mdmd")).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
-            var role1 = await client.CreateRoleAsync(new(testName($"role1_{guid}"))).WillBeDiscarded(container);
-            var role2 = await client.CreateRoleAsync(new(testName($"role2_{guid}"))).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_testpage", markdown: "mdmd")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var role1 = await client.CreateRoleAsync(new($"{TestName()}_role1_{guid}")).WillBeDiscarded(container);
+            var role2 = await client.CreateRoleAsync(new($"{TestName()}_role2_{guid}")).WillBeDiscarded(container);
 
             var before = await client.ReadPagePermissionsAsync(page.id);
             before.owner.id.Should().Be(page.owned_by.id);
@@ -419,9 +419,9 @@ public class BookStackClientContentPermissionsTests : BookStackClientTestsBase
         }
         {// role_permissions
             var guid = Guid.NewGuid().ToString();
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage"), markdown: "mdmd")).WillBeDiscarded(container);
-            var user = await client.CreateUserAsync(new(testName($"user_{guid}"), $"user_{guid}@example.com")).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_testpage", markdown: "mdmd")).WillBeDiscarded(container);
+            var user = await client.CreateUserAsync(new($"{TestName()}_user_{guid}", $"user_{guid}@example.com")).WillBeDiscarded(container);
 
             var before = await client.ReadPagePermissionsAsync(page.id);
             before.owner.id.Should().Be(page.owned_by.id);

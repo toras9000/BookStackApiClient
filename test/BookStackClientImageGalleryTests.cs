@@ -14,10 +14,10 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-        await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), testResPath("images/pd001.png")).WillBeDiscarded(container);
-        await client.CreateImageAsync(new(page.id, "drawio", testName("bbb")), await testResContentAsync("images/draw001.png"), "tttt.png").WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+        await client.CreateImageAsync(new(page.id, "gallery", $"{TestName()}_aaa"), TestResPath("images/pd001.png")).WillBeDiscarded(container);
+        await client.CreateImageAsync(new(page.id, "drawio", $"{TestName()}_bbb"), await TestResContentAsync("images/draw001.png"), "tttt.png").WillBeDiscarded(container);
 
         var images = await client.ListImagesAsync();
         foreach (var image in container.Images)
@@ -36,18 +36,18 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
 
-        var prefix1 = testName($"image_{Guid.NewGuid()}_");
+        var prefix1 = $"{TestName()}_image_{Guid.NewGuid()}_";
         for (var i = 0; i < 10; i++)
         {
-            await client.CreateImageAsync(new(page.id, "gallery", $"{prefix1}_{i:D2}"), testResPath("images/pd001.png")).WillBeDiscarded(container);
+            await client.CreateImageAsync(new(page.id, "gallery", $"{prefix1}_{i:D2}"), TestResPath("images/pd001.png")).WillBeDiscarded(container);
         }
-        var prefix2 = testName($"image_{Guid.NewGuid()}_");
+        var prefix2 = $"{TestName()}_image_{Guid.NewGuid()}_";
         for (var i = 0; i < 10; i++)
         {
-            await client.CreateImageAsync(new(page.id, "drawio", $"{prefix2}_{i:D2}"), await testResContentAsync("images/draw001.png"), $"img{i:D3}.png").WillBeDiscarded(container);
+            await client.CreateImageAsync(new(page.id, "drawio", $"{prefix2}_{i:D2}"), await TestResContentAsync("images/draw001.png"), $"img{i:D3}.png").WillBeDiscarded(container);
         }
 
         {// range
@@ -102,12 +102,12 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {
             var now = DateTime.UtcNow;
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/pd001.png");
-            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", $"{TestName()}_aaa"), path).WillBeDiscarded(container);
             image.uploaded_to.Should().Be(page.id);
-            image.name.Should().Be(testName("aaa"));
+            image.name.Should().Be($"{TestName()}_aaa");
             image.type.Should().Be("gallery");
             image.path.Should().Contain("pd001.png");
             image.url.Should().NotBeNullOrEmpty();
@@ -122,12 +122,12 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         }
         {
             var now = DateTime.UtcNow;
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/pd001.png");
-            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path, "aaa-image.png").WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", $"{TestName()}_aaa"), path, "aaa-image.png").WillBeDiscarded(container);
             image.uploaded_to.Should().Be(page.id);
-            image.name.Should().Be(testName("aaa"));
+            image.name.Should().Be($"{TestName()}_aaa");
             image.type.Should().Be("gallery");
             image.path.Should().Contain("aaa-image.png");
             image.url.Should().NotBeNullOrEmpty();
@@ -142,12 +142,12 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         }
         {
             var now = DateTime.UtcNow;
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var binary = await testResContentAsync("images/pd003.png");
-            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("bbb")), binary, "img.png").WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var binary = await TestResContentAsync("images/pd003.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", $"{TestName()}_bbb"), binary, "img.png").WillBeDiscarded(container);
             image.uploaded_to.Should().Be(page.id);
-            image.name.Should().Be(testName("bbb"));
+            image.name.Should().Be($"{TestName()}_bbb");
             image.type.Should().Be("gallery");
             image.path.Should().NotBeNullOrEmpty();
             image.url.Should().NotBeNullOrEmpty();
@@ -172,12 +172,12 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {
             var now = DateTime.UtcNow;
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/draw001.png");
-            var image = await client.CreateImageAsync(new(page.id, "drawio", testName("bbb")), path).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/draw001.png");
+            var image = await client.CreateImageAsync(new(page.id, "drawio", $"{TestName()}_bbb"), path).WillBeDiscarded(container);
             image.uploaded_to.Should().Be(page.id);
-            image.name.Should().Be(testName("bbb"));
+            image.name.Should().Be($"{TestName()}_bbb");
             image.type.Should().Be("drawio");
             image.path.Should().NotBeNullOrEmpty();
             image.url.Should().NotBeNullOrEmpty();
@@ -192,12 +192,12 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         }
         {
             var now = DateTime.UtcNow;
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var binary = await testResContentAsync("images/draw001.png");
-            var image = await client.CreateImageAsync(new(page.id, "drawio", testName("bbb")), binary, "img.png").WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var binary = await TestResContentAsync("images/draw001.png");
+            var image = await client.CreateImageAsync(new(page.id, "drawio", $"{TestName()}_bbb"), binary, "img.png").WillBeDiscarded(container);
             image.uploaded_to.Should().Be(page.id);
-            image.name.Should().Be(testName("bbb"));
+            image.name.Should().Be($"{TestName()}_bbb");
             image.type.Should().Be("drawio");
             image.path.Should().NotBeNullOrEmpty();
             image.url.Should().NotBeNullOrEmpty();
@@ -221,18 +221,18 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         {
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/pd001.png");
-            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", $"{TestName()}_aaa"), path).WillBeDiscarded(container);
             var detail = await client.ReadImageAsync(image.id);
             detail.Should().BeEquivalentTo(image);
         }
         {
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/draw001.png");
-            var image = await client.CreateImageAsync(new(page.id, "drawio", testName("bbb")), path).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/draw001.png");
+            var image = await client.CreateImageAsync(new(page.id, "drawio", $"{TestName()}_bbb"), path).WillBeDiscarded(container);
             var detail = await client.ReadImageAsync(image.id);
             detail.Should().BeEquivalentTo(image);
         }
@@ -248,14 +248,14 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         {// name
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/pd001.png");
-            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", $"{TestName()}_aaa"), path).WillBeDiscarded(container);
             await Task.Delay(2 * 1000);     // for update timestamp
-            var detail = await client.UpdateImageAsync(image.id, new(testName("bbb")));
+            var detail = await client.UpdateImageAsync(image.id, new($"{TestName()}_bbb"));
             detail.uploaded_to.Should().Be(image.uploaded_to);
-            detail.name.Should().Be(testName("bbb"));
+            detail.name.Should().Be($"{TestName()}_bbb");
             detail.type.Should().Be(image.type);
             detail.path.Should().Be(image.path);
             detail.url.Should().Be(image.url);
@@ -271,14 +271,14 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             dlimage.Should().Equal(await File.ReadAllBytesAsync(path));
         }
         {// image from path
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/pd001.png");
-            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
-            var newpath = testResPath("images/pd002.png");
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", $"{TestName()}_aaa"), path).WillBeDiscarded(container);
+            var newpath = TestResPath("images/pd002.png");
             var detail = await client.UpdateImageAsync(image.id, new(), newpath, "newimg.png");
             detail.uploaded_to.Should().Be(image.uploaded_to);
-            detail.name.Should().Be(testName("aaa"));
+            detail.name.Should().Be($"{TestName()}_aaa");
             detail.type.Should().Be(image.type);
             detail.path.Should().Be(image.path);
             detail.url.Should().Be(image.url);
@@ -294,14 +294,14 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
             dlimage.Should().Equal(await File.ReadAllBytesAsync(newpath));
         }
         {// image from content
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/pd001.png");
-            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), path).WillBeDiscarded(container);
-            var binary = await testResContentAsync("images/pd003.png");
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", $"{TestName()}_aaa"), path).WillBeDiscarded(container);
+            var binary = await TestResContentAsync("images/pd003.png");
             var detail = await client.UpdateImageAsync(image.id, new(), binary, "newimg.png");
             detail.uploaded_to.Should().Be(image.uploaded_to);
-            detail.name.Should().Be(testName("aaa"));
+            detail.name.Should().Be($"{TestName()}_aaa");
             detail.type.Should().Be(image.type);
             detail.path.Should().Be(image.path);
             detail.url.Should().Be(image.url);
@@ -328,20 +328,20 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         {
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/pd001.png");
-            var name = testName($"image_{Guid.NewGuid()}");
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/pd001.png");
+            var name = $"{TestName()}_image_{Guid.NewGuid()}";
             var image = await client.CreateImageAsync(new(page.id, "gallery", name), path);
             (await client.ListImagesAsync(new(filters: [new("name", name)]))).data.Should().Contain(i => i.id == image.id);
             await client.DeleteImageAsync(image.id);
             (await client.ListImagesAsync(new(filters: [new("name", name)]))).data.Should().NotContain(i => i.id == image.id);
         }
         {
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var path = testResPath("images/draw001.png");
-            var name = testName($"image_{Guid.NewGuid()}");
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var path = TestResPath("images/draw001.png");
+            var name = $"{TestName()}_image_{Guid.NewGuid()}";
             var image = await client.CreateImageAsync(new(page.id, "drawio", name), path);
             (await client.ListImagesAsync(new(filters: [new("name", name)]))).data.Should().Contain(i => i.id == image.id);
             await client.DeleteImageAsync(image.id);
@@ -362,19 +362,19 @@ public class BookStackClientImageGalleryTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         {
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var content = await testResContentAsync("images/pd001.png");
-            var image = await client.CreateImageAsync(new(page.id, "gallery", testName("aaa")), content, $"{testName("aaa")}.png").WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var content = await TestResContentAsync("images/pd001.png");
+            var image = await client.CreateImageAsync(new(page.id, "gallery", $"{TestName()}_aaa"), content, $"{$"{TestName()}_aaa"}.png").WillBeDiscarded(container);
             var download = await client.DownloadImageAsync(image.id);
             var dl_content = await download.Stream.ToMemoryAsync();
             dl_content.ToArray().Should().Equal(content);
         }
         {
-            var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-            var page = await client.CreatePageAsync(new(testName("testpage"), book_id: book.id, markdown: "aaa"));
-            var content = await testResContentAsync("images/draw001.png");
-            var image = await client.CreateImageAsync(new(page.id, "drawio", testName("bbb")), content, $"{testName("bbb")}.png").WillBeDiscarded(container);
+            var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+            var page = await client.CreatePageAsync(new($"{TestName()}_testpage", book_id: book.id, markdown: "aaa"));
+            var content = await TestResContentAsync("images/draw001.png");
+            var image = await client.CreateImageAsync(new(page.id, "drawio", $"{TestName()}_bbb"), content, $"{$"{TestName()}_bbb"}.png").WillBeDiscarded(container);
             var download = await client.DownloadImageAsync(image.id);
             var dl_content = await download.Stream.ToMemoryAsync();
             dl_content.ToArray().Should().Equal(content);

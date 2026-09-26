@@ -13,7 +13,7 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
 
         await using var container = new TestResourceContainer(helper.Client);
         var testShelves = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateShelfAsync(new(testName($"shelve{n}"))).WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateShelfAsync(new($"{TestName()}_shelve{n}")).WillBeDiscarded(container))
             .ToArrayAsync();
 
         var actualShelves = await helper.EnumerateAllShelvesAsync(batchCount: 2).ToObservable().ToArrayAsync();
@@ -27,7 +27,7 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
 
         await using var container = new TestResourceContainer(helper.Client);
         var testBooks = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateBookAsync(new(testName($"book{n}"))).WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateBookAsync(new($"{TestName()}_book{n}")).WillBeDiscarded(container))
             .ToArrayAsync();
 
         var allBooks = await helper.EnumerateAllBooksAsync(batchCount: 2).ToObservable().ToArrayAsync();
@@ -40,9 +40,9 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
         using var helper = new BookStackClientHelper(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret);
 
         await using var container = new TestResourceContainer(helper.Client);
-        var testBook = await helper.Client.CreateBookAsync(new(testName($"book"))).WillBeDiscarded(container);
+        var testBook = await helper.Client.CreateBookAsync(new($"{TestName()}_book")).WillBeDiscarded(container);
         var testChapters = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateChapterAsync(new(testBook.id, testName($"chapter{n}"))).WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateChapterAsync(new(testBook.id, $"{TestName()}_chapter{n}")).WillBeDiscarded(container))
             .ToArrayAsync();
 
         var allChapters = await helper.EnumerateAllChaptersAsync(batchCount: 2).ToObservable().ToArrayAsync();
@@ -55,9 +55,9 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
         using var helper = new BookStackClientHelper(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret);
 
         await using var container = new TestResourceContainer(helper.Client);
-        var testBook = await helper.Client.CreateBookAsync(new(testName($"book"))).WillBeDiscarded(container);
+        var testBook = await helper.Client.CreateBookAsync(new($"{TestName()}_book")).WillBeDiscarded(container);
         var testPages = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateMarkdownPageInBookAsync(new(testBook.id, testName($"page{n}"), $"# page{n}")).WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateMarkdownPageInBookAsync(new(testBook.id, $"{TestName()}_page{n}", $"# page{n}")).WillBeDiscarded(container))
             .ToArrayAsync();
 
         var allPages = await helper.EnumerateAllPagesAsync(batchCount: 2).ToObservable().ToArrayAsync();
@@ -71,7 +71,7 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
 
         await using var container = new TestResourceContainer(helper.Client);
         var testUsers = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateUserAsync(new(testName($"user{n}"), $"user{n}-{DateTime.Now.Ticks:X16}@example.com")).WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateUserAsync(new($"{TestName()}_user{n}", $"user{n}-{DateTime.Now.Ticks:X16}@example.com")).WillBeDiscarded(container))
             .ToArrayAsync();
 
         var allUsers = await helper.EnumerateAllUsersAsync(batchCount: 2).ToObservable().ToArrayAsync();
@@ -84,9 +84,9 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
         using var helper = new BookStackClientHelper(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret);
 
         await using var container = new TestResourceContainer(helper.Client);
-        var testUser = await helper.Client.CreateUserAsync(new(testName($"user"), $"user-{DateTime.Now.Ticks:X16}@example.com")).WillBeDiscarded(container);
+        var testUser = await helper.Client.CreateUserAsync(new($"{TestName()}_user", $"user-{DateTime.Now.Ticks:X16}@example.com")).WillBeDiscarded(container);
         var testRoles = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateRoleAsync(new(testName($"role{n}"))).WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateRoleAsync(new($"{TestName()}_role{n}")).WillBeDiscarded(container))
             .ToArrayAsync();
 
         var allRoles = await helper.EnumerateAllRolesAsync(batchCount: 2).ToObservable().ToArrayAsync();
@@ -99,10 +99,10 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
         using var helper = new BookStackClientHelper(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret);
 
         await using var container = new TestResourceContainer(helper.Client);
-        var testBook = await helper.Client.CreateBookAsync(new(testName($"book"))).WillBeDiscarded(container);
-        var testPage = await helper.Client.CreateMarkdownPageInBookAsync(new(testBook.id, testName($"page"), $"# page")).WillBeDiscarded(container);
+        var testBook = await helper.Client.CreateBookAsync(new($"{TestName()}_book")).WillBeDiscarded(container);
+        var testPage = await helper.Client.CreateMarkdownPageInBookAsync(new(testBook.id, $"{TestName()}_page", $"# page")).WillBeDiscarded(container);
         var testAttachments = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateFileAttachmentAsync(new(testName($"attach{n}"), testPage.id), [0x01, 0x02], $"attach{n}").WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateFileAttachmentAsync(new($"{TestName()}_attach{n}", testPage.id), [0x01, 0x02], $"attach{n}").WillBeDiscarded(container))
             .ToArrayAsync();
 
         var allAttaches = await helper.EnumerateAllAttachmentsAsync(batchCount: 2).ToObservable().ToArrayAsync();
@@ -118,10 +118,10 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
         using var helper = new BookStackClientHelper(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret);
 
         await using var container = new TestResourceContainer(helper.Client);
-        var testBook = await helper.Client.CreateBookAsync(new(testName($"book"))).WillBeDiscarded(container);
-        var testPage = await helper.Client.CreateMarkdownPageInBookAsync(new(testBook.id, testName($"page"), $"# page")).WillBeDiscarded(container);
+        var testBook = await helper.Client.CreateBookAsync(new($"{TestName()}_book")).WillBeDiscarded(container);
+        var testPage = await helper.Client.CreateMarkdownPageInBookAsync(new(testBook.id, $"{TestName()}_page", $"# page")).WillBeDiscarded(container);
         var testImages = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateImageAsync(new(testPage.id, "gallery", testName($"iamge{n}")), [0x01, 0x02], $"image{n}").WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateImageAsync(new(testPage.id, "gallery", $"{TestName()}_iamge{n}"), [0x01, 0x02], $"image{n}").WillBeDiscarded(container))
             .ToArrayAsync();
 
         var allImages = await helper.EnumerateAllImagesAsync(batchCount: 2).ToObservable().ToArrayAsync();
@@ -138,7 +138,7 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
 
         await using var container = new TestResourceContainer(helper.Client);
         var testBooks = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateBookAsync(new(testName($"book{n}"))).WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateBookAsync(new($"{TestName()}_book{n}")).WillBeDiscarded(container))
             .ToArrayAsync();
         await container.DisposeAsync();
 
@@ -152,7 +152,7 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
         using var helper = new BookStackClientHelper(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret);
 
         await using var container = new TestResourceContainer(helper.Client);
-        var testBook = await helper.Client.CreateBookAsync(new(testName($"book"))).WillBeDiscarded(container);
+        var testBook = await helper.Client.CreateBookAsync(new($"{TestName()}_book")).WillBeDiscarded(container);
         var allLogs = await helper.EnumerateAllAuditLogsAsync(batchCount: 500).ToObservable().ToArrayAsync();
         allLogs.Should().NotBeEmpty();
     }
@@ -164,7 +164,7 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
 
         await using var container = new TestResourceContainer(helper.Client);
         var testBooks = await Observable.Range(1, 10)
-            .SelectAwait(async (n, c) => await helper.Client.CreateBookAsync(new(testName($"book{n}"))).WillBeDiscarded(container))
+            .SelectAwait(async (n, c) => await helper.Client.CreateBookAsync(new($"{TestName()}_book{n}")).WillBeDiscarded(container))
             .ToArrayAsync();
         var results = await helper.EnumerateAllSearchAsync(new("{in_name:book}", count: 1)).ToObservable().ToArrayAsync();
         results.Select(r => r.id).Should().Contain(testBooks.Select(b => b.id));
@@ -176,7 +176,7 @@ public class BookStackClientHelperTests : BookStackClientTestsBase
         using var helper = new BookStackClientHelper(this.ApiBaseUri, this.ApiTokenId, this.ApiTokenSecret);
 
         await using var container = new TestResourceContainer(helper.Client);
-        var testBook = await helper.Client.CreateBookAsync(new(testName($"book"))).WillBeDiscarded(container);
+        var testBook = await helper.Client.CreateBookAsync(new($"{TestName()}_book")).WillBeDiscarded(container);
         var me = await helper.GetMeAsync();
         me.Should().NotBeNull();
     }

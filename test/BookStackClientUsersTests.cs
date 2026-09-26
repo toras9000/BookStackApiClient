@@ -13,9 +13,9 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var guid = Guid.NewGuid().ToString();
-        var user1 = await client.CreateUserAsync(new(testName("user1"), $"user1_{guid}@example.com")).WillBeDiscarded(container);
-        var user2 = await client.CreateUserAsync(new(testName("user2"), $"user2_{guid}@example.com")).WillBeDiscarded(container);
-        var user3 = await client.CreateUserAsync(new(testName("user3"), $"user3_{guid}@example.com")).WillBeDiscarded(container);
+        var user1 = await client.CreateUserAsync(new($"{TestName()}_user1", $"user1_{guid}@example.com")).WillBeDiscarded(container);
+        var user2 = await client.CreateUserAsync(new($"{TestName()}_user2", $"user2_{guid}@example.com")).WillBeDiscarded(container);
+        var user3 = await client.CreateUserAsync(new($"{TestName()}_user3", $"user3_{guid}@example.com")).WillBeDiscarded(container);
 
         var users = await client.ListUsersAsync();
         foreach (var user in container.Users)
@@ -35,12 +35,12 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
 
-        var prefix1 = testName($"user_{Guid.NewGuid()}_");
+        var prefix1 = $"{TestName()}_user_{Guid.NewGuid()}_";
         for (var i = 0; i < 10; i++)
         {
             await client.CreateUserAsync(new($"{prefix1}_U{i:D3}", $"{prefix1}_U{i:D3}@example.com")).WillBeDiscarded(container);
         }
-        var prefix2 = testName($"user_{Guid.NewGuid()}_");
+        var prefix2 = $"{TestName()}_user_{Guid.NewGuid()}_";
         for (var i = 0; i < 10; i++)
         {
             await client.CreateUserAsync(new($"{prefix2}_U{i:D3}", $"{prefix2}_U{i:D3}@example.com")).WillBeDiscarded(container);
@@ -100,8 +100,8 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var guid = Guid.NewGuid().ToString();
             var mail = $"aaa_{guid}@example.com";
-            var user = await client.CreateUserAsync(new(testName("aaa"), mail)).WillBeDiscarded(container);
-            user.name.Should().Be(testName("aaa"));
+            var user = await client.CreateUserAsync(new($"{TestName()}_aaa", mail)).WillBeDiscarded(container);
+            user.name.Should().Be($"{TestName()}_aaa");
             user.slug.Should().NotBeNullOrEmpty();
             user.email.Should().Be(mail);
             user.external_auth_id.Should().BeEmpty();
@@ -116,8 +116,8 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var guid = Guid.NewGuid().ToString();
             var mail = $"bbb_{guid}@example.com";
-            var user = await client.CreateUserAsync(new(testName("bbb"), mail, language: "ja", password: "bbbb1234")).WillBeDiscarded(container);
-            user.name.Should().Be(testName("bbb"));
+            var user = await client.CreateUserAsync(new($"{TestName()}_bbb", mail, language: "ja", password: "bbbb1234")).WillBeDiscarded(container);
+            user.name.Should().Be($"{TestName()}_bbb");
             user.slug.Should().NotBeNullOrEmpty();
             user.email.Should().Be(mail);
             user.external_auth_id.Should().BeEmpty();
@@ -141,7 +141,7 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
         {
             var guid = Guid.NewGuid().ToString();
             var mail = $"xxxx_{guid}@example.com";
-            var created = await client.CreateUserAsync(new(testName("xxxx"), mail, language: "ja", password: "xxxx1234")).WillBeDiscarded(container);
+            var created = await client.CreateUserAsync(new($"{TestName()}_xxxx", mail, language: "ja", password: "xxxx1234")).WillBeDiscarded(container);
 
             var readed = await client.ReadUserAsync(created.id);
             readed.Should().BeEquivalentTo(created);
@@ -160,11 +160,11 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
         {// name
             var now = DateTime.UtcNow;
             var guid = Guid.NewGuid().ToString();
-            var created = await client.CreateUserAsync(new(testName("user1"), $"user1_{guid}@example.com")).WillBeDiscarded(container);
+            var created = await client.CreateUserAsync(new($"{TestName()}_user1", $"user1_{guid}@example.com")).WillBeDiscarded(container);
             await Task.Delay(2 * 1000);     // for update timestamp
-            var updated = await client.UpdateUserAsync(created.id, new(testName("upd-user1")));
+            var updated = await client.UpdateUserAsync(created.id, new($"{TestName()}_upd-user1"));
             updated.id.Should().Be(created.id);
-            updated.name.Should().Be(testName("upd-user1"));
+            updated.name.Should().Be($"{TestName()}_upd-user1");
             updated.slug.Should().NotBe(created.slug);  // 変わる
             updated.email.Should().Be(created.email);
             updated.external_auth_id.Should().Be(created.external_auth_id);
@@ -177,10 +177,10 @@ public class BookStackClientUsersTests : BookStackClientTestsBase
         {// mail
             var now = DateTime.UtcNow;
             var guid = Guid.NewGuid().ToString();
-            var created = await client.CreateUserAsync(new(testName("user2"), $"user2_{guid}@example.com")).WillBeDiscarded(container);
+            var created = await client.CreateUserAsync(new($"{TestName()}_user2", $"user2_{guid}@example.com")).WillBeDiscarded(container);
             var updated = await client.UpdateUserAsync(created.id, new(email: $"chg-user2_{guid}@example.com"));
             updated.id.Should().Be(created.id);
-            updated.name.Should().Be(testName("user2"));
+            updated.name.Should().Be($"{TestName()}_user2");
             updated.slug.Should().Be(created.slug);
             updated.email.Should().Be($"chg-user2_{guid}@example.com");
             updated.external_auth_id.Should().Be(created.external_auth_id);

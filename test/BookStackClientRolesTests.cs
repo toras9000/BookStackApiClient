@@ -17,13 +17,13 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         var perms2 = new string[0] { };
         var perms3 = new[] { RolePermissions.AccessApi, RolePermissions.ChapterCreateAll, RolePermissions.CommentCreateOwn, };
 
-        var role1 = await client.CreateRoleAsync(new(testName("role1"), "desc1", permissions: perms1)).WillBeDiscarded(container);
-        var role2 = await client.CreateRoleAsync(new(testName("role2"), "desc2", permissions: perms2)).WillBeDiscarded(container);
-        var role3 = await client.CreateRoleAsync(new(testName("role3"), "desc3", permissions: perms3)).WillBeDiscarded(container);
+        var role1 = await client.CreateRoleAsync(new($"{TestName()}_role1", "desc1", permissions: perms1)).WillBeDiscarded(container);
+        var role2 = await client.CreateRoleAsync(new($"{TestName()}_role2", "desc2", permissions: perms2)).WillBeDiscarded(container);
+        var role3 = await client.CreateRoleAsync(new($"{TestName()}_role3", "desc3", permissions: perms3)).WillBeDiscarded(container);
 
-        var user1 = await client.CreateUserAsync(new(testName("user1"), $"user1-{guid}@example.com", roles: Array.Empty<long>())).WillBeDiscarded(container);
-        var user2 = await client.CreateUserAsync(new(testName("user2"), $"user2-{guid}@example.com", roles: new[] { role2.id, })).WillBeDiscarded(container);
-        var user3 = await client.CreateUserAsync(new(testName("user3"), $"user3-{guid}@example.com", roles: new[] { role1.id, role2.id, })).WillBeDiscarded(container);
+        var user1 = await client.CreateUserAsync(new($"{TestName()}_user1", $"user1-{guid}@example.com", roles: Array.Empty<long>())).WillBeDiscarded(container);
+        var user2 = await client.CreateUserAsync(new($"{TestName()}_user2", $"user2-{guid}@example.com", roles: new[] { role2.id, })).WillBeDiscarded(container);
+        var user3 = await client.CreateUserAsync(new($"{TestName()}_user3", $"user3-{guid}@example.com", roles: new[] { role1.id, role2.id, })).WillBeDiscarded(container);
 
         var roles = await client.ListRolesAsync();
 
@@ -53,15 +53,15 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
 
-        var prefix1 = testName($"role_{Guid.NewGuid()}_");
+        var prefix1 = $"{TestName()}_role_{Guid.NewGuid()}_";
         for (var i = 0; i < 10; i++)
         {
-            await client.CreateRoleAsync(new(testName($"{prefix1}_U{i:D3}"), $"{prefix1}_U{i:D3}@example.com")).WillBeDiscarded(container);
+            await client.CreateRoleAsync(new($"{TestName()}_{prefix1}_U{i:D3}", $"{prefix1}_U{i:D3}@example.com")).WillBeDiscarded(container);
         }
-        var prefix2 = testName($"role_{Guid.NewGuid()}_");
+        var prefix2 = $"{TestName()}_role_{Guid.NewGuid()}_";
         for (var i = 0; i < 10; i++)
         {
-            await client.CreateRoleAsync(new(testName($"{prefix2}_U{i:D3}"), $"{prefix2}_U{i:D3}@example.com")).WillBeDiscarded(container);
+            await client.CreateRoleAsync(new($"{TestName()}_{prefix2}_U{i:D3}", $"{prefix2}_U{i:D3}@example.com")).WillBeDiscarded(container);
         }
 
         {// range
@@ -116,9 +116,9 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         await using var container = new TestResourceContainer(client);
         {// name 
             var now = DateTime.UtcNow;
-            var role = await client.CreateRoleAsync(new(testName("aaa"))).WillBeDiscarded(container);
+            var role = await client.CreateRoleAsync(new($"{TestName()}_aaa")).WillBeDiscarded(container);
             role.id.Should().NotBe(0);
-            role.display_name.Should().Be(testName("aaa"));
+            role.display_name.Should().Be($"{TestName()}_aaa");
             role.description.Should().BeNullOrEmpty();
             role.mfa_enforced.Should().BeFalse();
             role.permissions.Should().BeNullOrEmpty();
@@ -128,18 +128,18 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         }
         {// description 
             var now = DateTime.UtcNow;
-            var role = await client.CreateRoleAsync(new(testName("role"), "desc")).WillBeDiscarded(container);
+            var role = await client.CreateRoleAsync(new($"{TestName()}_role", "desc")).WillBeDiscarded(container);
             role.description.Should().Be("desc");
         }
         {// mfa_enforced 
             var now = DateTime.UtcNow;
-            var role = await client.CreateRoleAsync(new(testName("role"), mfa_enforced: true)).WillBeDiscarded(container);
+            var role = await client.CreateRoleAsync(new($"{TestName()}_role", mfa_enforced: true)).WillBeDiscarded(container);
             role.mfa_enforced.Should().BeTrue();
         }
         {// permissions 
             var now = DateTime.UtcNow;
             var permissions = new[] { RolePermissions.BookCreateAll, RolePermissions.ChapterViewOwn, };
-            var role = await client.CreateRoleAsync(new(testName("role"), permissions: permissions)).WillBeDiscarded(container);
+            var role = await client.CreateRoleAsync(new($"{TestName()}_role", permissions: permissions)).WillBeDiscarded(container);
             role.permissions.Should().BeEquivalentTo(permissions);
         }
     }
@@ -155,9 +155,9 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         {
             var guid = Guid.NewGuid().ToString();
             var perms = new[] { RolePermissions.AccessApi, RolePermissions.ChapterCreateAll, RolePermissions.CommentCreateOwn, };
-            var role = await client.CreateRoleAsync(new(testName($"role_{guid}"), "desc1", permissions: perms)).WillBeDiscarded(container);
-            var user1 = await client.CreateUserAsync(new(testName("user1"), $"user1-{guid}@example.com", roles: new[] { role.id, })).WillBeDiscarded(container);
-            var user2 = await client.CreateUserAsync(new(testName("user2"), $"user2-{guid}@example.com", roles: new[] { role.id, })).WillBeDiscarded(container);
+            var role = await client.CreateRoleAsync(new($"{TestName()}_role_{guid}", "desc1", permissions: perms)).WillBeDiscarded(container);
+            var user1 = await client.CreateUserAsync(new($"{TestName()}_user1", $"user1-{guid}@example.com", roles: new[] { role.id, })).WillBeDiscarded(container);
+            var user2 = await client.CreateUserAsync(new($"{TestName()}_user2", $"user2-{guid}@example.com", roles: new[] { role.id, })).WillBeDiscarded(container);
 
             var readed = await client.ReadRoleAsync(role.id);
             readed.Should().BeEquivalentTo(role, o => o.Excluding(t => t.users));
@@ -178,12 +178,12 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
             var now = DateTime.UtcNow;
             var guid = Guid.NewGuid().ToString();
             var perms = new[] { RolePermissions.AccessApi, RolePermissions.ChapterCreateAll, RolePermissions.CommentCreateOwn, };
-            var created = await client.CreateRoleAsync(new(testName($"role_{guid}"), "desc", permissions: perms)).WillBeDiscarded(container);
+            var created = await client.CreateRoleAsync(new($"{TestName()}_role_{guid}", "desc", permissions: perms)).WillBeDiscarded(container);
             await Task.Delay(2 * 1000);     // for update timestamp
             var newperms = new[] { RolePermissions.PageViewOwn, RolePermissions.SettingsManage, };
-            var updated = await client.UpdateRoleAsync(created.id, new(testName($"upd-role_{guid}"), "upd-desc", permissions: newperms));
+            var updated = await client.UpdateRoleAsync(created.id, new($"{TestName()}_upd-role_{guid}", "upd-desc", permissions: newperms));
             updated.id.Should().Be(created.id);
-            updated.display_name.Should().Be(testName($"upd-role_{guid}"));
+            updated.display_name.Should().Be($"{TestName()}_upd-role_{guid}");
             updated.description.Should().Be("upd-desc");
             updated.mfa_enforced.Should().Be(created.mfa_enforced);
             updated.permissions.Should().BeEquivalentTo(newperms);
@@ -193,11 +193,11 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         }
         {// 
             var guid = Guid.NewGuid().ToString();
-            var created = await client.CreateRoleAsync(new(testName($"role_{guid}"))).WillBeDiscarded(container);
-            var user1 = await client.CreateUserAsync(new(testName($"user1_{guid}"), $"user1-{guid}@example.com", roles: new[] { created.id, })).WillBeDiscarded(container);
-            var user2 = await client.CreateUserAsync(new(testName($"user2_{guid}"), $"user2-{guid}@example.com", roles: new[] { created.id, })).WillBeDiscarded(container);
-            var user3 = await client.CreateUserAsync(new(testName($"user3_{guid}"), $"user3-{guid}@example.com")).WillBeDiscarded(container);
-            var user4 = await client.CreateUserAsync(new(testName($"user4_{guid}"), $"user4-{guid}@example.com")).WillBeDiscarded(container);
+            var created = await client.CreateRoleAsync(new($"{TestName()}_role_{guid}")).WillBeDiscarded(container);
+            var user1 = await client.CreateUserAsync(new($"{TestName()}_user1_{guid}", $"user1-{guid}@example.com", roles: new[] { created.id, })).WillBeDiscarded(container);
+            var user2 = await client.CreateUserAsync(new($"{TestName()}_user2_{guid}", $"user2-{guid}@example.com", roles: new[] { created.id, })).WillBeDiscarded(container);
+            var user3 = await client.CreateUserAsync(new($"{TestName()}_user3_{guid}", $"user3-{guid}@example.com")).WillBeDiscarded(container);
+            var user4 = await client.CreateUserAsync(new($"{TestName()}_user4_{guid}", $"user4-{guid}@example.com")).WillBeDiscarded(container);
 
             var updated = await client.UpdateRoleAsync(created.id, new());
             updated.id.Should().Be(created.id);
@@ -215,7 +215,7 @@ public class BookStackClientRolesTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         {
-            var role = await client.CreateRoleAsync(new(testName("aaa")));
+            var role = await client.CreateRoleAsync(new($"{TestName()}_aaa"));
             (await client.ListRolesAsync(new(filters: [new(nameof(RoleSummary.id), $"{role.id}")]))).data.Should().Contain(d => d.id == role.id);
             await client.DeleteRoleAsync(role.id);
             (await client.ListRolesAsync(new(filters: [new(nameof(RoleSummary.id), $"{role.id}")]))).data.Should().NotContain(d => d.id == role.id);

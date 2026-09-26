@@ -13,12 +13,12 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
         // test call & validate
         await using var container = new TestResourceContainer(client);
         var now = DateTime.UtcNow;
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
-        var page_in_book = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage_in_book"), "in_book")).WillBeDiscarded(container);
-        var page_in_chapter = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, testName("testpage_in_chapter"), "in_chapter")).WillBeDiscarded(container);
-        var shelf_has_book = await client.CreateShelfAsync(new(testName("testshelf_has_book"), books: new[] { book.id, })).WillBeDiscarded(container);
-        var shelf_no_book = await client.CreateShelfAsync(new(testName("testshelf_no_book"))).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter")).WillBeDiscarded(container);
+        var page_in_book = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_testpage_in_book", "in_book")).WillBeDiscarded(container);
+        var page_in_chapter = await client.CreateMarkdownPageInChapterAsync(new(chapter.id, $"{TestName()}_testpage_in_chapter", "in_chapter")).WillBeDiscarded(container);
+        var shelf_has_book = await client.CreateShelfAsync(new($"{TestName()}_testshelf_has_book", books: new[] { book.id, })).WillBeDiscarded(container);
+        var shelf_no_book = await client.CreateShelfAsync(new($"{TestName()}_testshelf_no_book")).WillBeDiscarded(container);
 
         // デフォルトテンプレートIDを付けておく
         await using (var adapter = new TestBackendAdapter())
@@ -209,7 +209,7 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var shelf = await client.CreateShelfAsync(new(testName("testshelf"))).WillBeDiscarded(container);
+        var shelf = await client.CreateShelfAsync(new($"{TestName()}_testshelf")).WillBeDiscarded(container);
         await client.DeleteShelfAsync(shelf.id);
 
         var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "bookshelf"), new("deletable_id", $"{shelf.id}"),]));
@@ -229,7 +229,7 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
         await client.DeleteBookAsync(book.id);
 
         var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "book"), new("deletable_id", $"{book.id}"),]));
@@ -249,8 +249,8 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter")).WillBeDiscarded(container);
         await client.DeleteChapterAsync(chapter.id);
 
         var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "chapter"), new("deletable_id", $"{chapter.id}"),]));
@@ -270,8 +270,8 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage"), "in_book")).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_testpage", "in_book")).WillBeDiscarded(container);
         await client.DeletePageAsync(page.id);
 
         var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "page"), new("deletable_id", $"{page.id}"),]));
@@ -291,7 +291,7 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var shelf = await client.CreateShelfAsync(new(testName("testshelf"))).WillBeDiscarded(container);
+        var shelf = await client.CreateShelfAsync(new($"{TestName()}_testshelf")).WillBeDiscarded(container);
         await client.DeleteShelfAsync(shelf.id);
 
         var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "bookshelf"), new("deletable_id", $"{shelf.id}"),]));
@@ -311,7 +311,7 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
         await client.DeleteBookAsync(book.id);
 
         var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "book"), new("deletable_id", $"{book.id}"),]));
@@ -331,8 +331,8 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var chapter = await client.CreateChapterAsync(new(book.id, testName("testchapter"))).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var chapter = await client.CreateChapterAsync(new(book.id, $"{TestName()}_testchapter")).WillBeDiscarded(container);
         await client.DeleteChapterAsync(chapter.id);
 
         var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "chapter"), new("deletable_id", $"{chapter.id}"),]));
@@ -352,8 +352,8 @@ public class BookStackClientRecycleBinTests : BookStackClientTestsBase
 
         // test call & validate
         await using var container = new TestResourceContainer(client);
-        var book = await client.CreateBookAsync(new(testName("testbook"))).WillBeDiscarded(container);
-        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, testName("testpage"), "in_book")).WillBeDiscarded(container);
+        var book = await client.CreateBookAsync(new($"{TestName()}_testbook")).WillBeDiscarded(container);
+        var page = await client.CreateMarkdownPageInBookAsync(new(book.id, $"{TestName()}_testpage", "in_book")).WillBeDiscarded(container);
         await client.DeletePageAsync(page.id);
 
         var recycles = await client.ListRecycleBinAsync(new(filters: [new("deletable_type", "page"), new("deletable_id", $"{page.id}"),]));
